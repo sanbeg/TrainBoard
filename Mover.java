@@ -33,41 +33,27 @@ public class Mover extends Application
         primaryStage.getScene().setCursor(javafx.scene.Cursor.HAND);
         
         // Fill the Canvas with a Blue rectnagle when the user double-clicks
-        canvas.addEventHandler(MouseEvent.MOUSE_CLICKED, 
-                               new EventHandler<MouseEvent>() {
-                                   @Override
-                                       public void handle(MouseEvent t) {            
-                                       if (t.getClickCount() >1 && t.isStillSincePress()) {
-                                           drawShape(gc, t);
-                                       }  
-                                   }
-                               });
-        canvas.addEventHandler(MouseEvent.MOUSE_PRESSED,
-                               new EventHandler<MouseEvent>() {
-                                   @Override public void handle(MouseEvent t) {
-                                       if (t.getClickCount() == 1) {
-                                           liftShape(gc, t, Color.BLUE);
-                                           press.x = t.getX();
-                                           press.y = t.getY();
-                                       }
-                                   }
-                                   
-                               });
+        canvas.addEventHandler(MouseEvent.MOUSE_CLICKED, (MouseEvent t) -> {            
+                if (t.getClickCount() >1 && t.isStillSincePress()) {
+                    drawShape(gc, t);
+                }  
+            });
+
+        canvas.addEventHandler(MouseEvent.MOUSE_PRESSED, (MouseEvent t) -> {
+                if (t.getClickCount() == 1) {
+                    liftShape(gc, t, Color.BLUE);
+                    press.x = t.getX();
+                    press.y = t.getY();
+                }
+            });
         
-        canvas.addEventHandler(MouseEvent.MOUSE_RELEASED,
-                               new EventHandler<MouseEvent>() {
-                                   @Override public void handle(MouseEvent t) {
-                                       releaseShape(gc);
-                                   }
-                               });
+        canvas.addEventHandler(MouseEvent.MOUSE_RELEASED, (MouseEvent t) -> {
+                releaseShape(gc);
+            });
         
-        canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, 
-                               new EventHandler<MouseEvent>() {
-                                   @Override
-                                       public void handle(MouseEvent e) {
-                                       moveShape(gc, e, Color.BLUE);
-                                   }
-                               });
+        canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, (MouseEvent e) -> {
+                moveShape(gc, e, Color.BLUE);
+            });
         
     }
 
