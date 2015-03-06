@@ -37,7 +37,7 @@ public class Mover extends Application
                                new EventHandler<MouseEvent>() {
                                    @Override
                                        public void handle(MouseEvent t) {            
-                                       if (t.getClickCount() >1) {
+                                       if (t.getClickCount() >1 && t.isStillSincePress()) {
                                            drawShape(gc, t);
                                        }  
                                    }
@@ -45,10 +45,13 @@ public class Mover extends Application
         canvas.addEventHandler(MouseEvent.MOUSE_PRESSED,
                                new EventHandler<MouseEvent>() {
                                    @Override public void handle(MouseEvent t) {
-                                       liftShape(gc, t, Color.BLUE);
-                                       press.x = t.getX();
-                                       press.y = t.getY();
+                                       if (t.getClickCount() == 1) {
+                                           liftShape(gc, t, Color.BLUE);
+                                           press.x = t.getX();
+                                           press.y = t.getY();
+                                       }
                                    }
+                                   
                                });
         
         canvas.addEventHandler(MouseEvent.MOUSE_RELEASED,
