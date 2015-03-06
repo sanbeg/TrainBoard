@@ -38,9 +38,31 @@ public class Mover extends Application
                                    @Override
                                        public void handle(MouseEvent t) {            
                                        if (t.getClickCount() >1) {
-                                           drawShape(gc, t, Color.GREEN);
-                                           
+                                           drawShape(gc, t);
                                        }  
+                                   }
+                               });
+        canvas.addEventHandler(MouseEvent.MOUSE_PRESSED,
+                               new EventHandler<MouseEvent>() {
+                                   @Override public void handle(MouseEvent t) {
+                                       liftShape(gc, t, Color.BLUE);
+                                       press.x = t.getX();
+                                       press.y = t.getY();
+                                   }
+                               });
+        
+        canvas.addEventHandler(MouseEvent.MOUSE_RELEASED,
+                               new EventHandler<MouseEvent>() {
+                                   @Override public void handle(MouseEvent t) {
+                                       releaseShape(gc);
+                                   }
+                               });
+        
+        canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, 
+                               new EventHandler<MouseEvent>() {
+                                   @Override
+                                       public void handle(MouseEvent e) {
+                                       moveShape(gc, e, Color.BLUE);
                                    }
                                });
         
@@ -60,14 +82,37 @@ public class Mover extends Application
     }
     
     private final List<Point> shapes = new java.util.ArrayList<>();
+    private Point press = new Point(-1, -1);
     
-    private void drawShape(GraphicsContext gc, MouseEvent t, Color fill) {
+    
+    private void drawShape(GraphicsContext gc, MouseEvent t) {
         gc.setStroke(Color.BLUE);
         gc.setLineWidth(5);
 
         double x = t.getX();
         double y = t.getY();
         
+        Point old = findPointAt(x, y);
+
+        gc.setFill(Color.GREEN);
+
+        if (old == null) {
+            gc.fillRoundRect(x-WIDTH/2, y-WIDTH/2, WIDTH, WIDTH, ARC, ARC);
+            shapes.add(new Point(x, y));
+        }
+        else {
+            gc.clearRect(old.x-WIDTH/2, old.y-WIDTH/2, WIDTH, WIDTH);
+            shapes.remove(old);
+
+            for (Point p : shapes) {
+                gc.fillRoundRect(p.x-WIDTH/2, p.y-WIDTH/2, WIDTH, WIDTH, ARC, ARC);
+            }
+        }
+    }
+
+    private Point heldPoint = null;
+    
+    private Point findPointAt(double x, double y) {
         Point old = null;
         double w2 = WIDTH/2;
         
@@ -77,27 +122,54 @@ public class Mover extends Application
                 break;
             }
         }
+        return old;
+    }
+   
+
+    private void liftShape(GraphicsContext gc, MouseEvent t, Color color) 
+    {
+        double x = t.getX();
+        double y = t.getY();
         
-        gc.setFill(fill);
-
-        if (old == null) {
-            gc.fillRoundRect(x-WIDTH/2, y-WIDTH/2, WIDTH, WIDTH, ARC, ARC);
-            shapes.add(new Point(x, y));
+        Point old = findPointAt(x, y);
+        
+        if (old != null) {
+            gc.setFill(color);
+            gc.fillRoundRect(old.x-WIDTH/2, old.y-WIDTH/2, WIDTH, WIDTH, ARC, ARC);
         }
-        else {
-            gc.setFill(Color.GREEN);
-            
-            gc.clearRect(old.x-WIDTH/2, old.y-WIDTH/2, WIDTH, WIDTH);
-            shapes.remove(old);
-
-            //should we fix overlaps?
-            for (Point p : shapes) {
-                gc.fillRoundRect(p.x-WIDTH/2, p.y-WIDTH/2, WIDTH, WIDTH, ARC, ARC);
-            }
-        }
+        heldPoint = old;
     }
     
+    private void releaseShape(GraphicsContext gc) 
+    {
+        if (heldPoint != null) {
+            Point old = heldPoint;
+            gc.setFill(Color.GREEN);
+            gc.fillRoundRect(old.x-WIDTH/2, old.y-WIDTH/2, WIDTH, WIDTH, ARC, ARC);
+            heldPoint = null;
+        }
+    }
 
+    private void moveShape(GraphicsContext gc, MouseEvent t, Color color) {
+        if (heldPoint != null) {
+            Point old = heldPoint;
+            gc.clearRect(old.x-WIDTH/2, old.y-WIDTH/2, WIDTH, WIDTH);
+            gc.setFill(Color.GREEN);
+            
+            for (Point p : shapes) {
+                if (p != old) {
+                    gc.fillRoundRect(p.x-WIDTH/2, p.y-WIDTH/2, WIDTH, WIDTH, ARC, ARC);
+                }
+            }
+            gc.setFill(color);
+            old.x = t.getX();
+            old.y = t.getY();
+            gc.fillRoundRect(old.x-WIDTH/2, old.y-WIDTH/2, WIDTH, WIDTH, ARC, ARC);
+        }
+        
+    }
+    
+    
 }
 
 
