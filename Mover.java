@@ -68,6 +68,15 @@ public class Mover extends Application
             this.x = x;
             this.y = y;
         }
+
+        public boolean covers(double x, double y) {
+            double w2 = WIDTH/2;
+            return (x < this.x+w2 && x > this.x-w2 && y < this.y+w2 && y > this.y-w2);
+        }
+        public boolean overlaps(Point other) {
+            return Math.abs(x - other.x) < WIDTH && Math.abs(y - other.y) < WIDTH;
+        }
+                
     }
     
     private final List<Point> shapes = new java.util.ArrayList<>();
@@ -86,10 +95,12 @@ public class Mover extends Application
         gc.setFill(Color.GREEN);
 
         if (old == null) {
+            //clicked empty spot, add shape
             gc.fillRoundRect(x-WIDTH/2, y-WIDTH/2, WIDTH, WIDTH, ARC, ARC);
             shapes.add(new Point(x, y));
         }
         else {
+            //clicked occupied spot, remove a shape
             gc.clearRect(old.x-WIDTH/2, old.y-WIDTH/2, WIDTH, WIDTH);
             shapes.remove(old);
 
@@ -117,16 +128,12 @@ public class Mover extends Application
 
     private void liftShape(GraphicsContext gc, MouseEvent t, Color color) 
     {
-        double x = t.getX();
-        double y = t.getY();
-        
-        Point old = findPointAt(x, y);
-        
+        Point old = findPointAt(t.getX(), t.getY());
         if (old != null) {
             gc.setFill(color);
             gc.fillRoundRect(old.x-WIDTH/2, old.y-WIDTH/2, WIDTH, WIDTH, ARC, ARC);
+            heldPoint = old;
         }
-        heldPoint = old;
     }
     
     private void releaseShape(GraphicsContext gc) 
@@ -146,9 +153,16 @@ public class Mover extends Application
             gc.setFill(Color.GREEN);
             
             for (Point p : shapes) {
-                if (p != old) {
-                    gc.fillRoundRect(p.x-WIDTH/2, p.y-WIDTH/2, WIDTH, WIDTH, ARC, ARC);
+                if (p == old) continue;
+                if (p.overlaps(old)) {
+                    gc.setFill(Color.RED);
                 }
+                else {
+                    gc.setFill(Color.GREEN);
+                }
+
+                gc.fillRoundRect(p.x-WIDTH/2, p.y-WIDTH/2, WIDTH, WIDTH, ARC, ARC);
+
             }
             gc.setFill(color);
             old.x = t.getX();
