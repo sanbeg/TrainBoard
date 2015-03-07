@@ -5,8 +5,11 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.stage.FileChooser;
+import javafx.event.ActionEvent;
 
 import java.util.List;
+import java.io.File;
 
 public class BoardController {
     
@@ -14,6 +17,7 @@ public class BoardController {
     
     public Pane canvasPane;
     public MenuItem closeItem;
+    public MenuItem saveAsItem;
 
     public BoardController(Stage stage) {
         this.stage = stage;
@@ -48,6 +52,23 @@ public class BoardController {
             });
 
        closeItem.setOnAction((javafx.event.ActionEvent e) -> {stage.close();});
+
+       final FileChooser fileChooser = new FileChooser();
+       fileChooser.getExtensionFilters().addAll(
+                                                new FileChooser.ExtensionFilter("XML Files", "*.xml"),
+                                                new FileChooser.ExtensionFilter("All Files", "*.*")
+                                                );
+       fileChooser.setTitle("Save Layout");
+       
+       saveAsItem.setOnAction((ActionEvent e) -> {
+               //File file = fileChooser.showOpenDialog(stage);
+               File file = fileChooser.showSaveDialog(stage);
+               if (file != null) {
+                   System.out.println(file.getName());
+               }
+           });
+       
+
     }
 
 
