@@ -1,5 +1,6 @@
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.MenuItem;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -12,7 +13,8 @@ public class BoardController {
     private final Stage stage;
     
     public Pane canvasPane;
-    
+    public MenuItem closeItem;
+
     public BoardController(Stage stage) {
         this.stage = stage;
     }
@@ -44,7 +46,8 @@ public class BoardController {
         canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, (MouseEvent e) -> {
                 moveShape(gc, e, Color.BLUE);
             });
-        
+
+       closeItem.setOnAction((javafx.event.ActionEvent e) -> {stage.close();});
     }
 
 
