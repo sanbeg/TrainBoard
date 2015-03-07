@@ -16,15 +16,19 @@ public class BoardController {
     private final Stage stage;
     
     public Pane canvasPane;
-    public MenuItem closeItem;
+
+    public MenuItem newItem;
+    public MenuItem openItem;
+    public MenuItem saveItem;
     public MenuItem saveAsItem;
+    public MenuItem closeItem;
 
     public BoardController(Stage stage) {
         this.stage = stage;
     }
     
     public void initialize() {
-        Canvas canvas = new Canvas(800, 400);
+        final Canvas canvas = new Canvas(800, 400);
         GraphicsContext gc = canvas.getGraphicsContext2D();
 
         canvasPane.getChildren().add(canvas);
@@ -58,10 +62,22 @@ public class BoardController {
                                                 new FileChooser.ExtensionFilter("XML Files", "*.xml"),
                                                 new FileChooser.ExtensionFilter("All Files", "*.*")
                                                 );
-       fileChooser.setTitle("Save Layout");
        
+       newItem.setOnAction((ActionEvent e) -> {
+               resetBoard(gc, canvas);
+           });
+       
+       
+       openItem.setOnAction((ActionEvent e) -> {
+               fileChooser.setTitle("Open Layout");
+               File file = fileChooser.showOpenDialog(stage);
+               if (file != null) {
+                   System.out.println(file.getName());
+               }
+           });
+
        saveAsItem.setOnAction((ActionEvent e) -> {
-               //File file = fileChooser.showOpenDialog(stage);
+               fileChooser.setTitle("Save Layout");
                File file = fileChooser.showSaveDialog(stage);
                if (file != null) {
                    System.out.println(file.getName());
@@ -98,7 +114,16 @@ public class BoardController {
     private final List<Point> shapes = new java.util.ArrayList<>();
     private Point press = new Point(-1, -1);
     
+    private void resetBoard(GraphicsContext gc, Canvas canvas) 
+    {
+        press.x = press.y = -1;
+        shapes.clear();
+        
+        gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+    }
     
+
+
     private void drawShape(GraphicsContext gc, MouseEvent t) {
         gc.setStroke(Color.BLUE);
         gc.setLineWidth(5);
