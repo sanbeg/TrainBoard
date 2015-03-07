@@ -2,15 +2,28 @@
  
 import javafx.application.Application;
 import javafx.scene.Group;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.layout.Pane;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.ArcType;
+import javafx.scene.control.MenuItem;
+
 import javafx.stage.Stage;
  
 import javafx.event.EventHandler;
 import javafx.scene.input.MouseEvent;
+
+import javafx.fxml.Initializable;
+import javafx.fxml.FXML;
+
+import javafx.fxml.FXMLLoader;
+import java.io.IOException;
+import java.net.URL;
+import java.util.ResourceBundle;
+
 
 public class BasicOpsTest extends Application {
  
@@ -26,40 +39,59 @@ public class BasicOpsTest extends Application {
     
     private static final double ERASE_SIZE = 8;
 
+    private static final boolean USE_FXML = true;
+    
+    //from FXML
+    public Pane canvasPane; 
+    public MenuItem closeItem;
+
+    private Stage stage;
+    
     @Override
-    public void start(Stage primaryStage) {
+    public void start(Stage primaryStage) throws IOException {
         primaryStage.setTitle("Drawing Operations Test");
-        Group root = new Group();
+
+        final Parent root;
+        if (USE_FXML) {
+            FXMLLoader fxml = new FXMLLoader(getClass().getResource("jtest.fxml"));
+            fxml.setController(this);
+            root = fxml.load();
+        }
+        else {
+            Group group = new Group();
+            canvasPane = new Pane();
+            group.getChildren().add(canvasPane);
+            root = group;
+            initialize();
+        }
+        
+
+        primaryStage.setScene(new Scene(root));
+        primaryStage.getScene().setCursor(javafx.scene.Cursor.HAND);
+        primaryStage.show();
+        stage = primaryStage;
+    }
+    
+    public void initialize() {
+        Pane root = canvasPane;
+
         Canvas canvas = new Canvas(800, 400);
         GraphicsContext gc = canvas.getGraphicsContext2D();
         drawShapes(gc);
         root.getChildren().add(canvas);
-        primaryStage.setScene(new Scene(root));
-        primaryStage.show();
-        primaryStage.getScene().setCursor(javafx.scene.Cursor.HAND);
-        
-        //intertact demo - clear on mouse
-    // Clear away portions as the user drags the mouse
-       canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, 
-       new EventHandler<MouseEvent>() {
-           @Override
-           public void handle(MouseEvent e) {
+
+        canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, (MouseEvent e) -> {
                gc.clearRect(e.getX() - ERASE_SIZE/2, e.getY() - ERASE_SIZE/2, ERASE_SIZE, ERASE_SIZE);
-           }
        });
  
-    // Fill the Canvas with a Blue rectnagle when the user double-clicks
-       canvas.addEventHandler(MouseEvent.MOUSE_CLICKED, 
-        new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent t) {            
+        canvas.addEventHandler(MouseEvent.MOUSE_CLICKED, (MouseEvent t) -> {            
                 if (t.getClickCount() >1) {
                     reset(canvas, Color.ALICEBLUE);
                     drawShapes(gc);
                 }  
-            }
-        });
+            });
 
+       closeItem.setOnAction((javafx.event.ActionEvent e) -> {stage.close();});
     }
 
     private void drawShapes(GraphicsContext gc) {
@@ -89,4 +121,5 @@ public class BasicOpsTest extends Application {
         gc.strokePolyline(new double[]{110, 140, 110, 140},
                           new double[]{210, 210, 240, 240}, 4);
     }
+
 }
