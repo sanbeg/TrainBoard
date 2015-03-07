@@ -10,6 +10,10 @@ import javafx.event.ActionEvent;
 
 import java.util.List;
 import java.io.File;
+import java.io.IOException;
+
+import javax.xml.bind.JAXB;
+import javax.xml.bind.annotation.XmlAttribute;
 
 public class BoardController {
     
@@ -67,20 +71,25 @@ public class BoardController {
                resetBoard(gc, canvas);
            });
        
-       
        openItem.setOnAction((ActionEvent e) -> {
                fileChooser.setTitle("Open Layout");
                File file = fileChooser.showOpenDialog(stage);
                if (file != null) {
+                   resetBoard(gc, canvas);
                    System.out.println(file.getName());
+                   SavedBoard sb = JAXB.unmarshal(file, SavedBoard.class);
+                   shapes.addAll(sb.tracks);
+                   redraw(gc);
                }
            });
 
-       saveAsItem.setOnAction((ActionEvent e) -> {
+       saveAsItem.setOnAction((ActionEvent ev) -> {
                fileChooser.setTitle("Save Layout");
                File file = fileChooser.showSaveDialog(stage);
                if (file != null) {
                    System.out.println(file.getName());
+                   JAXB.marshal(savedBoard, file);
+                   
                }
            });
        
@@ -100,7 +109,11 @@ public class BoardController {
             this.x = x;
             this.y = y;
         }
-
+        public Point() 
+        {
+            this.x = this.y = -1;
+        }
+        
         public boolean covers(double x, double y) {
             double w2 = WIDTH/2;
             return (x < this.x+w2 && x > this.x-w2 && y < this.y+w2 && y > this.y-w2);
@@ -113,6 +126,21 @@ public class BoardController {
     
     private final List<Point> shapes = new java.util.ArrayList<>();
     private Point press = new Point(-1, -1);
+
+    private static class SavedBoard 
+    {
+        public List<Point> tracks;
+        public SavedBoard(List<Point> points) 
+        {
+            tracks = points;
+        }
+        public SavedBoard() 
+        {
+        }
+        
+    }
+
+    private final SavedBoard savedBoard = new SavedBoard(shapes);
     
     private void resetBoard(GraphicsContext gc, Canvas canvas) 
     {
@@ -123,7 +151,17 @@ public class BoardController {
     }
     
 
+    private void redraw(GraphicsContext gc) 
+    {
+        gc.setFill(Color.GREEN);
+        
+        for (Point p : shapes) {
+            gc.fillRoundRect(p.x-WIDTH/2, p.y-WIDTH/2, WIDTH, WIDTH, ARC, ARC);
+        }
 
+    }
+    
+                
     private void drawShape(GraphicsContext gc, MouseEvent t) {
         gc.setStroke(Color.BLUE);
         gc.setLineWidth(5);
