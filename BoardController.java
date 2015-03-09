@@ -27,11 +27,29 @@ public class BoardController {
     public MenuItem saveAsItem;
     public MenuItem closeItem;
 
-    public BoardController(Stage stage) {
+    public BoardController(Stage stage, File file) {
         this.stage = stage;
+        this.file = file;
+    }
+
+    private File file = null;
+    
+    private static final String TITLE_PREFIX = "Drawing Operations Test";
+
+    private void updateFile(File file, FileChooser chooser) {
+        this.file = file;
+        saveItem.setDisable(file==null);
+        stage.setTitle(String.format("%s - %s", TITLE_PREFIX, file.getName()));
+        
+        File parent = file.getParentFile();
+        if (parent != null) {
+            chooser.setInitialDirectory(parent);
+        }
     }
     
     public void initialize() {
+        stage.setTitle(TITLE_PREFIX);
+
         final Canvas canvas = new Canvas(800, 400);
         GraphicsContext gc = canvas.getGraphicsContext2D();
 
@@ -67,29 +85,50 @@ public class BoardController {
                                                 new FileChooser.ExtensionFilter("All Files", "*.*")
                                                 );
        
+       if (file != null) {
+           updateFile(file, fileChooser);
+           SavedBoard sb = JAXB.unmarshal(file, SavedBoard.class);
+           if (sb.tracks != null) {
+               shapes.addAll(sb.tracks);
+               redraw(gc);
+           }
+       }
+       
+
        newItem.setOnAction((ActionEvent e) -> {
                resetBoard(gc, canvas);
+               file = null;
+               saveItem.setDisable(true);
+               stage.setTitle(TITLE_PREFIX);
            });
        
        openItem.setOnAction((ActionEvent e) -> {
                fileChooser.setTitle("Open Layout");
                File file = fileChooser.showOpenDialog(stage);
                if (file != null) {
+                   updateFile(file, fileChooser);
                    resetBoard(gc, canvas);
-                   System.out.println(file.getName());
                    SavedBoard sb = JAXB.unmarshal(file, SavedBoard.class);
-                   shapes.addAll(sb.tracks);
-                   redraw(gc);
+                   if (sb.tracks != null) {
+                       shapes.addAll(sb.tracks);
+                       redraw(gc);
+                   }
                }
            });
+
+       saveItem.setOnAction((ActionEvent ev) -> {
+               if (file != null) {
+                   JAXB.marshal(savedBoard, file);
+               }
+           });
+               
 
        saveAsItem.setOnAction((ActionEvent ev) -> {
                fileChooser.setTitle("Save Layout");
                File file = fileChooser.showSaveDialog(stage);
                if (file != null) {
-                   System.out.println(file.getName());
+                   updateFile(file, fileChooser);
                    JAXB.marshal(savedBoard, file);
-                   
                }
            });
        
