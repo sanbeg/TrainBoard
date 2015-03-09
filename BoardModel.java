@@ -1,0 +1,181 @@
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
+
+import java.util.List;
+
+public class BoardModel 
+{
+    private static final double WIDTH = 30;
+    private static final double ARC   = WIDTH/3;
+    
+    public static class Point 
+    {
+        public double x;
+        public double y;
+        public Point(double x, double y) {
+            this.x = x;
+            this.y = y;
+        }
+        public Point() 
+        {
+            this.x = this.y = -1;
+        }
+        
+        public boolean covers(double x, double y) {
+            double w2 = WIDTH/2;
+            return (x < this.x+w2 && x > this.x-w2 && y < this.y+w2 && y > this.y-w2);
+        }
+        public boolean overlaps(Point other) {
+            return Math.abs(x - other.x) < WIDTH && Math.abs(y - other.y) < WIDTH;
+        }
+                
+    }
+    
+    public final List<Point> shapes = new java.util.ArrayList<>();
+
+    
+    public void redraw(GraphicsContext gc) 
+    {
+        gc.setFill(Color.GREEN);
+        
+        for (Point p : shapes) {
+            gc.fillRoundRect(p.x-WIDTH/2, p.y-WIDTH/2, WIDTH, WIDTH, ARC, ARC);
+        }
+    }
+    
+                
+    public void drawShape(GraphicsContext gc, double x, double y) {
+        gc.setStroke(Color.BLUE);
+        gc.setLineWidth(5);
+        
+        Point old = findPointAt(x, y);
+
+        gc.setFill(Color.GREEN);
+
+        if (old == null) {
+            //clicked empty spot, add shape
+            Point p = new Point(x,y);
+            snapShape(gc, p);
+            gc.fillRoundRect(p.x-WIDTH/2, p.y-WIDTH/2, WIDTH, WIDTH, ARC, ARC);
+            shapes.add(p);
+        }
+        else {
+            //clicked occupied spot, remove a shape
+            gc.clearRect(old.x-WIDTH/2, old.y-WIDTH/2, WIDTH, WIDTH);
+            shapes.remove(old);
+
+            for (Point p : shapes) {
+                gc.fillRoundRect(p.x-WIDTH/2, p.y-WIDTH/2, WIDTH, WIDTH, ARC, ARC);
+            }
+        }
+    }
+
+    private Point heldPoint = null;
+    
+    public Point findPointAt(double x, double y) {
+        Point old = null;
+        double w2 = WIDTH/2;
+        
+        for (Point p : shapes) {
+            if (p.covers(x, y)) {
+                old = p;
+                break;
+            }
+        }
+        return old;
+    }
+   
+
+    public void liftShape(GraphicsContext gc, double x, double y, Color color) 
+    {
+        Point old = findPointAt(x, y);
+        if (old != null) {
+            gc.setFill(color);
+            gc.fillRoundRect(old.x-WIDTH/2, old.y-WIDTH/2, WIDTH, WIDTH, ARC, ARC);
+            heldPoint = old;
+        }
+    }
+    
+    public void snapShape(GraphicsContext gc, Point old) {
+        /*
+         * If moved to overlap, push out of the way.
+         * should handle multiple overlap, avoid putting 2 in same place.
+         */
+
+        gc.setFill(Color.GREEN);
+        Point ov = null;
+        boolean clear=false;
+        
+        for (Point p : shapes) {
+            if (p != old && p.overlaps(old)) {
+                ov = p;
+                //TODO - keep best overlap (by min dist moved, etc)
+                //break;
+                if (!clear) {
+                    gc.clearRect(old.x-WIDTH/2, old.y-WIDTH/2, WIDTH, WIDTH);
+                    clear = true;
+                }
+                
+                gc.fillRoundRect(ov.x-WIDTH/2, ov.y-WIDTH/2, WIDTH, WIDTH, ARC, ARC);
+            }
+        }
+        if (ov != null) {
+            double xd = Math.abs(old.x - ov.x);
+            double yd = Math.abs(old.y - ov.y);
+
+            if (xd < yd) {
+                old.x = ov.x;
+                old.y = (old.y > ov.y) ? ov.y+WIDTH : ov.y-WIDTH;
+            }
+            else {
+                old.y = ov.y;
+                old.x = (old.x > ov.x) ? ov.x+WIDTH : ov.x-WIDTH;
+            }
+        }
+
+    }
+    
+
+    public void releaseShape(GraphicsContext gc) 
+    {
+        if (heldPoint != null) {
+            Point old = heldPoint;
+            snapShape(gc, old);
+
+            gc.setFill(Color.GREEN);
+            gc.fillRoundRect(old.x-WIDTH/2, old.y-WIDTH/2, WIDTH, WIDTH, ARC, ARC);
+
+            heldPoint = null;
+        }
+    }
+
+    public void moveShape(GraphicsContext gc, double x, double y, Color color) {
+        if (heldPoint != null) {
+            Point old = heldPoint;
+            gc.clearRect(old.x-WIDTH/2, old.y-WIDTH/2, WIDTH, WIDTH);
+            gc.setFill(Color.GREEN);
+            
+            for (Point p : shapes) {
+                if (p == old) continue;
+                if (p.overlaps(old)) {
+                    gc.setFill(Color.RED);
+                }
+                else {
+                    gc.setFill(Color.GREEN);
+                }
+
+                gc.fillRoundRect(p.x-WIDTH/2, p.y-WIDTH/2, WIDTH, WIDTH, ARC, ARC);
+
+            }
+            gc.setFill(color);
+            old.x = x;
+            old.y = y;
+            gc.fillRoundRect(old.x-WIDTH/2, old.y-WIDTH/2, WIDTH, WIDTH, ARC, ARC);
+        }
+        
+    }
+
+
+}
+
+    
