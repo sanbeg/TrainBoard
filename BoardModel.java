@@ -29,6 +29,16 @@ public class BoardModel
             return Math.abs(x - other.x) < WIDTH && Math.abs(y - other.y) < WIDTH;
         }
                 
+	public void draw(GraphicsContext gc, Color color) 
+	{
+	    gc.setFill(color);
+	    gc.fillRoundRect(x-WIDTH/2, y-WIDTH/2, WIDTH, WIDTH, ARC, ARC);
+	}
+	public void erase(GraphicsContext gc) 
+	{
+            gc.clearRect(x-WIDTH/2, y-WIDTH/2, WIDTH, WIDTH);
+	}
+	
     }
     
     public final List<Point> shapes = new java.util.ArrayList<>();
@@ -36,36 +46,29 @@ public class BoardModel
     
     public void redraw(GraphicsContext gc) 
     {
-        gc.setFill(Color.GREEN);
-        
         for (Point p : shapes) {
-            gc.fillRoundRect(p.x-WIDTH/2, p.y-WIDTH/2, WIDTH, WIDTH, ARC, ARC);
+	    p.draw(gc, Color.GREEN);
         }
     }
     
                 
     public void drawShape(GraphicsContext gc, double x, double y) {
-        gc.setStroke(Color.BLUE);
-        gc.setLineWidth(5);
-        
         Point old = findPointAt(x, y);
-
-        gc.setFill(Color.GREEN);
 
         if (old == null) {
             //clicked empty spot, add shape
             Point p = new Point(x,y);
             snapShape(gc, p);
-            gc.fillRoundRect(p.x-WIDTH/2, p.y-WIDTH/2, WIDTH, WIDTH, ARC, ARC);
-            shapes.add(p);
+	    p.draw(gc, Color.GREEN);
+	    shapes.add(p);
         }
         else {
             //clicked occupied spot, remove a shape
-            gc.clearRect(old.x-WIDTH/2, old.y-WIDTH/2, WIDTH, WIDTH);
+	    old.erase(gc);
             shapes.remove(old);
 
             for (Point p : shapes) {
-                gc.fillRoundRect(p.x-WIDTH/2, p.y-WIDTH/2, WIDTH, WIDTH, ARC, ARC);
+		p.draw(gc, Color.GREEN);
             }
         }
     }
@@ -90,8 +93,7 @@ public class BoardModel
     {
         Point old = findPointAt(x, y);
         if (old != null) {
-            gc.setFill(color);
-            gc.fillRoundRect(old.x-WIDTH/2, old.y-WIDTH/2, WIDTH, WIDTH, ARC, ARC);
+	    old.draw(gc, color);
             heldPoint = old;
         }
     }
@@ -112,11 +114,10 @@ public class BoardModel
                 //TODO - keep best overlap (by min dist moved, etc)
                 //break;
                 if (!clear) {
-                    gc.clearRect(old.x-WIDTH/2, old.y-WIDTH/2, WIDTH, WIDTH);
+		    old.erase(gc);
                     clear = true;
                 }
-                
-                gc.fillRoundRect(ov.x-WIDTH/2, ov.y-WIDTH/2, WIDTH, WIDTH, ARC, ARC);
+                ov.draw(gc, Color.GREEN);
             }
         }
         if (ov != null) {
@@ -141,10 +142,7 @@ public class BoardModel
         if (heldPoint != null) {
             Point old = heldPoint;
             snapShape(gc, old);
-
-            gc.setFill(Color.GREEN);
-            gc.fillRoundRect(old.x-WIDTH/2, old.y-WIDTH/2, WIDTH, WIDTH, ARC, ARC);
-
+            old.draw(gc, Color.GREEN);
             heldPoint = null;
         }
     }
@@ -152,25 +150,24 @@ public class BoardModel
     public void moveShape(GraphicsContext gc, double x, double y, Color color) {
         if (heldPoint != null) {
             Point old = heldPoint;
-            gc.clearRect(old.x-WIDTH/2, old.y-WIDTH/2, WIDTH, WIDTH);
+	    old.erase(gc);
             gc.setFill(Color.GREEN);
             
             for (Point p : shapes) {
                 if (p == old) continue;
+		Color pcolor;
+		
                 if (p.overlaps(old)) {
-                    gc.setFill(Color.RED);
+                    pcolor = Color.RED;
                 }
                 else {
-                    gc.setFill(Color.GREEN);
+                    pcolor = Color.GREEN;
                 }
-
-                gc.fillRoundRect(p.x-WIDTH/2, p.y-WIDTH/2, WIDTH, WIDTH, ARC, ARC);
-
+		p.draw(gc, pcolor);
             }
-            gc.setFill(color);
             old.x = x;
             old.y = y;
-            gc.fillRoundRect(old.x-WIDTH/2, old.y-WIDTH/2, WIDTH, WIDTH, ARC, ARC);
+	    old.draw(gc, color);
         }
         
     }
