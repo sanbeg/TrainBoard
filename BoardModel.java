@@ -31,12 +31,23 @@ public class BoardModel
                 
 	public void draw(GraphicsContext gc, Color color) 
 	{
+	    //Affine transform = gc.getTransform();
+	    gc.save();
+	    gc.translate(x, y);
+	    
+	    gc.setFill(Color.SLATEGREY);
+	    gc.fillRoundRect(-WIDTH/2, -WIDTH/2, WIDTH, WIDTH, ARC, ARC);
 	    gc.setFill(color);
-	    gc.fillRoundRect(x-WIDTH/2, y-WIDTH/2, WIDTH, WIDTH, ARC, ARC);
+	    gc.fillOval(-2, -2, 4.0, 4.0);
+	    //gc.setTransform(transform);
+	    gc.restore();
 	}
 	public void erase(GraphicsContext gc) 
 	{
-            gc.clearRect(x-WIDTH/2, y-WIDTH/2, WIDTH, WIDTH);
+	    gc.save();
+	    gc.translate(x, y);
+            gc.clearRect(-WIDTH/2, -WIDTH/2, WIDTH, WIDTH);
+	    gc.restore();
 	}
 	
     }
