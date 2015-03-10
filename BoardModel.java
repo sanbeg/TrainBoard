@@ -64,24 +64,20 @@ public class BoardModel
     
                 
     public void drawShape(GraphicsContext gc, double x, double y) {
-        Point old = findPointAt(x, y);
+	Point p = new Point(x,y);
+	snapShape(gc, p);
+	p.draw(gc, Color.GREEN);
+	shapes.add(p);
+    }
+    
+    public void eraseShape(GraphicsContext gc, Point old) 
+    {
+	old.erase(gc);
+	shapes.remove(old);
 
-        if (old == null) {
-            //clicked empty spot, add shape
-            Point p = new Point(x,y);
-            snapShape(gc, p);
+	for (Point p : shapes) {
 	    p.draw(gc, Color.GREEN);
-	    shapes.add(p);
-        }
-        else {
-            //clicked occupied spot, remove a shape
-	    old.erase(gc);
-            shapes.remove(old);
-
-            for (Point p : shapes) {
-		p.draw(gc, Color.GREEN);
-            }
-        }
+	}
     }
 
     private Point heldPoint = null;

@@ -59,7 +59,16 @@ public class BoardController {
 
         canvas.addEventHandler(MouseEvent.MOUSE_CLICKED, (MouseEvent t) -> {            
                 if (t.getClickCount() >1 && t.isStillSincePress()) {
-                    model.drawShape(gc, t.getX(), t.getY());
+		    BoardModel.Point point = model.findPointAt(t.getX(), t.getY());
+		    if (point == null) {
+			//clicked empty spot, add shape
+			model.drawShape(gc, t.getX(), t.getY());
+		    } else {
+			//clicked occupied spot, remove a shape
+			model.eraseShape(gc, point);
+		    }
+		    
+		     
                 }  
             });
 
