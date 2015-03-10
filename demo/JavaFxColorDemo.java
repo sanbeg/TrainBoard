@@ -1,6 +1,5 @@
 //package dustin.examples;
 
-import static java.lang.System.err;
 import java.lang.reflect.Field;
 import javafx.application.Application;
 import javafx.event.EventHandler;
@@ -31,15 +30,12 @@ public class JavaFxColorDemo extends Application
    /** Height of rectangle that displays color. */
    private final static int COLOR_RECT_HEIGHT = 25;
 
-   private final TextField redField = TextFieldBuilder.create()
-      .text("Red Value").build();
-   private final TextField greenField = TextFieldBuilder.create()
-      .text("Green Value").build();
-   private final TextField blueField = TextFieldBuilder.create()
-      .text("Blue Value").build();
+    private final static String WEB_TEXT = "#fefefe";
+    
+   private final TextField webField = TextFieldBuilder.create().text(WEB_TEXT).build();
    private final Rectangle customColorRectangle = RectangleBuilder.create()
       .width(COLOR_RECT_WIDTH).height(COLOR_RECT_HEIGHT)
-      .fill(Color.WHITE).stroke(Color.BLACK).build();
+       .fill(Color.web(WEB_TEXT)).stroke(Color.BLACK).build();
 
    /**
     * Build a pane containing details about the instance of Color provided.
@@ -57,50 +53,15 @@ public class JavaFxColorDemo extends Application
       colorRectangle.setFill(color);
       colorRectangle.setStroke(Color.BLACK);
       colorBox.getChildren().add(colorRectangle);
-      final String rgbString =
-           String.valueOf(color.getRed())
-         + " / " + String.valueOf(color.getGreen())
-         + " / " + String.valueOf(color.getBlue())
-         + " // " + String.valueOf(color.getOpacity());
+      //add opacticy?
+      String rgbString = String.format("#%X%X%X", 
+                                       (int)(color.getRed()*256),
+                                       (int)(color.getGreen()*256),
+                                       (int)(color.getBlue()*256));
       final Label rgbLabel = new Label(rgbString);
-      rgbLabel.setTooltip(new Tooltip("Red / Green / Blue // Opacity"));
+      
       colorBox.getChildren().add(rgbLabel);
       return colorBox;
-   }
-
-   /**
-    * Extracts a double between 0.0 and 1.0 inclusive from the provided String.
-    * 
-    * @param colorString String from which a double is extracted.
-    * @return Double between 0.0 and 1.0 inclusive based on provided String;
-    *    will be 0.0 if provided String cannot be parsed.
-    */
-   private double extractValidColor(final String colorString)
-   {
-      double colorValue = 0.0;
-      try
-      {
-         colorValue = Double.valueOf(colorString);
-      }
-      catch (Exception exception)
-      {
-         colorValue = 0.0;
-         err.println("Treating '" + colorString + "' as " + colorValue);
-      }
-      finally
-      {
-         if (colorValue < 0)
-         {
-            colorValue = 0.0;
-            err.println("Treating '" + colorString + "' as " + colorValue);
-         }
-         else if (colorValue > 1)
-         {
-            colorValue = 1.0;
-            err.println("Treating '" + colorString + "' as " + colorValue);
-         }
-      }
-      return colorValue;
    }
 
    /**
@@ -118,19 +79,13 @@ public class JavaFxColorDemo extends Application
          @Override
          public void handle(MouseEvent t)
          {
-            final Color customColor =
-               new Color(extractValidColor(redField.getText()),
-                         extractValidColor(greenField.getText()),
-                         extractValidColor(blueField.getText()),
-                         1.0);
-            customColorRectangle.setFill(customColor);
+             Color customColor = Color.web(webField.getText());
+             customColorRectangle.setFill(customColor);
          }
       });
       customBox.getChildren().add(button);
       customBox.getChildren().add(this.customColorRectangle);
-      customBox.getChildren().add(this.redField);
-      customBox.getChildren().add(this.greenField);
-      customBox.getChildren().add(this.blueField);
+      customBox.getChildren().add(this.webField);
       return customBox;
    }
 
@@ -155,7 +110,7 @@ public class JavaFxColorDemo extends Application
             }
             catch (IllegalAccessException illegalAccessEx)
             {
-               err.println(
+               System.err.println(
                   "Securty Manager does not allow access of field '"
                   + field.getName() + "'.");
             }
