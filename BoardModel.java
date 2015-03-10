@@ -5,13 +5,13 @@ import java.util.List;
 
 public class BoardModel 
 {
-    private static final double WIDTH = 30;
-    private static final double ARC   = WIDTH/3;
     
     public static class Point 
     {
         public double x;
         public double y;
+	private final Shape shape = new Shape();
+	
         public Point(double x, double y) {
             this.x = x;
             this.y = y;
@@ -22,23 +22,24 @@ public class BoardModel
         }
         
         public boolean covers(double x, double y) {
-            double w2 = WIDTH/2;
-            return (x < this.x+w2 && x > this.x-w2 && y < this.y+w2 && y > this.y-w2);
+            double w2 = shape.getWidth()/2;
+            return x < this.x+w2 
+		&& x > this.x-w2 
+		&& y < this.y+w2 
+		&& y > this.y-w2;
         }
         public boolean overlaps(Point other) {
-            return Math.abs(x - other.x) < WIDTH && Math.abs(y - other.y) < WIDTH;
+	    double width = (shape.getWidth() + other.shape.getWidth())/2;
+            return Math.abs(x - other.x) < width 
+		&& Math.abs(y - other.y) < width;
         }
-                
+
 	public void draw(GraphicsContext gc, Color color) 
 	{
 	    //Affine transform = gc.getTransform();
 	    gc.save();
 	    gc.translate(x, y);
-	    
-	    gc.setFill(Color.LIGHTGREY);
-	    gc.fillRoundRect(-WIDTH/2, -WIDTH/2, WIDTH, WIDTH, ARC, ARC);
-	    gc.setFill(color);
-	    gc.fillOval(-2, -2, 4.0, 4.0);
+	    shape.draw(gc, color);
 	    //gc.setTransform(transform);
 	    gc.restore();
 	}
@@ -46,14 +47,45 @@ public class BoardModel
 	{
 	    gc.save();
 	    gc.translate(x, y);
-            gc.clearRect(-WIDTH/2, -WIDTH/2, WIDTH, WIDTH);
+	    shape.erase(gc);
 	    gc.restore();
+	}
+
+    }
+
+    public static class Shape {
+	private final double width = 30;
+	private final double arc = width/3;
+	private final double diameter = 4;
+
+	public double getWidth() 
+	{
+	    return width;
+	}
+	
+	public void draw(GraphicsContext gc, Color color) 
+	{
+	    gc.setFill(Color.LIGHTGREY);
+	    gc.fillRoundRect(-width/2, -width/2, width, width, arc, arc);
+	    gc.setFill(color);
+	    gc.fillOval(-diameter/2, -diameter/2, diameter, diameter);
+	}
+	public void erase(GraphicsContext gc) 
+	{
+            gc.clearRect(-width/2, -width/2, width, width);
 	}
 	
     }
     
     public final List<Point> shapes = new java.util.ArrayList<>();
 
+    public void addAllPlaces(List<BoardController.SavedPlace> savedPlaces) 
+    {
+	for (BoardController.SavedPlace sp: savedPlaces) {
+	    Point p = new Point(sp.x, sp.y);
+	    shapes.add(p);
+	}
+    }
     
     public void redraw(GraphicsContext gc) 
     {
@@ -84,7 +116,6 @@ public class BoardModel
     
     public Point findPointAt(double x, double y) {
         Point old = null;
-        double w2 = WIDTH/2;
         
         for (Point p : shapes) {
             if (p.covers(x, y)) {
@@ -130,14 +161,15 @@ public class BoardModel
         if (ov != null) {
             double xd = Math.abs(old.x - ov.x);
             double yd = Math.abs(old.y - ov.y);
-
+	    double width = (old.shape.getWidth()+ov.shape.getWidth())/2;
+	    
             if (xd < yd) {
                 old.x = ov.x;
-                old.y = (old.y > ov.y) ? ov.y+WIDTH : ov.y-WIDTH;
+                old.y = (old.y > ov.y) ? ov.y+width : ov.y-width;
             }
             else {
                 old.y = ov.y;
-                old.x = (old.x > ov.x) ? ov.x+WIDTH : ov.x-WIDTH;
+                old.x = (old.x > ov.x) ? ov.x+width : ov.x-width;
             }
         }
 

@@ -98,7 +98,7 @@ public class BoardController {
            updateFile(file, fileChooser);
            SavedBoard sb = JAXB.unmarshal(file, SavedBoard.class);
            if (sb.tracks != null) {
-               model.shapes.addAll(sb.tracks);
+               model.addAllPlaces(sb.tracks);
                model.redraw(gc);
            }
        }
@@ -119,7 +119,7 @@ public class BoardController {
                    resetBoard(gc, canvas);
                    SavedBoard sb = JAXB.unmarshal(file, SavedBoard.class);
                    if (sb.tracks != null) {
-                       model.shapes.addAll(sb.tracks);
+                       model.addAllPlaces(sb.tracks);
                        model.redraw(gc);
                    }
                }
@@ -127,6 +127,8 @@ public class BoardController {
 
        saveItem.setOnAction((ActionEvent ev) -> {
                if (file != null) {
+		   SavedBoard savedBoard = new SavedBoard();
+		   savedBoard.setAll(model.shapes);
                    JAXB.marshal(savedBoard, file);
                }
            });
@@ -137,6 +139,8 @@ public class BoardController {
                File file = fileChooser.showSaveDialog(stage);
                if (file != null) {
                    updateFile(file, fileChooser);
+		   SavedBoard savedBoard = new SavedBoard();
+		   savedBoard.setAll(model.shapes);
                    JAXB.marshal(savedBoard, file);
                }
            });
@@ -144,20 +148,25 @@ public class BoardController {
 
     }
 
+    public static class SavedPlace
+    {
+	public double x;
+	public double y;
+    }
+    
     private static class SavedBoard 
     {
-        public List<BoardModel.Point> tracks;
-        public SavedBoard(List<BoardModel.Point> points) 
-        {
-            tracks = points;
+        public List<SavedPlace> tracks = new java.util.ArrayList<>();
+	public void setAll(List<BoardModel.Point> points) 
+	{
+	    for (BoardModel.Point place: points) {
+		SavedPlace sp = new SavedPlace();
+		sp.x = place.x;
+		sp.y = place.y;
+		tracks.add(sp);
+	    }
         }
-        public SavedBoard() 
-        {
-        }
-        
     }
-
-    private final SavedBoard savedBoard = new SavedBoard(model.shapes);
 
     private void resetBoard(GraphicsContext gc, Canvas canvas) 
     {
