@@ -45,7 +45,10 @@ public class Mover extends Application
             root = group;
         }
 
-        primaryStage.setScene(new Scene(root));
+        Scene scene = new Scene(root);
+        scene.getStylesheets().add("boardview.css");
+        
+        primaryStage.setScene(scene);
         primaryStage.show();
         primaryStage.getScene().setCursor(Cursor.HAND);
     }

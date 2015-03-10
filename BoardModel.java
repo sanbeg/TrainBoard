@@ -35,7 +35,7 @@ public class BoardModel
 	    gc.save();
 	    gc.translate(x, y);
 	    
-	    gc.setFill(Color.SLATEGREY);
+	    gc.setFill(Color.LIGHTGREY);
 	    gc.fillRoundRect(-WIDTH/2, -WIDTH/2, WIDTH, WIDTH, ARC, ARC);
 	    gc.setFill(color);
 	    gc.fillOval(-2, -2, 4.0, 4.0);
