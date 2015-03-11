@@ -16,10 +16,6 @@ public class BoardModel
             this.x = x;
             this.y = y;
         }
-        public Point() 
-        {
-            this.x = this.y = -1;
-        }
         
         public boolean covers(double x, double y) {
             double w2 = shape.getWidth()/2;
