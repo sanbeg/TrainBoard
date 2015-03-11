@@ -14,6 +14,13 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.RectangleBuilder;
 import javafx.stage.Stage;
+import javafx.collections.ObservableList;
+import javafx.collections.FXCollections;
+import javafx.scene.control.cell.PropertyValueFactory;
+
+import java.util.List;
+import java.util.ArrayList;
+
 
 /**
  * Simple JavaFX 2 application that prints out values of standardly available
@@ -89,6 +96,39 @@ public class JavaFxColorDemo extends Application
       return customBox;
    }
 
+
+    public static class ColorEntry 
+    {
+        private final String name;
+        private final Color color;
+        
+        public ColorEntry(String n, Color c) 
+            {
+                name = n;
+                color = c;
+            }
+        public String getName() 
+            {
+                return name;
+            }
+        public String getWeb() 
+            {
+                return String.format("#%02X%02X%02X", 
+                                       (int)(color.getRed()*0xff),
+                                       (int)(color.getGreen()*0xff),
+                                       (int)(color.getBlue()*0xff));
+            }
+        public Rectangle getColor() 
+            {
+                Rectangle colorRectangle = new Rectangle(COLOR_RECT_WIDTH, COLOR_RECT_HEIGHT);
+                colorRectangle.setFill(color);
+                colorRectangle.setStroke(Color.BLACK);
+                return colorRectangle;
+          }
+    }
+
+    private final ObservableList<ColorEntry> masterData = FXCollections.observableArrayList();
+
    /**
     * Build the main pane indicating JavaFX 2's pre-defined Color instances.
     * 
@@ -96,6 +136,8 @@ public class JavaFxColorDemo extends Application
     */
    private Pane buildColorsPane()
    {
+       List<ColorEntry> list = new ArrayList<>();
+       
       final VBox colorsPane = new VBox();
       final Field[] fields = Color.class.getFields(); // only want public
       for (final Field field : fields)
@@ -107,6 +149,8 @@ public class JavaFxColorDemo extends Application
                final Color color = (Color) field.get(null);
                final String colorName = field.getName();
                colorsPane.getChildren().add(buildColorBox(color, colorName));
+               list.add(new ColorEntry(colorName, color));
+               
             }
             catch (IllegalAccessException illegalAccessEx)
             {
@@ -117,6 +161,7 @@ public class JavaFxColorDemo extends Application
          }
       }
       colorsPane.getChildren().add(buildCustomColorPane());
+      masterData.setAll(list);
       return colorsPane;
    }
 
@@ -135,7 +180,28 @@ public class JavaFxColorDemo extends Application
       scrollPane.setPrefWidth(scene.getWidth());
       scrollPane.setPrefHeight(scene.getHeight());
       scrollPane.setContent(buildColorsPane());
-      rootGroup.getChildren().add(scrollPane);
+
+      //buildColorsPane();
+      
+      TableView<ColorEntry> table = new TableView<>();
+      table.setPrefWidth(scene.getWidth());
+      
+      table.setItems(masterData);
+      
+      TableColumn<ColorEntry, String> nameCol = new TableColumn<>("Name");
+      nameCol.setCellValueFactory(new PropertyValueFactory("name"));
+      TableColumn<ColorEntry, Rectangle> rectCol = new TableColumn<>("Color");
+      rectCol.setCellValueFactory(new PropertyValueFactory("color"));
+      TableColumn<ColorEntry, String> webCol = new TableColumn<>("Web");
+      webCol.setCellValueFactory(new PropertyValueFactory("web"));
+
+      table.getColumns().setAll(nameCol, rectCol, webCol);
+      //scrollPane.setContent(table);
+      
+
+      //rootGroup.getChildren().add(scrollPane);
+      rootGroup.getChildren().add(table);
+      
       stage.setScene(scene);
       stage.setTitle("JavaFX Standard Colors Demonstration");
       stage.show();
