@@ -152,6 +152,7 @@ public class BoardController {
     {
 	public double x;
 	public double y;
+        public String shape;
     }
     
     private static class SavedBoard 
@@ -163,6 +164,7 @@ public class BoardController {
 		SavedPlace sp = new SavedPlace();
 		sp.x = place.x;
 		sp.y = place.y;
+                sp.shape = place.shape.getId();
 		tracks.add(sp);
 	    }
         }

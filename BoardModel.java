@@ -2,6 +2,8 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 public class BoardModel 
 {
@@ -10,11 +12,12 @@ public class BoardModel
     {
         public double x;
         public double y;
-	private final Shape shape = new Shape();
+	public final Shape shape;
 	
-        public Point(double x, double y) {
+        public Point(double x, double y, Shape s) {
             this.x = x;
             this.y = y;
+            this.shape = s;
         }
         
         public boolean covers(double x, double y) {
@@ -48,23 +51,37 @@ public class BoardModel
 	}
 
     }
+    public interface Shape {
+        double getWidth();
+        double getHeight();
+        
+        void draw(GraphicsContext gc, Color color);
+        void erase(GraphicsContext gc);
 
-    public static class Shape {
+        String getId();
+    }
+
+    public static class SolidSquare implements Shape 
+    {
 	private final double width = 30;
 	private final double arc = width/3;
-	private final double diameter = 4;
-
+        
 	public double getWidth() 
 	{
 	    return width;
 	}
-	
+	public double getHeight() {
+            return width;
+        }
+
+        public String getId() {
+            return "solid";
+        }
+        
 	public void draw(GraphicsContext gc, Color color) 
 	{
-	    gc.setFill(Color.LIGHTGREY);
-	    gc.fillRoundRect(-width/2, -width/2, width, width, arc, arc);
 	    gc.setFill(color);
-	    gc.fillOval(-diameter/2, -diameter/2, diameter, diameter);
+	    gc.fillRoundRect(-width/2, -width/2, width, width, arc, arc);
 	}
 	public void erase(GraphicsContext gc) 
 	{
@@ -72,13 +89,37 @@ public class BoardModel
 	}
 	
     }
+
+    public static class MidDot extends SolidSquare {
+	private final double diameter = 4;
+
+        public String getId() {
+            return "middot";
+        }
+        
+	public void draw(GraphicsContext gc, Color color) 
+	{
+            super.draw(gc, Color.LIGHTGREY);
+	    gc.setFill(color);
+	    gc.fillOval(-diameter/2, -diameter/2, diameter, diameter);
+	}
+    }
     
     public final List<Point> shapes = new java.util.ArrayList<>();
+
+    private final Map<String,Shape> ShapesMap = new HashMap<>();
+        {
+            ShapesMap.put("middot", new MidDot());
+            ShapesMap.put("solid", new SolidSquare());
+        }
+    
 
     public void addAllPlaces(List<BoardController.SavedPlace> savedPlaces) 
     {
 	for (BoardController.SavedPlace sp: savedPlaces) {
-	    Point p = new Point(sp.x, sp.y);
+            Shape s = ShapesMap.get(sp.shape);
+            if (s == null) s = new SolidSquare();
+	    Point p = new Point(sp.x, sp.y, s);
 	    shapes.add(p);
 	}
     }
@@ -92,7 +133,7 @@ public class BoardModel
     
                 
     public void drawShape(GraphicsContext gc, double x, double y) {
-	Point p = new Point(x,y);
+	Point p = new Point(x,y, new MidDot());
 	snapShape(gc, p);
 	p.draw(gc, Color.GREEN);
 	shapes.add(p);
