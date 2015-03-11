@@ -22,15 +22,17 @@ public class BoardModel
         
         public boolean covers(double x, double y) {
             double w2 = shape.getWidth()/2;
+            double h2 = shape.getHeight()/2;
             return x < this.x+w2 
 		&& x > this.x-w2 
-		&& y < this.y+w2 
-		&& y > this.y-w2;
+		&& y < this.y+h2 
+		&& y > this.y-h2;
         }
         public boolean overlaps(Point other) {
 	    double width = (shape.getWidth() + other.shape.getWidth())/2;
+	    double height = (shape.getHeight() + other.shape.getHeight())/2;
             return Math.abs(x - other.x) < width 
-		&& Math.abs(y - other.y) < width;
+		&& Math.abs(y - other.y) < height;
         }
 
 	public void draw(GraphicsContext gc, Color color) 
@@ -81,11 +83,11 @@ public class BoardModel
 	public void draw(GraphicsContext gc, Color color) 
 	{
 	    gc.setFill(color);
-	    gc.fillRoundRect(-width/2, -width/2, width, width, arc, arc);
+	    gc.fillRoundRect(-getWidth()/2, -getHeight()/2, getWidth(), getHeight(), arc, arc);
 	}
 	public void erase(GraphicsContext gc) 
 	{
-            gc.clearRect(-width/2, -width/2, width, width);
+            gc.clearRect(-getWidth()/2, -getHeight()/2, getWidth(), getHeight());
 	}
 	
     }
@@ -104,6 +106,15 @@ public class BoardModel
 	    gc.fillOval(-diameter/2, -diameter/2, diameter, diameter);
 	}
     }
+
+    public class Tall extends SolidSquare {
+        public String getId() {
+            return "tall";
+        }
+        public double getHeight() {
+            return getWidth() * 2;
+        }
+    }
     
     public final List<Point> shapes = new java.util.ArrayList<>();
 
@@ -111,6 +122,7 @@ public class BoardModel
         {
             ShapesMap.put("middot", new MidDot());
             ShapesMap.put("solid", new SolidSquare());
+            ShapesMap.put("tall", new Tall());
         }
     
 
@@ -199,10 +211,11 @@ public class BoardModel
             double xd = Math.abs(old.x - ov.x);
             double yd = Math.abs(old.y - ov.y);
 	    double width = (old.shape.getWidth()+ov.shape.getWidth())/2;
+	    double height = (old.shape.getHeight()+ov.shape.getHeight())/2;
 	    
             if (xd < yd) {
                 old.x = ov.x;
-                old.y = (old.y > ov.y) ? ov.y+width : ov.y-width;
+                old.y = (old.y > ov.y) ? ov.y+height : ov.y-height;
             }
             else {
                 old.y = ov.y;
