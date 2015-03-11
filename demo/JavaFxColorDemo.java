@@ -9,6 +9,7 @@ import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
@@ -185,6 +186,7 @@ public class JavaFxColorDemo extends Application
       
       TableView<ColorEntry> table = new TableView<>();
       table.setPrefWidth(scene.getWidth());
+      table.setPrefHeight(scene.getHeight()-100);
       
       table.setItems(masterData);
       
@@ -200,7 +202,11 @@ public class JavaFxColorDemo extends Application
       
 
       //rootGroup.getChildren().add(scrollPane);
-      rootGroup.getChildren().add(table);
+      //rootGroup.getChildren().add(table);
+      BorderPane pane = new BorderPane();
+      rootGroup.getChildren().add(pane);
+      pane.setCenter(table);
+      pane.setBottom(buildCustomColorPane());
       
       stage.setScene(scene);
       stage.setTitle("JavaFX Standard Colors Demonstration");
