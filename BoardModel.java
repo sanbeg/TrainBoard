@@ -65,15 +65,25 @@ public class BoardModel
 
     public static class SolidSquare implements Shape 
     {
-	private final double width = 30;
-	private final double arc = width/3;
+	private final double width;
+        private final double height;
         
+	private final double arc = 10;
+        private final String id;
+        
+        public SolidSquare(String id, double w, double h) {
+            this.id = id;
+            this.width = w;
+            this.height = h;
+        }
+        
+
 	public double getWidth() 
 	{
 	    return width;
 	}
 	public double getHeight() {
-            return width;
+            return height;
         }
 
         public String getId() {
@@ -93,10 +103,11 @@ public class BoardModel
     }
 
     public static class MidDot extends SolidSquare {
-	private final double diameter = 4;
+	private final double diameter;
 
-        public String getId() {
-            return "middot";
+        public MidDot(String id, double w, double h, double d) {
+            super(id, w, h);
+            this.diameter = d;
         }
         
 	public void draw(GraphicsContext gc, Color color) 
@@ -107,30 +118,21 @@ public class BoardModel
 	}
     }
 
-    public class Tall extends SolidSquare {
-        public String getId() {
-            return "tall";
-        }
-        public double getHeight() {
-            return getWidth() * 2;
-        }
-    }
-    
     public final List<Point> shapes = new java.util.ArrayList<>();
 
-    private final Map<String,Shape> ShapesMap = new HashMap<>();
+    private final Map<String,Shape> shapesMap = new HashMap<>();
         {
-            ShapesMap.put("middot", new MidDot());
-            ShapesMap.put("solid", new SolidSquare());
-            ShapesMap.put("tall", new Tall());
+            shapesMap.put("middot", new MidDot("middot", 30, 30, 4));
+            shapesMap.put("solid", new SolidSquare("solid", 30, 30));
+            shapesMap.put("tall", new SolidSquare("solid", 30, 60));
         }
     
 
     public void addAllPlaces(List<BoardController.SavedPlace> savedPlaces) 
     {
 	for (BoardController.SavedPlace sp: savedPlaces) {
-            Shape s = ShapesMap.get(sp.shape);
-            if (s == null) s = new SolidSquare();
+            Shape s = shapesMap.get(sp.shape);
+            if (s == null) s = shapesMap.get("solid");
 	    Point p = new Point(sp.x, sp.y, s);
 	    shapes.add(p);
 	}
@@ -145,7 +147,7 @@ public class BoardModel
     
                 
     public void drawShape(GraphicsContext gc, double x, double y) {
-	Point p = new Point(x,y, new MidDot());
+	Point p = new Point(x,y, shapesMap.get("middot"));
 	snapShape(gc, p);
 	p.draw(gc, Color.GREEN);
 	shapes.add(p);
