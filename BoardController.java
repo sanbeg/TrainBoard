@@ -68,8 +68,10 @@ public class BoardController {
         //canvasPane.getChildren().add(floatingCanvas);
 
         final ContextMenu contextMenu = new ContextMenu();
-        final MenuItem cmDeleteItem = new MenuItem("delete");
+        final MenuItem cmDeleteItem = new MenuItem("Delete");
+        final MenuItem cmRotateItem = new MenuItem("Rotate");
         
+        contextMenu.getItems().add(cmRotateItem);
         contextMenu.getItems().add(cmDeleteItem);
         contextMenu.setAutoHide(true);
         
@@ -122,6 +124,9 @@ public class BoardController {
         
         cmDeleteItem.setOnAction((javafx.event.ActionEvent e) -> {
                 if (cmPoint != null) model.eraseShape(gc, cmPoint);
+            });
+        cmRotateItem.setOnAction((javafx.event.ActionEvent e) -> {
+                if (cmPoint != null) model.rotateShape(gc, cmPoint, 45.0);
             });
         
         closeItem.setOnAction((javafx.event.ActionEvent e) -> {stage.close();});

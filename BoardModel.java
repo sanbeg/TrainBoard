@@ -1,5 +1,7 @@
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+import javafx.geometry.Point2D;
+import javafx.scene.transform.Rotate;
 
 import java.util.List;
 import java.util.Map;
@@ -12,6 +14,8 @@ public class BoardModel
     {
         public double x;
         public double y;
+        public double angle = 0;
+        
 	public final Shape shape;
 	public boolean obscured = false;
         
@@ -41,6 +45,8 @@ public class BoardModel
 	    //Affine transform = gc.getTransform();
 	    gc.save();
 	    gc.translate(x, y);
+            gc.rotate(angle);
+            //todo - make bounding box
 	    shape.draw(gc, color);
 	    //gc.setTransform(transform);
 	    gc.restore();
@@ -224,6 +230,12 @@ public class BoardModel
                 old.y = ov.y;
                 old.x = (old.x > ov.x) ? ov.x+width : ov.x-width;
             }
+
+            Point2D newPoint = new Rotate(ov.angle, ov.x, ov.y).transform(old.x, old.y);
+            old.angle = ov.angle;
+            old.x = newPoint.getX();
+            old.y = newPoint.getY();
+            
         }
 
     }
@@ -265,6 +277,12 @@ public class BoardModel
         
     }
 
+    public void rotateShape(GraphicsContext gc, Point point, double angle) {
+        point.erase(gc);
+        point.angle += angle;
+        point.draw(gc, Color.GREEN);
+    }
+    
 
 }
 
