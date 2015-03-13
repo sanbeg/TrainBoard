@@ -13,7 +13,8 @@ public class BoardModel
         public double x;
         public double y;
 	public final Shape shape;
-	
+	public boolean obscured = false;
+        
         public Point(double x, double y, Shape s) {
             this.x = x;
             this.y = y;
@@ -246,15 +247,15 @@ public class BoardModel
             
             for (Point p : shapes) {
                 if (p == old) continue;
-		Color pcolor;
 		
                 if (p.overlaps(old)) {
-                    pcolor = Color.RED;
+                    p.draw(gc, Color.RED);
+                    p.obscured = true;
                 }
-                else {
-                    pcolor = Color.GREEN;
+                else if (p.obscured) {
+                    p.draw(gc, Color.GREEN);
+                    p.obscured = false;
                 }
-		p.draw(gc, pcolor);
             }
             old.x += x;
             old.y += y;

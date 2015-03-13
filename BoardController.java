@@ -57,11 +57,14 @@ public class BoardController {
         stage.setTitle(TITLE_PREFIX);
 
         final Canvas canvas = new Canvas(800, 400);
+        //final Canvas floatingCanvas = new Canvas(800, 400);
         GraphicsContext gc = canvas.getGraphicsContext2D();
+        //GraphicsContext fgc = floatingCanvas.getGraphicsContext2D();
 
         canvasPane.getChildren().add(canvas);
+        //canvasPane.getChildren().add(floatingCanvas);
 
-        canvas.addEventHandler(MouseEvent.MOUSE_CLICKED, (MouseEvent t) -> {            
+        canvasPane.addEventHandler(MouseEvent.MOUSE_CLICKED, (MouseEvent t) -> {            
                 if (t.getClickCount() >1 && t.isStillSincePress()) {
 		    BoardModel.Point point = model.findPointAt(t.getX(), t.getY());
 		    if (point == null) {
@@ -76,7 +79,7 @@ public class BoardController {
                 }  
             });
 
-        canvas.addEventHandler(MouseEvent.MOUSE_PRESSED, (MouseEvent t) -> {
+        canvasPane.addEventHandler(MouseEvent.MOUSE_PRESSED, (MouseEvent t) -> {
                 if (t.getClickCount() == 1) {
                     cx = t.getX();
                     cy = t.getY();
@@ -85,11 +88,11 @@ public class BoardController {
                 }
             });
         
-        canvas.addEventHandler(MouseEvent.MOUSE_RELEASED, (MouseEvent t) -> {
+        canvasPane.addEventHandler(MouseEvent.MOUSE_RELEASED, (MouseEvent t) -> {
                 model.releaseShape(gc);
             });
         
-        canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, (MouseEvent e) -> {
+        canvasPane.addEventHandler(MouseEvent.MOUSE_DRAGGED, (MouseEvent e) -> {
                 double dx = e.getX();
                 double dy = e.getY();
                 model.moveShape(gc, dx-cx, dy-cy, Color.BLUE);
