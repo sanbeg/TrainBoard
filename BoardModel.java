@@ -244,7 +244,7 @@ public class BoardModel
             Point old = heldPoint;
 	    old.erase(gc);
             gc.setFill(Color.GREEN);
-            
+
             for (Point p : shapes) {
                 if (p == old) continue;
 		
@@ -257,6 +257,7 @@ public class BoardModel
                     p.obscured = false;
                 }
             }
+
             old.x += x;
             old.y += y;
 	    old.draw(gc, color);

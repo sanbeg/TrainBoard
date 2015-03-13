@@ -58,7 +58,7 @@
       </MenuBar>
    </top>
    <center>
-      <Pane fx:id="canvasPane" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" styleClass="board"/>
+      <Pane fx:id="canvasPane" prefHeight="200.0" prefWidth="200.0" styleClass="board" BorderPane.alignment="CENTER" />
    </center>
 
 </BorderPane>

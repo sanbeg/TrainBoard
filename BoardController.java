@@ -1,5 +1,6 @@
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
@@ -53,6 +54,8 @@ public class BoardController {
     private double cx = -1;
     private double cy = -1;
 
+    private BoardModel.Point cmPoint = null;
+
     public void initialize() {
         stage.setTitle(TITLE_PREFIX);
 
@@ -64,8 +67,15 @@ public class BoardController {
         canvasPane.getChildren().add(canvas);
         //canvasPane.getChildren().add(floatingCanvas);
 
+        final ContextMenu contextMenu = new ContextMenu();
+        final MenuItem cmDeleteItem = new MenuItem("delete");
+        
+        contextMenu.getItems().add(cmDeleteItem);
+        contextMenu.setAutoHide(true);
+        
+
         canvasPane.addEventHandler(MouseEvent.MOUSE_CLICKED, (MouseEvent t) -> {            
-                if (t.getClickCount() >1 && t.isStillSincePress()) {
+                if (t.getClickCount() > 1 && t.isStillSincePress()) {
 		    BoardModel.Point point = model.findPointAt(t.getX(), t.getY());
 		    if (point == null) {
 			//clicked empty spot, add shape
@@ -74,17 +84,27 @@ public class BoardController {
 			//clicked occupied spot, remove a shape
 			model.eraseShape(gc, point);
 		    }
-		    
-		     
                 }  
             });
 
         canvasPane.addEventHandler(MouseEvent.MOUSE_PRESSED, (MouseEvent t) -> {
-                if (t.getClickCount() == 1) {
+                if (t.getClickCount() != 1) return;
+                
+                switch(t.getButton()) {
+                  case PRIMARY:
+                    contextMenu.hide();
                     cx = t.getX();
                     cy = t.getY();
                     model.liftShape(gc, cx, cy, Color.BLUE);
-                    
+                    break;
+                  case SECONDARY:
+                    cmPoint = model.findPointAt(t.getX(), t.getY());
+                    if (cmPoint != null) {
+                        contextMenu.show(canvasPane, t.getScreenX(), t.getScreenY());
+                    } else {
+                        contextMenu.hide();
+                    }
+                    break;
                 }
             });
         
@@ -99,11 +119,15 @@ public class BoardController {
                 cx = dx;
                 cy = dy;
             });
+        
+        cmDeleteItem.setOnAction((javafx.event.ActionEvent e) -> {
+                if (cmPoint != null) model.eraseShape(gc, cmPoint);
+            });
+        
+        closeItem.setOnAction((javafx.event.ActionEvent e) -> {stage.close();});
 
-       closeItem.setOnAction((javafx.event.ActionEvent e) -> {stage.close();});
-
-       final FileChooser fileChooser = new FileChooser();
-       fileChooser.getExtensionFilters().addAll(
+        final FileChooser fileChooser = new FileChooser();
+        fileChooser.getExtensionFilters().addAll(
                                                 new FileChooser.ExtensionFilter("XML Files", "*.xml"),
                                                 new FileChooser.ExtensionFilter("All Files", "*.*")
                                                 );
