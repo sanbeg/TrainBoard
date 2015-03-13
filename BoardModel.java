@@ -256,8 +256,8 @@ public class BoardModel
                 }
 		p.draw(gc, pcolor);
             }
-            old.x = x;
-            old.y = y;
+            old.x += x;
+            old.y += y;
 	    old.draw(gc, color);
         }
         

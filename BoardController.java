@@ -49,6 +49,10 @@ public class BoardController {
         }
     }
     
+    //click points
+    private double cx = -1;
+    private double cy = -1;
+
     public void initialize() {
         stage.setTitle(TITLE_PREFIX);
 
@@ -74,7 +78,10 @@ public class BoardController {
 
         canvas.addEventHandler(MouseEvent.MOUSE_PRESSED, (MouseEvent t) -> {
                 if (t.getClickCount() == 1) {
-                    model.liftShape(gc, t.getX(), t.getY(), Color.BLUE);
+                    cx = t.getX();
+                    cy = t.getY();
+                    model.liftShape(gc, cx, cy, Color.BLUE);
+                    
                 }
             });
         
@@ -83,7 +90,11 @@ public class BoardController {
             });
         
         canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, (MouseEvent e) -> {
-                model.moveShape(gc, e.getX(), e.getY(), Color.BLUE);
+                double dx = e.getX();
+                double dy = e.getY();
+                model.moveShape(gc, dx-cx, dy-cy, Color.BLUE);
+                cx = dx;
+                cy = dy;
             });
 
        closeItem.setOnAction((javafx.event.ActionEvent e) -> {stage.close();});
