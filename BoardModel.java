@@ -40,6 +40,13 @@ public class BoardModel
 		&& Math.abs(y - other.y) < height;
         }
 
+        public boolean obscures(Point other) {
+	    double width = (shape.getWidth() + other.shape.getWidth() + 2)/2;
+	    double height = (shape.getHeight() + other.shape.getHeight() + 2)/2;
+            return Math.abs(x - other.x) < width 
+		&& Math.abs(y - other.y) < height;
+        }
+
 	public void draw(GraphicsContext gc, Color color) 
 	{
 	    //Affine transform = gc.getTransform();
@@ -55,6 +62,7 @@ public class BoardModel
 	{
 	    gc.save();
 	    gc.translate(x, y);
+            gc.rotate(angle);
 	    shape.erase(gc);
 	    gc.restore();
 	}
@@ -100,11 +108,22 @@ public class BoardModel
 	public void draw(GraphicsContext gc, Color color) 
 	{
 	    gc.setFill(color);
-	    gc.fillRoundRect(-getWidth()/2, -getHeight()/2, getWidth(), getHeight(), arc, arc);
+	    gc.fillRoundRect(
+			     -getWidth()/2,
+			     -getHeight()/2,
+			     getWidth(),
+			     getHeight(),
+			     arc, arc);
 	}
 	public void erase(GraphicsContext gc) 
 	{
-            gc.clearRect(-getWidth()/2, -getHeight()/2, getWidth(), getHeight());
+	    //add 1 for rotated shape
+            gc.clearRect(
+			 -getWidth()/2-1, 
+			 -getHeight()/2-1,
+			 getWidth()+2, 
+			 getHeight()+2
+			 );
 	}
 	
     }
@@ -141,6 +160,7 @@ public class BoardModel
             Shape s = shapesMap.get(sp.shape);
             if (s == null) s = shapesMap.get("solid");
 	    Point p = new Point(sp.x, sp.y, s);
+	    p.angle = sp.angle;
 	    shapes.add(p);
 	}
     }
@@ -217,6 +237,13 @@ public class BoardModel
             }
         }
         if (ov != null) {
+
+            Point2D newPoint;
+	    newPoint = new Rotate(-ov.angle, ov.x, ov.y).transform(old.x, old.y);
+            old.angle = ov.angle;
+            old.x = newPoint.getX();
+            old.y = newPoint.getY();
+
             double xd = Math.abs(old.x - ov.x);
             double yd = Math.abs(old.y - ov.y);
 	    double width = (old.shape.getWidth()+ov.shape.getWidth())/2;
@@ -231,7 +258,7 @@ public class BoardModel
                 old.x = (old.x > ov.x) ? ov.x+width : ov.x-width;
             }
 
-            Point2D newPoint = new Rotate(ov.angle, ov.x, ov.y).transform(old.x, old.y);
+	    newPoint = new Rotate(ov.angle, ov.x, ov.y).transform(old.x, old.y);
             old.angle = ov.angle;
             old.x = newPoint.getX();
             old.y = newPoint.getY();
@@ -260,11 +287,13 @@ public class BoardModel
             for (Point p : shapes) {
                 if (p == old) continue;
 		
-                if (p.overlaps(old)) {
+                if (p.obscures(old)) {
                     p.draw(gc, Color.RED);
                     p.obscured = true;
                 }
                 else if (p.obscured) {
+		    //can leave traces in round corners or rotated edges
+		    p.erase(gc);
                     p.draw(gc, Color.GREEN);
                     p.obscured = false;
                 }

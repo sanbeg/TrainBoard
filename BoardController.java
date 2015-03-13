@@ -195,6 +195,7 @@ public class BoardController {
     {
 	public double x;
 	public double y;
+	public double angle = 0;
         public String shape;
     }
     
@@ -207,6 +208,7 @@ public class BoardController {
 		SavedPlace sp = new SavedPlace();
 		sp.x = place.x;
 		sp.y = place.y;
+		sp.angle = place.angle;
                 sp.shape = place.shape.getId();
 		tracks.add(sp);
 	    }
