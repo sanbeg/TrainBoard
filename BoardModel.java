@@ -102,7 +102,7 @@ public class BoardModel
         }
 
         public String getId() {
-            return "solid";
+            return id;
         }
         
 	public void draw(GraphicsContext gc, Color color) 
@@ -150,7 +150,7 @@ public class BoardModel
         {
             shapesMap.put("middot", new MidDot("middot", 30, 30, 4));
             shapesMap.put("solid", new SolidSquare("solid", 30, 30));
-            shapesMap.put("tall", new SolidSquare("solid", 30, 60));
+            shapesMap.put("tall", new SolidSquare("tall", 30, 60));
         }
     
 
@@ -234,6 +234,7 @@ public class BoardModel
                     clear = true;
                 }
                 ov.draw(gc, Color.GREEN);
+                ov.obscured = false;
             }
         }
         if (ov != null) {
@@ -277,11 +278,23 @@ public class BoardModel
             heldPoint = null;
         }
     }
+    
+    private void redrawAround(GraphicsContext gc, Point point, Color color) {
+        for (Point p : shapes) {
+            if (p == point) continue;
+            
+            if (point.obscures(p)) {
+                p.draw(gc, color);
+            }
+        }
+    }
+    
 
     public void moveShape(GraphicsContext gc, double x, double y, Color color) {
         if (heldPoint != null) {
             Point old = heldPoint;
 	    old.erase(gc);
+            redrawAround(gc, old, Color.GREEN);
             gc.setFill(Color.GREEN);
 
             for (Point p : shapes) {
@@ -294,11 +307,12 @@ public class BoardModel
                 else if (p.obscured) {
 		    //can leave traces in round corners or rotated edges
 		    p.erase(gc);
+                    redrawAround(gc, p, Color.GREEN);
                     p.draw(gc, Color.GREEN);
                     p.obscured = false;
+                    //System.out.printf("Redraw %.1f,%.1f\n", p.x, p.y);
                 }
             }
-
             old.x += x;
             old.y += y;
 	    old.draw(gc, color);
