@@ -88,129 +88,17 @@ public class BoardModel
 	}
 
     }
-    public interface Shape {
-        double getWidth();
-        double getHeight();
-        
-        void draw(GraphicsContext gc, Color color);
-        void erase(GraphicsContext gc);
-
-        String getId();
-    }
-
-    public static class SolidSquare implements Shape 
-    {
-	private final double width;
-        private final double height;
-        
-	private final double arc = 10;
-        private final String id;
-        
-        public SolidSquare(String id, double w, double h) {
-            this.id = id;
-            this.width = w;
-            this.height = h;
-        }
-        
-
-	public double getWidth() 
-	{
-	    return width;
-	}
-	public double getHeight() {
-            return height;
-        }
-
-        public String getId() {
-            return id;
-        }
-        
-	public void draw(GraphicsContext gc, Color color) 
-	{
-	    gc.setFill(color);
-	    gc.fillRoundRect(
-			     -getWidth()/2,
-			     -getHeight()/2,
-			     getWidth(),
-			     getHeight(),
-			     arc, arc);
-	}
-	public void erase(GraphicsContext gc) 
-	{
-	    //add 1 for rotated shape
-            gc.clearRect(
-			 -getWidth()/2-1, 
-			 -getHeight()/2-1,
-			 getWidth()+2, 
-			 getHeight()+2
-			 );
-	}
-	
-    }
-
-    public static class MidDot extends SolidSquare {
-	private final double diameter;
-
-        public MidDot(String id, double w, double h, double d) {
-            super(id, w, h);
-            this.diameter = d;
-        }
-        
-	public void draw(GraphicsContext gc, Color color) 
-	{
-            super.draw(gc, Color.LIGHTGREY);
-	    gc.setFill(color);
-	    gc.fillOval(-diameter/2, -diameter/2, diameter, diameter);
-	}
-    }
-
-    public static class Straight extends SolidSquare
-    {
-        public Straight(String id, double w, double h) {
-            super(id, w, h);
-        }
-        
-        public void draw(GraphicsContext gc, Color color) 
-            {
-                super.draw(gc, Color.LIGHTGREY);
-                gc.setLineWidth(1.0);
-                gc.setStroke(Color.BLACK);
-                
-                double gauge = getWidth()*0.4;
-                gc.strokeLine(-gauge, -getHeight()/2, -gauge, getHeight()/2);
-
-                gc.strokeLine(-gauge, -getHeight()/2, -gauge, getHeight()/2);
-                gc.strokeLine(+gauge, -getHeight()/2, +gauge, getHeight()/2);
-
-                gc.setLineWidth(3.0);
-                double tieX = getWidth()*0.45;
-                
-                for (int i=0; i<10; ++i) {
-                    double h = getHeight();
-                    double y = -h/2 + h*0.1*i + h*0.05;
-                    gc.strokeLine(-tieX, y, tieX, y);
-                }
-                
-                gc.setFill(color);
-                double diameter = 4.0;
-                gc.fillOval(-diameter/2, -diameter/2, diameter, diameter);
-
-            }
-        
-    }
-    
 
 
     public final List<Point> shapes = new java.util.ArrayList<>();
 
     public final Map<String,Shape> shapesMap = new HashMap<>();
         {
-            shapesMap.put("middot", new MidDot("middot", 30, 30, 4));
-            shapesMap.put("solid", new SolidSquare("solid", 30, 30));
-            shapesMap.put("tall", new SolidSquare("tall", 30, 60));
-            shapesMap.put("straight", new Straight("straight", 20, 80));
+            shapesMap.put("middot", new Shape.MidDot("middot", 30, 30, 4));
+            shapesMap.put("solid", new Shape.SolidSquare("solid", 30, 30));
+            shapesMap.put("tall", new Shape.SolidSquare("tall", 30, 60));
+            shapesMap.put("straight", new Shape.Straight("straight", 16, 96));
         }
-    
 
     public void addAllPlaces(List<BoardController.SavedPlace> savedPlaces) 
     {
@@ -231,8 +119,8 @@ public class BoardModel
     }
     
                 
-    public void addShape(GraphicsContext gc, double x, double y, String name) {
-	Point p = new Point(x,y, shapesMap.get(name));
+    public void addShape(GraphicsContext gc, double x, double y, Shape shape) {
+	Point p = new Point(x,y, shape);
 	snapShape(gc, p);
 	p.draw(gc, Color.GREEN);
 	shapes.add(p);

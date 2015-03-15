@@ -90,8 +90,8 @@ public class BoardController {
 			//clicked empty spot, add shape
                         Toggle button = trackGroup.getSelectedToggle();
                         if (button != null) {
-                            String name = (String)button.getUserData();
-                            model.addShape(gc, t.getX(), t.getY(), name);
+                            Shape shape = (Shape)button.getUserData();
+                            model.addShape(gc, t.getX(), t.getY(), shape);
                         }
                         
 		    } else {
@@ -207,7 +207,7 @@ public class BoardController {
     }
 
     private void addButton(ToolBar bar, ToggleGroup group, String label) {
-        BoardModel.Shape shape = model.shapesMap.get(label);
+        Shape shape = model.shapesMap.get(label);
         Canvas bc = new Canvas(shape.getWidth(), shape.getHeight());
         GraphicsContext gc = bc.getGraphicsContext2D();
         gc.translate(shape.getWidth()/2, shape.getHeight()/2);
@@ -216,7 +216,7 @@ public class BoardController {
         //ToggleButton button = new ToggleButton(label, bc);
         ToggleButton button = new ToggleButton(null, bc);
         button.setToggleGroup(group);
-        button.setUserData(label);
+        button.setUserData(shape);
         bar.getItems().add(button);
     }
     
