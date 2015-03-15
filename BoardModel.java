@@ -252,11 +252,18 @@ public class BoardModel
     
     public Point findPointAt(double x, double y) {
         Point old = null;
+        double minDist = Double.MAX_VALUE;
         
         for (Point p : shapes) {
             if (p.covers(x, y)) {
-                old = p;
-                break;
+                double dx = p.x-x;
+                double dy = p.y-y;
+                
+                double dist = Math.sqrt(dx*dx + dy*dy);
+                if (dist < minDist) {
+                    minDist = dist;
+                    old = p;
+                }
             }
         }
         return old;
