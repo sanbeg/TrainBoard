@@ -24,25 +24,45 @@ public class BoardModel
             this.y = y;
             this.shape = s;
         }
+
+
+        public double getWidth() {
+            Point2D right = new Rotate(angle)
+                .transform(shape.getWidth()/2, shape.getHeight()/2);
+            Point2D left = new Rotate(angle)
+                .transform(-shape.getWidth()/2, shape.getHeight()/2);
+            double w = Math.max(Math.abs(left.getX()),Math.abs(right.getX())) * 2;
+            //System.out.println("W=" + w);
+            return w;
+            
+        }
+        public double getHeight() {
+            Point2D top = new Rotate(angle)
+                .transform(shape.getWidth()/2, shape.getHeight()/2);
+            Point2D bottom = new Rotate(angle)
+                .transform(shape.getWidth()/2, -shape.getHeight()/2);
+            double h = Math.max(Math.abs(top.getY()),Math.abs(bottom.getY())) * 2;
+            return h;
+        }
         
         public boolean covers(double x, double y) {
-            double w2 = shape.getWidth()/2;
-            double h2 = shape.getHeight()/2;
+            double w2 = getWidth()/2;
+            double h2 = getHeight()/2;
             return x < this.x+w2 
 		&& x > this.x-w2 
 		&& y < this.y+h2 
 		&& y > this.y-h2;
         }
         public boolean overlaps(Point other) {
-	    double width = (shape.getWidth() + other.shape.getWidth())/2;
-	    double height = (shape.getHeight() + other.shape.getHeight())/2;
+	    double width = (getWidth() + other.getWidth())/2;
+	    double height = (getHeight() + other.getHeight())/2;
             return Math.abs(x - other.x) < width 
 		&& Math.abs(y - other.y) < height;
         }
 
         public boolean obscures(Point other) {
-	    double width = (shape.getWidth() + other.shape.getWidth() + 2)/2;
-	    double height = (shape.getHeight() + other.shape.getHeight() + 2)/2;
+	    double width = (getWidth() + other.getWidth() + 2)/2;
+	    double height = (getHeight() + other.getHeight() + 2)/2;
             return Math.abs(x - other.x) < width 
 		&& Math.abs(y - other.y) < height;
         }
@@ -144,6 +164,43 @@ public class BoardModel
 	}
     }
 
+    public static class Straight extends SolidSquare
+    {
+        public Straight(String id, double w, double h) {
+            super(id, w, h);
+        }
+        
+        public void draw(GraphicsContext gc, Color color) 
+            {
+                super.draw(gc, Color.LIGHTGREY);
+                gc.setLineWidth(1.0);
+                gc.setStroke(Color.BLACK);
+                
+                double gauge = getWidth()*0.4;
+                gc.strokeLine(-gauge, -getHeight()/2, -gauge, getHeight()/2);
+
+                gc.strokeLine(-gauge, -getHeight()/2, -gauge, getHeight()/2);
+                gc.strokeLine(+gauge, -getHeight()/2, +gauge, getHeight()/2);
+
+                gc.setLineWidth(3.0);
+                double tieX = getWidth()*0.45;
+                
+                for (int i=0; i<10; ++i) {
+                    double h = getHeight();
+                    double y = -h/2 + h*0.1*i + h*0.05;
+                    gc.strokeLine(-tieX, y, tieX, y);
+                }
+                
+                gc.setFill(color);
+                double diameter = 4.0;
+                gc.fillOval(-diameter/2, -diameter/2, diameter, diameter);
+
+            }
+        
+    }
+    
+
+
     public final List<Point> shapes = new java.util.ArrayList<>();
 
     public final Map<String,Shape> shapesMap = new HashMap<>();
@@ -151,6 +208,7 @@ public class BoardModel
             shapesMap.put("middot", new MidDot("middot", 30, 30, 4));
             shapesMap.put("solid", new SolidSquare("solid", 30, 30));
             shapesMap.put("tall", new SolidSquare("tall", 30, 60));
+            shapesMap.put("straight", new Straight("straight", 20, 80));
         }
     
 
@@ -300,8 +358,12 @@ public class BoardModel
             for (Point p : shapes) {
                 if (p == old) continue;
 		
-                if (p.obscures(old)) {
+                if (p.overlaps(old)) {
                     p.draw(gc, Color.RED);
+                    p.obscured = true;
+                }
+                else if (p.obscures(old)) {
+                    p.draw(gc, Color.YELLOW);
                     p.obscured = true;
                 }
                 else if (p.obscured) {

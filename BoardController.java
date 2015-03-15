@@ -203,6 +203,7 @@ public class BoardController {
        addButton(trackBar, trackGroup, "solid");
        addButton(trackBar, trackGroup, "middot");
        addButton(trackBar, trackGroup, "tall");
+       addButton(trackBar, trackGroup, "straight");
     }
 
     private void addButton(ToolBar bar, ToggleGroup group, String label) {
