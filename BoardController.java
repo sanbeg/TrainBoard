@@ -1,7 +1,11 @@
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Toggle;
+import javafx.scene.control.ToggleButton;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.ToolBar;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -21,7 +25,8 @@ public class BoardController {
     private final Stage stage;
     
     public Pane canvasPane;
-
+    public ToolBar trackBar;
+    
     public MenuItem newItem;
     public MenuItem openItem;
     public MenuItem saveItem;
@@ -74,6 +79,8 @@ public class BoardController {
         contextMenu.getItems().add(cmRotateItem);
         contextMenu.getItems().add(cmDeleteItem);
         contextMenu.setAutoHide(true);
+
+       final ToggleGroup trackGroup = new ToggleGroup();
         
 
         canvasPane.addEventHandler(MouseEvent.MOUSE_CLICKED, (MouseEvent t) -> {            
@@ -81,7 +88,12 @@ public class BoardController {
 		    BoardModel.Point point = model.findPointAt(t.getX(), t.getY());
 		    if (point == null) {
 			//clicked empty spot, add shape
-			model.drawShape(gc, t.getX(), t.getY());
+                        Toggle button = trackGroup.getSelectedToggle();
+                        if (button != null) {
+                            String name = (String)button.getUserData();
+                            model.addShape(gc, t.getX(), t.getY(), name);
+                        }
+                        
 		    } else {
 			//clicked occupied spot, remove a shape
 			model.eraseShape(gc, point);
@@ -146,7 +158,6 @@ public class BoardController {
            }
        }
        
-
        newItem.setOnAction((ActionEvent e) -> {
                resetBoard(gc, canvas);
                file = null;
@@ -187,9 +198,27 @@ public class BoardController {
                    JAXB.marshal(savedBoard, file);
                }
            });
-       
-
+  
+       trackBar.getItems().clear();
+       addButton(trackBar, trackGroup, "solid");
+       addButton(trackBar, trackGroup, "middot");
+       addButton(trackBar, trackGroup, "tall");
     }
+
+    private void addButton(ToolBar bar, ToggleGroup group, String label) {
+        BoardModel.Shape shape = model.shapesMap.get(label);
+        Canvas bc = new Canvas(shape.getWidth(), shape.getHeight());
+        GraphicsContext gc = bc.getGraphicsContext2D();
+        gc.translate(shape.getWidth()/2, shape.getHeight()/2);
+        shape.draw(gc, Color.GREEN);
+        
+        //ToggleButton button = new ToggleButton(label, bc);
+        ToggleButton button = new ToggleButton(null, bc);
+        button.setToggleGroup(group);
+        button.setUserData(label);
+        bar.getItems().add(button);
+    }
+    
 
     public static class SavedPlace
     {

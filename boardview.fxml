@@ -58,7 +58,18 @@
       </MenuBar>
    </top>
    <center>
-      <Pane fx:id="canvasPane" prefHeight="200.0" prefWidth="200.0" styleClass="board" BorderPane.alignment="CENTER" />
+      <ScrollPane prefViewportHeight="371.0" prefViewportWidth="600.0">
+         <content>
+            <Pane fx:id="canvasPane" styleClass="board" BorderPane.alignment="CENTER" />
+         </content>
+      </ScrollPane>
    </center>
+   <right>
+      <ToolBar fx:id="trackBar" orientation="VERTICAL" prefHeight="40.0" BorderPane.alignment="CENTER">
+        <items>
+          <Button mnemonicParsing="false" text="Button" />
+        </items>
+      </ToolBar>
+   </right>
 
 </BorderPane>

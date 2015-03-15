@@ -146,7 +146,7 @@ public class BoardModel
 
     public final List<Point> shapes = new java.util.ArrayList<>();
 
-    private final Map<String,Shape> shapesMap = new HashMap<>();
+    public final Map<String,Shape> shapesMap = new HashMap<>();
         {
             shapesMap.put("middot", new MidDot("middot", 30, 30, 4));
             shapesMap.put("solid", new SolidSquare("solid", 30, 30));
@@ -173,8 +173,8 @@ public class BoardModel
     }
     
                 
-    public void drawShape(GraphicsContext gc, double x, double y) {
-	Point p = new Point(x,y, shapesMap.get("middot"));
+    public void addShape(GraphicsContext gc, double x, double y, String name) {
+	Point p = new Point(x,y, shapesMap.get(name));
 	snapShape(gc, p);
 	p.draw(gc, Color.GREEN);
 	shapes.add(p);
