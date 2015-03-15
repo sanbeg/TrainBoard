@@ -175,22 +175,28 @@ public class BoardModel
 
         gc.setFill(Color.GREEN);
         Point ov = null;
-        boolean clear=false;
+        double minDist = Double.MAX_VALUE;
         
         for (Point p : shapes) {
             if (p != old && p.overlaps(old)) {
-                ov = p;
-                //TODO - keep best overlap (by min dist moved, etc)
-                //break;
-                if (!clear) {
-		    old.erase(gc);
-                    clear = true;
+
+                double dx = p.x-old.x;
+                double dy = p.y-old.y;
+                
+                double dist = Math.sqrt(dx*dx + dy*dy);
+                if (dist < minDist) {
+                    minDist = dist;
+                    ov = p;
                 }
-                ov.draw(gc, Color.GREEN);
-                ov.obscured = false;
+                p.draw(gc, Color.GREEN);
+                
             }
         }
+        
         if (ov != null) {
+            old.erase(gc);
+            ov.draw(gc, Color.GREEN);
+            ov.obscured = false;
 
             Point2D newPoint;
 	    newPoint = new Rotate(-ov.angle, ov.x, ov.y).transform(old.x, old.y);
@@ -253,6 +259,7 @@ public class BoardModel
             for (Point p : shapes) {
                 if (p == old) continue;
 		
+                //TODO - only ovelap closest shape
                 if (p.overlaps(old)) {
                     p.draw(gc, Color.RED);
                     p.obscured = true;
