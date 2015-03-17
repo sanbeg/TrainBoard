@@ -120,5 +120,55 @@ public interface Shape {
             }
         
     }
-    
+ 
+    public static class Cross extends SolidSquare
+    {
+        private final double trackWidth;
+        private final double arc = 10;
+
+        public Cross(String id, double w, double h) {
+            super(id, h, h);
+            trackWidth = w;
+        }
+
+        public void draw(GraphicsContext gc, Color color) {
+            //ballast
+	    gc.setFill(Color.IVORY);
+	    gc.fillRoundRect(
+                -trackWidth/2,
+                -getHeight()/2,
+                trackWidth,
+                getHeight(),
+                arc, arc);
+
+	    gc.fillRoundRect(
+                -getHeight()/2,
+                -trackWidth/2,
+                getHeight(),
+                trackWidth,
+                arc, arc);
+            // center
+            double tieX = trackWidth*0.45;
+            double arc2 = 4;
+            gc.setFill(Color.BLACK);
+            gc.fillRoundRect(-tieX*2, -tieX, tieX*4, tieX*2, arc2, arc2);
+            gc.fillRoundRect(-tieX, -tieX*2, tieX*2, tieX*4, arc2, arc2);
+            
+            // ties - TODO
+
+            //rails
+            gc.setStroke(Color.SILVER.darker());
+            gc.setLineWidth(1.0);
+                
+            double gauge = trackWidth*0.4;
+            gc.strokeLine(-gauge, -getHeight()/2, -gauge, getHeight()/2);
+            gc.strokeLine(+gauge, -getHeight()/2, +gauge, getHeight()/2);
+
+            gc.strokeLine(-getWidth()/2, -gauge, getWidth()/2, -gauge);
+            gc.strokeLine(-getWidth()/2, +gauge, getWidth()/2, +gauge);
+           
+        }
+        
+    }
 }
+

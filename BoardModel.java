@@ -98,6 +98,7 @@ public class BoardModel
             shapesMap.put("solid", new Shape.SolidSquare("solid", 30, 30));
             shapesMap.put("tall", new Shape.SolidSquare("tall", 30, 60));
             shapesMap.put("straight", new Shape.Straight("straight", 16, 96));
+            shapesMap.put("cross", new Shape.Cross("cross", 16, 64));
         }
 
     public void addAllPlaces(List<BoardController.SavedPlace> savedPlaces) 
