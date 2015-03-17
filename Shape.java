@@ -167,6 +167,10 @@ public interface Shape {
             gc.strokeLine(-getWidth()/2, -gauge, getWidth()/2, -gauge);
             gc.strokeLine(-getWidth()/2, +gauge, getWidth()/2, +gauge);
            
+            gc.setFill(color.interpolate(Color.TRANSPARENT, 0.6));
+            gc.fillOval(-gauge, -getHeight()/2, 2*gauge, 2*gauge);
+            gc.fillOval(-gauge, +getHeight()/2-2*gauge, 2*gauge, 2*gauge);
+
         }
         
     }
