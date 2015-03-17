@@ -107,9 +107,16 @@ public interface Shape {
                 gc.strokeLine(+gauge, -getHeight()/2, +gauge, getHeight()/2);
 
                 //indicator
+/*
                 gc.setFill(color);
                 double diameter = 4.0;
                 gc.fillOval(-diameter/2, -diameter/2, diameter, diameter);
+*/
+                //gc.setFill(new Color(color.getRed(), color.getGreen(), color.getBlue(), 0.4));
+                gc.setFill(color.interpolate(Color.TRANSPARENT, 0.6));
+                
+                gc.fillOval(-gauge, -getHeight()/2, 2*gauge, 2*gauge);
+                gc.fillOval(-gauge, +getHeight()/2-2*gauge, 2*gauge, 2*gauge);
             }
         
     }
