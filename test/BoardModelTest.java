@@ -96,6 +96,17 @@ public class BoardModelTest
         assertEquals("found right", ts, bm.findPointAt(120,100).shape);
 
     }
+
+    @Test
+    public void testAddSnap() {
+        BoardModel bm = new BoardModel();
+        TestShape ts = new TestShape();
+   
+        bm.addShape(gc, 0, 0, ts);
+        bm.addShape(gc, 5, 75, ts);
+        assertEquals("X aligned", 0, bm.findPointAt(0,75).x, 0.001);
+        assertEquals("Y aligned", 100, bm.findPointAt(0,75).y, 0.001);
+    }
     
 }
 
