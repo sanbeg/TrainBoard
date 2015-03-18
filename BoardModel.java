@@ -159,11 +159,11 @@ public class BoardModel
     }
    
 
-    public void liftShape(GraphicsContext gc, double x, double y, Color color) 
+    public void liftShape(GraphicsContext gc, double x, double y) 
     {
         Point old = findPointAt(x, y);
         if (old != null) {
-	    old.draw(gc, color);
+	    old.draw(gc, Color.BLUE);
             heldPoint = old;
         }
     }
@@ -249,7 +249,7 @@ public class BoardModel
     }
     
 
-    public void moveShape(GraphicsContext gc, double x, double y, Color color) {
+    public void moveShape(GraphicsContext gc, double x, double y) {
         if (heldPoint != null) {
             Point old = heldPoint;
 	    old.erase(gc);
@@ -278,7 +278,7 @@ public class BoardModel
             }
             old.x += x;
             old.y += y;
-	    old.draw(gc, color);
+	    old.draw(gc, Color.BLUE);
         }
         
     }

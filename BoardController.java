@@ -109,7 +109,7 @@ public class BoardController {
                     contextMenu.hide();
                     cx = t.getX();
                     cy = t.getY();
-                    model.liftShape(gc, cx, cy, Color.BLUE);
+                    model.liftShape(gc, cx, cy);
                     break;
                   case SECONDARY:
                     cmPoint = model.findPointAt(t.getX(), t.getY());
@@ -129,7 +129,7 @@ public class BoardController {
         canvasPane.addEventHandler(MouseEvent.MOUSE_DRAGGED, (MouseEvent e) -> {
                 double dx = e.getX();
                 double dy = e.getY();
-                model.moveShape(gc, dx-cx, dy-cy, Color.BLUE);
+                model.moveShape(gc, dx-cx, dy-cy);
                 cx = dx;
                 cy = dy;
             });

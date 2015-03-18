@@ -4,6 +4,7 @@ import javafx.scene.paint.Color;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertNotNull;
 import org.junit.Test;
 
 class TestShape implements Shape 
@@ -57,7 +58,7 @@ public class BoardModelTest
         TestShape ts = new TestShape();
         bm.addShape(gc, 100, 100, ts);
         assertEquals("Called draw", 1, ts.nDraw);
-        bm.liftShape(gc, 100, 100, Color.BLUE);
+        bm.liftShape(gc, 100, 100);
         assertEquals("Called draw again", 2, ts.nDraw);
         assertEquals("Used Color", ts.color, Color.BLUE);
         bm.releaseShape(gc);
@@ -70,8 +71,8 @@ public class BoardModelTest
         BoardModel bm = new BoardModel();
         TestShape ts = new TestShape();
         bm.addShape(gc, 100, 100, ts);
-        bm.liftShape(gc, 100, 100, Color.BLUE);
-        bm.moveShape(gc, 100, 0, Color.GREEN);
+        bm.liftShape(gc, 100, 100);
+        bm.moveShape(gc, 100, 0);
 
         assertNull("old place is empty", bm.findPointAt(100,100));
         assertNull("left is empty", bm.findPointAt(180,100));
@@ -107,6 +108,49 @@ public class BoardModelTest
         assertEquals("X aligned", 0, bm.findPointAt(0,75).x, 0.001);
         assertEquals("Y aligned", 100, bm.findPointAt(0,75).y, 0.001);
     }
+
+    @Test
+    public void testMoveSnap() {
+        BoardModel bm = new BoardModel();
+        TestShape ts = new TestShape();
+   
+        bm.addShape(gc, 0, 0, ts);
+        bm.addShape(gc, 5, 200, ts);
+
+        assertEquals("X is same", 5, bm.findPointAt(5,200).x, 0.001);
+        assertEquals("Y is same", 200, bm.findPointAt(5,200).y, 0.001);
+
+        bm.liftShape(gc, 5, 200);
+        bm.moveShape(gc, 0, -101);
+	bm.releaseShape(gc);
+	
+        assertEquals("X aligned", 0, bm.findPointAt(1,75).x, 0.001);
+        assertEquals("Y aligned", 100, bm.findPointAt(1,75).y, 0.001);
+    }
+
+    @Test
+    public void testRotatedSnap() 
+    {
+        BoardModel bm = new BoardModel();
+        TestShape ts = new TestShape();
+        bm.addShape(gc, 100, 100, ts);
+	BoardModel.Point p1 = bm.findPointAt(100,100);
+        bm.rotateShape(gc, p1, 90);
+	// x = 50..150, y=95..105)
+
+	assertNull(bm.findPointAt(151,100));
+	assertNotNull(bm.findPointAt(149, 100));
+	assertNull(bm.findPointAt(151, 100));
+
+	bm.addShape(gc, 154, 102, ts);
+	BoardModel.Point p2 = bm.findPointAt(155,100);
+	assertEquals("Angle matches", p1.angle, p2.angle, 0.01);
+        assertEquals("Y aligned", p1.y, p2.y, 0.001);
+	assertEquals("X is snapped", p1.x+100, p2.x, 0.001);
+	
+    }
     
+	
+       
 }
 
