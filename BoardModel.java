@@ -174,7 +174,6 @@ public class BoardModel
          * should handle multiple overlap, avoid putting 2 in same place.
          */
 
-        gc.setFill(Color.GREEN);
         Point ov = null;
         double minDist = Double.MAX_VALUE;
         
