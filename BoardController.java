@@ -61,6 +61,26 @@ public class BoardController {
 
     private BoardModel.Point cmPoint = null;
 
+    private ContextMenu makeContextMenu(final GraphicsContext gc) 
+    {
+        final ContextMenu contextMenu = new ContextMenu();
+        final MenuItem cmDeleteItem = new MenuItem("Delete");
+        final MenuItem cmRotateItem = new MenuItem("Rotate");
+        
+        contextMenu.getItems().add(cmRotateItem);
+        contextMenu.getItems().add(cmDeleteItem);
+        contextMenu.setAutoHide(true);
+	
+        cmDeleteItem.setOnAction((javafx.event.ActionEvent e) -> {
+                if (cmPoint != null) model.eraseShape(gc, cmPoint);
+            });
+        cmRotateItem.setOnAction((javafx.event.ActionEvent e) -> {
+                if (cmPoint != null) model.rotateShape(gc, cmPoint, 45.0);
+            });
+        
+	return contextMenu;
+    }
+    
     public void initialize() {
         stage.setTitle(TITLE_PREFIX);
 
@@ -72,15 +92,8 @@ public class BoardController {
         canvasPane.getChildren().add(canvas);
         //canvasPane.getChildren().add(floatingCanvas);
 
-        final ContextMenu contextMenu = new ContextMenu();
-        final MenuItem cmDeleteItem = new MenuItem("Delete");
-        final MenuItem cmRotateItem = new MenuItem("Rotate");
-        
-        contextMenu.getItems().add(cmRotateItem);
-        contextMenu.getItems().add(cmDeleteItem);
-        contextMenu.setAutoHide(true);
-
-       final ToggleGroup trackGroup = new ToggleGroup();
+        final ContextMenu contextMenu = makeContextMenu(gc);
+	final ToggleGroup trackGroup = new ToggleGroup();
         
 
         canvasPane.addEventHandler(MouseEvent.MOUSE_CLICKED, (MouseEvent t) -> {            
@@ -132,13 +145,6 @@ public class BoardController {
                 model.moveShape(gc, dx-cx, dy-cy);
                 cx = dx;
                 cy = dy;
-            });
-        
-        cmDeleteItem.setOnAction((javafx.event.ActionEvent e) -> {
-                if (cmPoint != null) model.eraseShape(gc, cmPoint);
-            });
-        cmRotateItem.setOnAction((javafx.event.ActionEvent e) -> {
-                if (cmPoint != null) model.rotateShape(gc, cmPoint, 45.0);
             });
         
         closeItem.setOnAction((javafx.event.ActionEvent e) -> {stage.close();});
