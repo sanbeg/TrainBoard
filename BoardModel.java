@@ -254,7 +254,6 @@ public class BoardModel
             Point old = heldPoint;
 	    old.erase(gc);
             redrawAround(gc, old, Color.GREEN);
-            gc.setFill(Color.GREEN);
 
             for (Point p : shapes) {
                 if (p == old) continue;
