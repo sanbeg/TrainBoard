@@ -2,10 +2,10 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertNotNull;
-import org.junit.Test;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNull;
+import static junit.framework.Assert.assertNotNull;
+import junit.framework.TestCase;
 
 class TestShape implements Shape 
 {
@@ -34,12 +34,11 @@ class TestShape implements Shape
 }
 
 
-public class BoardModelTest 
+public class BoardModelTest extends TestCase
 {
     final Canvas canvas = new Canvas(250,250);
     final GraphicsContext gc = canvas.getGraphicsContext2D();
 
-    @Test
     public void testAdd() {
         BoardModel bm = new BoardModel();
         TestShape ts = new TestShape();
@@ -52,7 +51,6 @@ public class BoardModelTest
         assertEquals("it's green", Color.GREEN, ts.color);
     }
 
-    @Test
     public void testLift() {
         BoardModel bm = new BoardModel();
         TestShape ts = new TestShape();
@@ -66,7 +64,6 @@ public class BoardModelTest
         assertEquals("Changed Color", ts.color, Color.GREEN);
     }
 
-    @Test
     public void testMove() {
         BoardModel bm = new BoardModel();
         TestShape ts = new TestShape();
@@ -81,7 +78,6 @@ public class BoardModelTest
         assertEquals("called erase", 1, ts.nErase);
     }
     
-    @Test
     public void testRotate() {
         BoardModel bm = new BoardModel();
         TestShape ts = new TestShape();
@@ -98,7 +94,6 @@ public class BoardModelTest
 
     }
 
-    @Test
     public void testAddSnap() {
         BoardModel bm = new BoardModel();
         TestShape ts = new TestShape();
@@ -109,7 +104,6 @@ public class BoardModelTest
         assertEquals("Y aligned", 100, bm.findPointAt(0,75).y, 0.001);
     }
 
-    @Test
     public void testMoveSnap() {
         BoardModel bm = new BoardModel();
         TestShape ts = new TestShape();
@@ -128,7 +122,6 @@ public class BoardModelTest
         assertEquals("Y aligned", 100, bm.findPointAt(1,75).y, 0.001);
     }
 
-    @Test
     public void testRotatedSnap() 
     {
         BoardModel bm = new BoardModel();
@@ -150,7 +143,5 @@ public class BoardModelTest
 	
     }
     
-	
-       
 }
 
