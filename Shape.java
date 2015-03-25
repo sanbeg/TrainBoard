@@ -157,6 +157,68 @@ default LocalConnection[] getConnections()
             }
         
     }
+
+    public static class Road extends SolidSquare
+    {
+        private final double length; //road length
+        private final double w;
+        
+        private final static double arc = 10;
+        
+        public Road(String id, double w, double h) {
+            super(id, h, h);
+            length = w;
+            this.w = w;
+        }
+        
+        public void draw(GraphicsContext gc, Color color) 
+            {
+                //ballast
+                gc.setFill(Color.IVORY);
+                gc.fillRoundRect(
+                    -w/2, -getHeight()/2,
+                    w, getHeight(),
+                    arc, arc);
+
+                double tieX = w*0.45;
+
+                //road
+                gc.setFill(Color.BLACK);
+                gc.fillRect(
+                    -getHeight()/2, -length/2,
+                    getHeight(), length
+                    );
+                gc.setStroke(Color.YELLOW);
+                gc.setLineWidth(1.0);
+                gc.strokeLine(-getHeight()/2, 0, -tieX, 0);
+                gc.strokeLine(+tieX, 0, getHeight()/2, 0);
+                
+                //ties
+                gc.setStroke(Color.BLACK);
+                gc.setLineWidth(3.0);
+                
+                for (int i=0; i<10; ++i) {
+                    double h = getHeight();
+                    double y = -h/2 + h*0.1*i + h*0.05;
+                    gc.strokeLine(-tieX, y, tieX, y);
+                }
+
+                //rails
+                gc.setStroke(Color.SILVER.darker());
+                gc.setLineWidth(1.0);
+                
+                double gauge = w*0.4;
+                gc.strokeLine(-gauge, -getHeight()/2, -gauge, getHeight()/2);
+                gc.strokeLine(+gauge, -getHeight()/2, +gauge, getHeight()/2);
+
+                gc.setFill(color.interpolate(Color.TRANSPARENT, 0.6));
+                
+                gc.fillOval(-gauge, -getHeight()/2, 2*gauge, 2*gauge);
+                gc.fillOval(-gauge, +getHeight()/2-2*gauge, 2*gauge, 2*gauge);
+            }
+        
+    }
+
  
     public static class Cross extends SolidSquare
     {

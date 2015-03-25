@@ -106,7 +106,7 @@ public class BoardModel
 	    shape.erase(gc);
 	    gc.restore();
 	}
-
+ 
     }
 
     public static class GlobalConnection {
@@ -148,6 +148,7 @@ public class BoardModel
             shapesMap.put("tall", new Shape.SolidSquare("tall", 30, 60));
             shapesMap.put("straight", new Shape.Straight("straight", 16, 96));
             shapesMap.put("cross", new Shape.Cross("cross", 16, 64));
+            shapesMap.put("road", new Shape.Road("road", 16, 64));
         }
 
     public void addAllPlaces(List<BoardController.SavedPlace> savedPlaces) 

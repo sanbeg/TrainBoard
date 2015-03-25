@@ -196,23 +196,24 @@ public class BoardController {
 	    });
                
 
-	saveAsItem.setOnAction((ActionEvent ev) -> {
-		fileChooser.setTitle("Save Layout");
-		File file = fileChooser.showSaveDialog(stage);
-		if (file != null) {
-		    updateFile(file, fileChooser);
-		    SavedBoard savedBoard = new SavedBoard();
-		    savedBoard.setAll(model.shapes);
-		    JAXB.marshal(savedBoard, file);
-		}
-	    });
-	
-	trackBar.getItems().clear();
-	addButton(trackBar, trackGroup, "solid");
-	addButton(trackBar, trackGroup, "middot");
-	addButton(trackBar, trackGroup, "tall");
-	addButton(trackBar, trackGroup, "straight");
-	addButton(trackBar, trackGroup, "cross");
+        saveAsItem.setOnAction((ActionEvent ev) -> {
+                fileChooser.setTitle("Save Layout");
+                File file = fileChooser.showSaveDialog(stage);
+                if (file != null) {
+                    updateFile(file, fileChooser);
+                    SavedBoard savedBoard = new SavedBoard();
+                    savedBoard.setAll(model.shapes);
+                    JAXB.marshal(savedBoard, file);
+                }
+            });
+  
+        trackBar.getItems().clear();
+        addButton(trackBar, trackGroup, "solid");
+        addButton(trackBar, trackGroup, "middot");
+        addButton(trackBar, trackGroup, "tall");
+        addButton(trackBar, trackGroup, "straight");
+        addButton(trackBar, trackGroup, "cross");
+        addButton(trackBar, trackGroup, "road");
     }
 
     private void addButton(ToolBar bar, ToggleGroup group, String label) {

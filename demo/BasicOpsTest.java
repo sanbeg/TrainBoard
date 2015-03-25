@@ -120,6 +120,36 @@ public class BasicOpsTest extends Application {
                          new double[]{210, 210, 240, 240}, 4);
         gc.strokePolyline(new double[]{110, 140, 110, 140},
                           new double[]{210, 210, 240, 240}, 4);
+
+        drawArc(gc);
     }
 
+    void drawArc(GraphicsContext gc) 
+        {
+            double x = 10;
+            double y = 300;
+            
+            double r = 50;
+            double ad = 45;
+            double ar = Math.toRadians(ad);
+            
+            double bow = r * Math.cos(ar/2);
+            double offset = r+bow/2;
+
+            //bounding bos width & height
+            double width = r-bow;
+            double height = 2 * r * Math.sin(ar/2);
+            double lw = 8;
+            
+            gc.setLineWidth(lw);
+            
+            //gc.fillRect(x-width/2-lw/2, y-height/2, width+lw, height);
+            gc.strokeArc(x, y-r/2, r, r, 180-ad/2, ad, ArcType.OPEN);
+            gc.setFill(Color.RED);
+            gc.fillOval(x, y, 1, 1);
+            gc.fillOval(x+r, y, 1, 1);
+            gc.fillOval(x+r-bow, y+height/2, 1, 1);
+        }
+    
+                
 }
