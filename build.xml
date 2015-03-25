@@ -7,11 +7,11 @@
   </target>
 
   <target name="compile">
-    <javac srcdir="." includes="*.java" listfiles="yes" />
+    <javac srcdir="." includes="*.java" listfiles="yes" includeantruntime="false"/>
   </target>
 
   <target name="test-compile" depends="compile">
-    <javac srcdir="test">
+    <javac srcdir="test" includeantruntime="true">
       <classpath>
 	<path location="." />
       </classpath>
