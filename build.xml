@@ -1,5 +1,11 @@
 <project>
 
+  <target name="clean">
+    <delete verbose="true">
+      <fileset dir="." includes="**/*.class"/>
+    </delete>
+  </target>
+
   <target name="compile">
     <javac srcdir="." includes="*.java" listfiles="yes" />
   </target>
