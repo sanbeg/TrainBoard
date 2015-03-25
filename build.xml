@@ -1,0 +1,27 @@
+<project>
+
+  <target name="compile">
+    <javac srcdir="." includes="*.java" listfiles="yes" />
+  </target>
+
+  <target name="test-compile" depends="compile">
+    <javac srcdir="test">
+      <classpath>
+	<path location="." />
+      </classpath>
+    </javac>
+  </target>
+
+  <target name="test" depends="test-compile">
+    <junit printsummary="yes" haltonfailure="true">
+      <classpath>
+	<path location="." />
+	<path location="test" />
+      </classpath>
+      <batchtest fork="yes">
+	<fileset dir="test" includes="*Test.java"/>
+      </batchtest>
+    </junit>
+  </target>
+
+</project>

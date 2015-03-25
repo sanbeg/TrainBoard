@@ -59,7 +59,7 @@ public class BoardController {
     private double cx = -1;
     private double cy = -1;
 
-    private BoardModel.Point cmPoint = null;
+    private Point cmPoint = null;
 
     private ContextMenu makeContextMenu(final GraphicsContext gc) 
     {
@@ -98,7 +98,7 @@ public class BoardController {
 
         canvasPane.addEventHandler(MouseEvent.MOUSE_CLICKED, (MouseEvent t) -> {
                 if (t.getClickCount() > 1 && t.isStillSincePress()) {
-		    BoardModel.Point point = 
+		    Point point = 
 			model.findPointAt(t.getX(), t.getY());
 		    if (point == null) {
 			//clicked empty spot, add shape
@@ -242,9 +242,9 @@ public class BoardController {
     private static class SavedBoard 
     {
         public List<SavedPlace> tracks = new java.util.ArrayList<>();
-	public void setAll(List<BoardModel.Point> points) 
+	public void setAll(List<Point> points) 
 	{
-	    for (BoardModel.Point place: points) {
+	    for (Point place: points) {
 		SavedPlace sp = new SavedPlace();
 		sp.x = place.getX();
 		sp.y = place.getY();

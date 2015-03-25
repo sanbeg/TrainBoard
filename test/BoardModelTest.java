@@ -127,7 +127,7 @@ public class BoardModelTest extends TestCase
         BoardModel bm = new BoardModel();
         TestShape ts = new TestShape();
         bm.addShape(gc, 100, 100, ts);
-	BoardModel.Point p1 = bm.findPointAt(100,100);
+	Point p1 = bm.findPointAt(100,100);
         bm.rotateShape(gc, p1, 90);
 	// x = 50..150, y=95..105)
 
@@ -136,7 +136,7 @@ public class BoardModelTest extends TestCase
 	assertNull(bm.findPointAt(151, 100));
 
 	bm.addShape(gc, 154, 102, ts);
-	BoardModel.Point p2 = bm.findPointAt(155,100);
+	Point p2 = bm.findPointAt(155,100);
 	assertEquals("Angle matches", p1.angle, p2.angle, 0.01);
         assertEquals("Y aligned", p1.y, p2.y, 0.001);
 	assertEquals("X is snapped", p1.x+100, p2.x, 0.001);
