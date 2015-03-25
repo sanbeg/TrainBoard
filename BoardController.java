@@ -85,20 +85,21 @@ public class BoardController {
         stage.setTitle(TITLE_PREFIX);
 
         final Canvas canvas = new Canvas(800, 400);
-        //final Canvas floatingCanvas = new Canvas(800, 400);
+        final Canvas floatingCanvas = new Canvas(800, 400);
         GraphicsContext gc = canvas.getGraphicsContext2D();
-        //GraphicsContext fgc = floatingCanvas.getGraphicsContext2D();
+        GraphicsContext fgc = floatingCanvas.getGraphicsContext2D();
 
         canvasPane.getChildren().add(canvas);
-        //canvasPane.getChildren().add(floatingCanvas);
+        canvasPane.getChildren().add(floatingCanvas);
 
         final ContextMenu contextMenu = makeContextMenu(gc);
 	final ToggleGroup trackGroup = new ToggleGroup();
         
 
-        canvasPane.addEventHandler(MouseEvent.MOUSE_CLICKED, (MouseEvent t) -> {            
+        canvasPane.addEventHandler(MouseEvent.MOUSE_CLICKED, (MouseEvent t) -> {
                 if (t.getClickCount() > 1 && t.isStillSincePress()) {
-		    BoardModel.Point point = model.findPointAt(t.getX(), t.getY());
+		    BoardModel.Point point = 
+			model.findPointAt(t.getX(), t.getY());
 		    if (point == null) {
 			//clicked empty spot, add shape
                         Toggle button = trackGroup.getSelectedToggle();
@@ -135,11 +136,11 @@ public class BoardController {
                 }
             });
         
-        canvasPane.addEventHandler(MouseEvent.MOUSE_RELEASED, (MouseEvent t) -> {
+        canvasPane.addEventHandler(MouseEvent.MOUSE_RELEASED, (MouseEvent t)->{
                 model.releaseShape(gc);
             });
         
-        canvasPane.addEventHandler(MouseEvent.MOUSE_DRAGGED, (MouseEvent e) -> {
+        canvasPane.addEventHandler(MouseEvent.MOUSE_DRAGGED, (MouseEvent e)->{
                 double dx = e.getX();
                 double dy = e.getY();
                 model.moveShape(gc, dx-cx, dy-cy);
@@ -150,67 +151,68 @@ public class BoardController {
         closeItem.setOnAction((javafx.event.ActionEvent e) -> {stage.close();});
 
         final FileChooser fileChooser = new FileChooser();
-        fileChooser.getExtensionFilters().addAll(
-                                                new FileChooser.ExtensionFilter("XML Files", "*.xml"),
-                                                new FileChooser.ExtensionFilter("All Files", "*.*")
-                                                );
+        fileChooser.getExtensionFilters()
+	    .addAll(
+		    new FileChooser.ExtensionFilter("XML Files", "*.xml"),
+		    new FileChooser.ExtensionFilter("All Files", "*.*")
+		    );
        
-       if (file != null) {
-           updateFile(file, fileChooser);
-           SavedBoard sb = JAXB.unmarshal(file, SavedBoard.class);
-           if (sb.tracks != null) {
-               model.addAllPlaces(sb.tracks);
-               model.redraw(gc);
-           }
-       }
+	if (file != null) {
+	    updateFile(file, fileChooser);
+	    SavedBoard sb = JAXB.unmarshal(file, SavedBoard.class);
+	    if (sb.tracks != null) {
+		model.addAllPlaces(sb.tracks);
+		model.redraw(gc);
+	    }
+	}
        
-       newItem.setOnAction((ActionEvent e) -> {
-               resetBoard(gc, canvas);
-               file = null;
-               saveItem.setDisable(true);
-               stage.setTitle(TITLE_PREFIX);
-           });
-       
-       openItem.setOnAction((ActionEvent e) -> {
-               fileChooser.setTitle("Open Layout");
-               File file = fileChooser.showOpenDialog(stage);
-               if (file != null) {
-                   updateFile(file, fileChooser);
-                   resetBoard(gc, canvas);
-                   SavedBoard sb = JAXB.unmarshal(file, SavedBoard.class);
-                   if (sb.tracks != null) {
-                       model.addAllPlaces(sb.tracks);
-                       model.redraw(gc);
-                   }
-               }
-           });
-
-       saveItem.setOnAction((ActionEvent ev) -> {
-               if (file != null) {
-		   SavedBoard savedBoard = new SavedBoard();
-		   savedBoard.setAll(model.shapes);
-                   JAXB.marshal(savedBoard, file);
-               }
-           });
+	newItem.setOnAction((ActionEvent e) -> {
+		resetBoard(gc, canvas);
+		file = null;
+		saveItem.setDisable(true);
+		stage.setTitle(TITLE_PREFIX);
+	    });
+	
+	openItem.setOnAction((ActionEvent e) -> {
+		fileChooser.setTitle("Open Layout");
+		File file = fileChooser.showOpenDialog(stage);
+		if (file != null) {
+		    updateFile(file, fileChooser);
+		    resetBoard(gc, canvas);
+		    SavedBoard sb = JAXB.unmarshal(file, SavedBoard.class);
+		    if (sb.tracks != null) {
+			model.addAllPlaces(sb.tracks);
+			model.redraw(gc);
+		    }
+		}
+	    });
+	
+	saveItem.setOnAction((ActionEvent ev) -> {
+		if (file != null) {
+		    SavedBoard savedBoard = new SavedBoard();
+		    savedBoard.setAll(model.shapes);
+		    JAXB.marshal(savedBoard, file);
+		}
+	    });
                
 
-       saveAsItem.setOnAction((ActionEvent ev) -> {
-               fileChooser.setTitle("Save Layout");
-               File file = fileChooser.showSaveDialog(stage);
-               if (file != null) {
-                   updateFile(file, fileChooser);
-		   SavedBoard savedBoard = new SavedBoard();
-		   savedBoard.setAll(model.shapes);
-                   JAXB.marshal(savedBoard, file);
-               }
-           });
-  
-       trackBar.getItems().clear();
-       addButton(trackBar, trackGroup, "solid");
-       addButton(trackBar, trackGroup, "middot");
-       addButton(trackBar, trackGroup, "tall");
-       addButton(trackBar, trackGroup, "straight");
-       addButton(trackBar, trackGroup, "cross");
+	saveAsItem.setOnAction((ActionEvent ev) -> {
+		fileChooser.setTitle("Save Layout");
+		File file = fileChooser.showSaveDialog(stage);
+		if (file != null) {
+		    updateFile(file, fileChooser);
+		    SavedBoard savedBoard = new SavedBoard();
+		    savedBoard.setAll(model.shapes);
+		    JAXB.marshal(savedBoard, file);
+		}
+	    });
+	
+	trackBar.getItems().clear();
+	addButton(trackBar, trackGroup, "solid");
+	addButton(trackBar, trackGroup, "middot");
+	addButton(trackBar, trackGroup, "tall");
+	addButton(trackBar, trackGroup, "straight");
+	addButton(trackBar, trackGroup, "cross");
     }
 
     private void addButton(ToolBar bar, ToggleGroup group, String label) {
@@ -243,8 +245,8 @@ public class BoardController {
 	{
 	    for (BoardModel.Point place: points) {
 		SavedPlace sp = new SavedPlace();
-		sp.x = place.x;
-		sp.y = place.y;
+		sp.x = place.getX();
+		sp.y = place.getY();
 		sp.angle = place.angle;
                 sp.shape = place.shape.getId();
 		tracks.add(sp);
@@ -255,10 +257,7 @@ public class BoardController {
     private void resetBoard(GraphicsContext gc, Canvas canvas) 
     {
         model.shapes.clear();
-        
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
     }
-    
-
 
 }

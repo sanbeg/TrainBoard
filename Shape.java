@@ -10,6 +10,31 @@ public interface Shape {
 
     String getId();
 
+default boolean hasConnections() 
+    {
+	return false;
+    }
+    
+default LocalConnection[] getConnections() 
+    {
+	return null;
+    }
+    
+
+    public static class LocalConnection {
+	public final double x;
+	public final double y;
+	public final double angle;
+
+	public LocalConnection(double x, double y, double angle) 
+	{
+	    this.x = x;
+	    this.y = y;
+	    this.angle = angle;
+	}
+	
+    }
+
     public static class SolidSquare implements Shape 
     {
 	private final double width;
@@ -78,8 +103,20 @@ public interface Shape {
 
     public static class Straight extends SolidSquare
     {
+	private final LocalConnection[] connections 
+	    = new LocalConnection[2];
+	
+	@Override public boolean hasConnections() {
+	    return true;
+	}
+	@Override public LocalConnection [] getConnections() {
+	    return connections;
+	}
+
         public Straight(String id, double w, double h) {
             super(id, w, h);
+	    connections[0] = new LocalConnection(0, -h/2, 0);
+	    connections[1] = new LocalConnection(0, +h/2, 0);
         }
         
         public void draw(GraphicsContext gc, Color color) 

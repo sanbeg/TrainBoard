@@ -6,26 +6,46 @@ import javafx.scene.transform.Rotate;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Set;
 
 public class BoardModel 
 {
     
     public static class Point 
     {
-        public double x;
-        public double y;
+        private double x;
+        private double y;
         public double angle = 0;
         
 	public final Shape shape;
 	public boolean obscured = false;
         
+	public final GlobalConnection[] connections;
+
         public Point(double x, double y, Shape s) {
             this.x = x;
             this.y = y;
             this.shape = s;
+
+	    if (s.hasConnections()) {
+		Shape.LocalConnection [] lc = s.getConnections();
+		connections = new GlobalConnection[lc.length];
+		for (int i=0; i<lc.length; ++i) {
+		    connections[i] = new GlobalConnection(lc[i], x, y);
+		}
+	    } else {
+		connections = null;
+	    }
+
         }
 
-
+	public double getX() {
+	    return x;
+	}
+	public double getY() {
+	    return y;
+	}
+	
         public double getWidth() {
             Point2D right = new Rotate(angle)
                 .transform(shape.getWidth()/2, shape.getHeight()/2);
@@ -89,7 +109,36 @@ public class BoardModel
 
     }
 
+    public static class GlobalConnection {
+	public double x;
+	public double y;
+	public final Shape.LocalConnection connection;
+	public GlobalConnection peer = null;
 
+	public GlobalConnection (Shape.LocalConnection lc,
+				 double x,
+				 double y
+				 )
+	{
+	    connection = lc;
+	    this.x = x;
+	    this.y = y;
+	}
+	double getX(Point p) 
+	{
+	    return p.x + connection.x;
+	}
+	double getY(Point p)
+	{
+	    return p.y + connection.y;
+	}
+	
+
+    }
+    
+    public GraphicsContext floatingContext;
+    public final Set<GlobalConnection> connections = new java.util.HashSet<>();
+    
     public final List<Point> shapes = new java.util.ArrayList<>();
 
     public final Map<String,Shape> shapesMap = new HashMap<>();
@@ -176,24 +225,53 @@ public class BoardModel
 
         Point ov = null;
         double minDist = Double.MAX_VALUE;
-        
+        double minCpDist = Double.MAX_VALUE;
+        GlobalConnection cp1 = null;
+        GlobalConnection cp2 = null;
+	
         for (Point p : shapes) {
             if (p != old && p.overlaps(old)) {
 
-                double dx = p.x-old.x;
-                double dy = p.y-old.y;
+		if (p.connections != null && old.connections != null) {
+
+		    for (GlobalConnection oc : old.connections) {
+			for (GlobalConnection pc : p.connections) {
+			    //find mi dist here.
+			    double dx = pc.getX(p)-oc.getX(old);
+			    double dy = pc.getY(p)-oc.getY(old);
+			    
+			    double dist = Math.sqrt(dx*dx + dy*dy);
+			    if (dist < minCpDist) {
+				minCpDist = dist;
+				cp1 = oc;
+				cp2 = pc;
+			    }
+			    
+			}
+		    }
+		} else {
+		    double dx = p.x-old.x;
+		    double dy = p.y-old.y;
                 
-                double dist = Math.sqrt(dx*dx + dy*dy);
-                if (dist < minDist) {
-                    minDist = dist;
-                    ov = p;
-                }
-                p.draw(gc, Color.GREEN);
-                
+		    double dist = Math.sqrt(dx*dx + dy*dy);
+		    if (dist < minDist) {
+			minDist = dist;
+			ov = p;
+		    }
+		    p.draw(gc, Color.GREEN);
+		}
+		
             }
         }
-        
-        if (ov != null) {
+	/*
+	if (cp1 != null) {
+	    old.erase(gc);
+	    old.x += cp1.x - cp2.x;
+	    old.y += cp1.y - cp2.y;
+	}
+        else
+	*/ 
+	if (ov != null) {
             old.erase(gc);
             ov.draw(gc, Color.GREEN);
             ov.obscured = false;
