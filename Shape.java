@@ -103,8 +103,7 @@ default LocalConnection[] getConnections()
 
     public static class Straight extends SolidSquare
     {
-	private final LocalConnection[] connections 
-	    = new LocalConnection[2];
+	private final LocalConnection[] connections;
 	
 	@Override public boolean hasConnections() {
 	    return true;
@@ -115,8 +114,12 @@ default LocalConnection[] getConnections()
 
         public Straight(String id, double w, double h) {
             super(id, w, h);
-	    connections[0] = new LocalConnection(0, -h/2, 0);
-	    connections[1] = new LocalConnection(0, +h/2, 0);
+	    connections = new LocalConnection[] {
+		new LocalConnection(0, -h/2, 0),
+		new LocalConnection(0, +h/2, 180)
+	    };
+	    
+	    
         }
         
         public void draw(GraphicsContext gc, Color color) 
@@ -225,9 +228,24 @@ default LocalConnection[] getConnections()
         private final double trackWidth;
         private final double arc = 10;
 
+	private final LocalConnection[] connections 
+	    = new LocalConnection[4];
+	
+	@Override public boolean hasConnections() {
+	    return true;
+	}
+	@Override public LocalConnection [] getConnections() {
+	    return connections;
+	}
+
         public Cross(String id, double w, double h) {
             super(id, h, h);
             trackWidth = w;
+
+	    connections[0] = new LocalConnection(0, -h/2, 0);
+	    connections[1] = new LocalConnection(+h/2, 0, 90);
+	    connections[2] = new LocalConnection(0, +h/2, 180);
+	    connections[3] = new LocalConnection(-h/2, 0, 270);
         }
 
         public void draw(GraphicsContext gc, Color color) {

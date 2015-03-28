@@ -91,7 +91,7 @@ public class BoardModel
         }
     }
     
-    public void snapShape(GraphicsContext gc, Point old) {
+    public void snapShape(GraphicsContext gc, Point held) {
         /*
          * If moved to overlap, push out of the way.
          * should handle multiple overlap, avoid putting 2 in same place.
@@ -100,32 +100,35 @@ public class BoardModel
         Point ov = null;
         double minDist = Double.MAX_VALUE;
         double minCpDist = Double.MAX_VALUE;
-        GlobalConnection cp1 = null;
-        GlobalConnection cp2 = null;
+        GlobalConnection heldCp = null;
+        GlobalConnection nearCp = null;
 	
         for (Point p : shapes) {
-            if (p != old && p.overlaps(old)) {
-
-		if (p.connections != null && old.connections != null) {
-
-		    for (GlobalConnection oc : old.connections) {
+            if (p != held && p.overlaps(held)) {
+		if (p.connections != null && held.connections != null) {
+		    for (GlobalConnection hc : held.connections) {
+			hc.moveTo(held.x, held.y);
 			for (GlobalConnection pc : p.connections) {
-			    //find mi dist here.
-			    double dx = pc.getX(p)-oc.getX(old);
-			    double dy = pc.getY(p)-oc.getY(old);
+			    pc.moveTo(p.x, p.y);
+			    double dx = pc.x - hc.x;
+			    double dy = pc.y - hc.y;
 			    
 			    double dist = Math.sqrt(dx*dx + dy*dy);
+			    System.out.printf("dist = %.2f (%.2f, %.2f)\n", dist, dx, dy);
+			    
 			    if (dist < minCpDist) {
+				System.out.printf("dist = %.2f -> %.2f\n", minCpDist, dist);
 				minCpDist = dist;
-				cp1 = oc;
-				cp2 = pc;
+				heldCp = hc;
+				nearCp = pc;
+				ov = p;
 			    }
 			    
 			}
 		    }
 		} else {
-		    double dx = p.x-old.x;
-		    double dy = p.y-old.y;
+		    double dx = p.x-held.x;
+		    double dy = p.y-held.y;
                 
 		    double dist = Math.sqrt(dx*dx + dy*dy);
 		    if (dist < minDist) {
@@ -137,43 +140,48 @@ public class BoardModel
 		
             }
         }
-	/*
-	if (cp1 != null) {
-	    old.erase(gc);
-	    old.x += cp1.x - cp2.x;
-	    old.y += cp1.y - cp2.y;
+
+	if (heldCp != null) {
+	    held.erase(gc);
+            ov.draw(gc, Color.GREEN);
+            ov.obscured = false;
+
+	    held.x += nearCp.x - heldCp.x;
+	    held.y += nearCp.y - heldCp.y;
+	    //held.angle = ov.angle + nearCp.connection.angle + heldCp.connection.angle;
+	    
 	}
         else
-	*/ 
+
 	if (ov != null) {
-            old.erase(gc);
+            held.erase(gc);
             ov.draw(gc, Color.GREEN);
             ov.obscured = false;
 
             Point2D newPoint;
-	    newPoint = new Rotate(-ov.angle, ov.x, ov.y).transform(old.x, old.y);
-            old.angle = ov.angle;
-            old.x = newPoint.getX();
-            old.y = newPoint.getY();
+	    newPoint = new Rotate(-ov.angle, ov.x, ov.y).transform(held.x, held.y);
+            held.angle = ov.angle;
+            held.x = newPoint.getX();
+            held.y = newPoint.getY();
 
-            double xd = Math.abs(old.x - ov.x);
-            double yd = Math.abs(old.y - ov.y);
-	    double width = (old.shape.getWidth()+ov.shape.getWidth())/2;
-	    double height = (old.shape.getHeight()+ov.shape.getHeight())/2;
+            double xd = Math.abs(held.x - ov.x);
+            double yd = Math.abs(held.y - ov.y);
+	    double width = (held.shape.getWidth()+ov.shape.getWidth())/2;
+	    double height = (held.shape.getHeight()+ov.shape.getHeight())/2;
 	    
             if (xd < yd) {
-                old.x = ov.x;
-                old.y = (old.y > ov.y) ? ov.y+height : ov.y-height;
+                held.x = ov.x;
+                held.y = (held.y > ov.y) ? ov.y+height : ov.y-height;
             }
             else {
-                old.y = ov.y;
-                old.x = (old.x > ov.x) ? ov.x+width : ov.x-width;
+                held.y = ov.y;
+                held.x = (held.x > ov.x) ? ov.x+width : ov.x-width;
             }
 
-	    newPoint = new Rotate(ov.angle, ov.x, ov.y).transform(old.x, old.y);
-            old.angle = ov.angle;
-            old.x = newPoint.getX();
-            old.y = newPoint.getY();
+	    newPoint = new Rotate(ov.angle, ov.x, ov.y).transform(held.x, held.y);
+            held.angle = ov.angle;
+            held.x = newPoint.getX();
+            held.y = newPoint.getY();
             
         }
 

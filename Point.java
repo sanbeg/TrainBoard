@@ -38,6 +38,11 @@ public class Point
         return y;
     }
 	
+    public void addXy(double x, double y) {
+	this.x += x;
+	this.y += y;
+    }
+    
     public double getWidth() {
         Point2D right = new Rotate(angle)
             .transform(shape.getWidth()/2, shape.getHeight()/2);
