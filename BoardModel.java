@@ -107,17 +107,17 @@ public class BoardModel
             if (p != held && p.overlaps(held)) {
 		if (p.connections != null && held.connections != null) {
 		    for (GlobalConnection hc : held.connections) {
-			hc.moveTo(held.x, held.y);
+			hc.moveTo(held.x, held.y, held.angle);
 			for (GlobalConnection pc : p.connections) {
-			    pc.moveTo(p.x, p.y);
+			    pc.moveTo(p.x, p.y, p.angle);
 			    double dx = pc.x - hc.x;
 			    double dy = pc.y - hc.y;
 			    
 			    double dist = Math.sqrt(dx*dx + dy*dy);
-			    System.out.printf("dist = %.2f (%.2f, %.2f)\n", dist, dx, dy);
+			    //System.out.printf("dist = %.2f (%.2f, %.2f)\n", dist, dx, dy);
 			    
 			    if (dist < minCpDist) {
-				System.out.printf("dist = %.2f -> %.2f\n", minCpDist, dist);
+				//System.out.printf("dist = %.2f -> %.2f\n", minCpDist, dist);
 				minCpDist = dist;
 				heldCp = hc;
 				nearCp = pc;
@@ -137,7 +137,6 @@ public class BoardModel
 		    }
 		    p.draw(gc, Color.GREEN);
 		}
-		
             }
         }
 
@@ -148,8 +147,15 @@ public class BoardModel
 
 	    held.x += nearCp.x - heldCp.x;
 	    held.y += nearCp.y - heldCp.y;
-	    //held.angle = ov.angle + nearCp.connection.angle + heldCp.connection.angle;
 	    
+            double angle = ov.angle + nearCp.connection.angle - heldCp.connection.angle + 180;
+            Point2D p2d = new Rotate(angle - held.angle, nearCp.x, nearCp.y)
+                .transform(held.x,held.y);
+            
+            held.angle = angle % 360;
+            held.x = p2d.getX();
+            held.y = p2d.getY();
+            redrawAround(gc, held, Color.GREEN);
 	}
         else
 
