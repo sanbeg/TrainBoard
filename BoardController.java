@@ -87,14 +87,13 @@ public class BoardController {
         final Canvas canvas = new Canvas(800, 400);
         final Canvas floatingCanvas = new Canvas(800, 400);
         GraphicsContext gc = canvas.getGraphicsContext2D();
-        GraphicsContext fgc = floatingCanvas.getGraphicsContext2D();
+        model.setFloatingContext(floatingCanvas.getGraphicsContext2D());
 
         canvasPane.getChildren().add(canvas);
         canvasPane.getChildren().add(floatingCanvas);
 
         final ContextMenu contextMenu = makeContextMenu(gc);
 	final ToggleGroup trackGroup = new ToggleGroup();
-        
 
         canvasPane.addEventHandler(MouseEvent.MOUSE_CLICKED, (MouseEvent t) -> {
                 if (t.getClickCount() > 1 && t.isStillSincePress()) {
@@ -208,7 +207,7 @@ public class BoardController {
             });
   
         trackBar.getItems().clear();
-        addButton(trackBar, trackGroup, "solid");
+        //addButton(trackBar, trackGroup, "solid");
         addButton(trackBar, trackGroup, "middot");
         addButton(trackBar, trackGroup, "tall");
         addButton(trackBar, trackGroup, "straight");
@@ -221,7 +220,7 @@ public class BoardController {
         Canvas bc = new Canvas(shape.getWidth(), shape.getHeight());
         GraphicsContext gc = bc.getGraphicsContext2D();
         gc.translate(shape.getWidth()/2, shape.getHeight()/2);
-        shape.draw(gc, Color.GREEN);
+        shape.draw(gc, Color.TRANSPARENT);
         
         //ToggleButton button = new ToggleButton(label, bc);
         ToggleButton button = new ToggleButton(null, bc);

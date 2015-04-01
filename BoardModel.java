@@ -10,7 +10,15 @@ import java.util.Set;
 
 public class BoardModel 
 {
-    public GraphicsContext floatingContext;
+    private GraphicsContext floatingContext=null;
+    public void setFloatingContext(GraphicsContext gc) {
+	assert floatingContext == null;
+	floatingContext = java.util.Objects.requireNonNull(gc);
+    }
+    
+    private GraphicsContext getfgc(GraphicsContext fallback) {
+	return (floatingContext==null) ? fallback : floatingContext;
+    }
     
     public final List<Point> shapes = new java.util.ArrayList<>();
 
@@ -18,8 +26,13 @@ public class BoardModel
         {
             shapesMap.put("middot", new Shape.MidDot("middot", 30, 30, 4));
             shapesMap.put("solid", new Shape.SolidSquare("solid", 30, 30));
-            shapesMap.put("tall", new Shape.SolidSquare("tall", 30, 60));
-            shapesMap.put("straight", new Shape.Straight("straight", 16, 96));
+            shapesMap.put("tall", 
+			  new Shape.MidDot("tall", 30, 60, 6));
+            shapesMap.put("straight", 
+			  new Shape.Straight(
+					     "straight", 
+					     new Length(9, Length.Unit.MM),
+					     new Length(2.5, Length.Unit.IN)));
             shapesMap.put("cross", new Shape.Cross("cross", 16, 64));
             shapesMap.put("road", new Shape.Road("road", 16, 64));
         }
@@ -86,7 +99,9 @@ public class BoardModel
     {
         Point old = findPointAt(x, y);
         if (old != null) {
-	    old.draw(gc, Color.BLUE);
+	    old.erase(gc);
+	    redrawAround(gc, old, Color.GREEN);
+	    old.draw(getfgc(gc), Color.BLUE);
             heldPoint = old;
         }
     }
@@ -140,8 +155,12 @@ public class BoardModel
             }
         }
 
+	//need to figure out which layer it was on
+	GraphicsContext heldGc = (held==heldPoint) ?
+	    getfgc(gc) : gc;
+	
 	if (heldCp != null) {
-	    held.erase(gc);
+	    held.erase(heldGc);
             ov.draw(gc, Color.GREEN);
             ov.obscured = false;
 
@@ -160,7 +179,7 @@ public class BoardModel
         else
 
 	if (ov != null) {
-            held.erase(gc);
+            held.erase(heldGc);
             ov.draw(gc, Color.GREEN);
             ov.obscured = false;
 
@@ -184,13 +203,12 @@ public class BoardModel
                 held.x = (held.x > ov.x) ? ov.x+width : ov.x-width;
             }
 
-	    newPoint = new Rotate(ov.angle, ov.x, ov.y).transform(held.x, held.y);
+	    newPoint = new Rotate(ov.angle, ov.x, ov.y)
+		.transform(held.x, held.y);
             held.angle = ov.angle;
             held.x = newPoint.getX();
             held.y = newPoint.getY();
-            
         }
-
     }
     
 
@@ -199,6 +217,10 @@ public class BoardModel
         if (heldPoint != null) {
             Point old = heldPoint;
             snapShape(gc, old);
+	    if (floatingContext != null) {
+		old.erase(floatingContext);
+	    }
+
             old.draw(gc, Color.GREEN);
             heldPoint = null;
         }
@@ -218,9 +240,14 @@ public class BoardModel
     public void moveShape(GraphicsContext gc, double x, double y) {
         if (heldPoint != null) {
             Point old = heldPoint;
-	    old.erase(gc);
-            redrawAround(gc, old, Color.GREEN);
-
+	    if (floatingContext == null) {
+		old.erase(gc);
+		redrawAround(gc, old, Color.GREEN);
+	    } else {
+		old.erase(floatingContext);
+	    }
+	    
+	    
             for (Point p : shapes) {
                 if (p == old) continue;
 		
@@ -234,6 +261,7 @@ public class BoardModel
                     p.obscured = true;
                 }
                 else if (p.obscured) {
+		    //redraw to reset indicator color
 		    //can leave traces in round corners or rotated edges
 		    p.erase(gc);
                     redrawAround(gc, p, Color.GREEN);
@@ -244,7 +272,7 @@ public class BoardModel
             }
             old.x += x;
             old.y += y;
-	    old.draw(gc, Color.BLUE);
+	    old.draw(getfgc(gc), Color.BLUE);
         }
         
     }

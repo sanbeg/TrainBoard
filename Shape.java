@@ -103,6 +103,7 @@ default LocalConnection[] getConnections()
 
     public static class Straight extends SolidSquare
     {
+	private final double gauge;
 	private final LocalConnection[] connections;
 	
 	@Override public boolean hasConnections() {
@@ -112,8 +113,11 @@ default LocalConnection[] getConnections()
 	    return connections;
 	}
 
-        public Straight(String id, double w, double h) {
-            super(id, w, h);
+        public Straight(String id, Length gauge, Length length) {
+            super(id, gauge.getPixels()*1.2, length.getPixels());
+	    double h = length.getPixels();
+	    this.gauge = gauge.getPixels();
+	    
 	    connections = new LocalConnection[] {
 		new LocalConnection(0, -h/2, 0),
 		new LocalConnection(0, +h/2, 180)
@@ -142,9 +146,9 @@ default LocalConnection[] getConnections()
                 gc.setStroke(Color.SILVER.darker());
                 gc.setLineWidth(1.0);
                 
-                double gauge = getWidth()*0.4;
-                gc.strokeLine(-gauge, -getHeight()/2, -gauge, getHeight()/2);
-                gc.strokeLine(+gauge, -getHeight()/2, +gauge, getHeight()/2);
+                double g2 = gauge/2;
+                gc.strokeLine(-g2, -getHeight()/2, -g2, getHeight()/2);
+                gc.strokeLine(+g2, -getHeight()/2, +g2, getHeight()/2);
 
                 //indicator
 /*
@@ -155,8 +159,8 @@ default LocalConnection[] getConnections()
                 //gc.setFill(new Color(color.getRed(), color.getGreen(), color.getBlue(), 0.4));
                 gc.setFill(color.interpolate(Color.TRANSPARENT, 0.6));
                 
-                gc.fillOval(-gauge, -getHeight()/2, 2*gauge, 2*gauge);
-                gc.fillOval(-gauge, +getHeight()/2-2*gauge, 2*gauge, 2*gauge);
+                gc.fillOval(-g2, -getHeight()/2, 2*g2, 2*g2);
+                gc.fillOval(-g2, +getHeight()/2-2*g2, 2*g2, 2*g2);
             }
         
     }
