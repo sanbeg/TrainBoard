@@ -134,7 +134,8 @@ default LocalConnection[] getConnections()
                 //ties
                 gc.setStroke(Color.BLACK);
                 gc.setLineWidth(3.0);
-                double tieX = getWidth()*0.45;
+                //double tieX = getWidth()*0.45;
+		double tieX = getWidth() / 2 - 2;
                 
                 for (int i=0; i<10; ++i) {
                     double h = getHeight();

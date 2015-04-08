@@ -84,8 +84,11 @@ public class BoardController {
     public void initialize() {
         stage.setTitle(TITLE_PREFIX);
 
-        final Canvas canvas = new Canvas(800, 400);
-        final Canvas floatingCanvas = new Canvas(800, 400);
+	Length width = new Length(4*12, Length.Unit.IN);
+	Length height = new Length(2*12, Length.Unit.IN);
+	
+        final Canvas canvas = new Canvas(width.getPixels(), height.getPixels());
+        final Canvas floatingCanvas = new Canvas(width.getPixels(), height.getPixels());
         GraphicsContext gc = canvas.getGraphicsContext2D();
         model.setFloatingContext(floatingCanvas.getGraphicsContext2D());
 
