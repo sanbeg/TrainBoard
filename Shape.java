@@ -1,5 +1,6 @@
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.StrokeLineCap;
 
 public interface Shape {
     double getWidth();
@@ -104,6 +105,8 @@ default LocalConnection[] getConnections()
     public static class Straight extends SolidSquare
     {
 	private final double gauge;
+	private TrackScale scale;
+	
 	private final LocalConnection[] connections;
 	
 	@Override public boolean hasConnections() {
@@ -113,10 +116,11 @@ default LocalConnection[] getConnections()
 	    return connections;
 	}
 
-        public Straight(String id, Length gauge, Length length) {
-            super(id, gauge.getPixels()*1.2, length.getPixels());
+        public Straight(String id, TrackScale scale, Length length) {
+            super(id, scale.ballastWidth(), length.getPixels());
 	    double h = length.getPixels();
-	    this.gauge = gauge.getPixels();
+	    this.scale = scale;
+	    this.gauge = scale.railGauge();
 	    
 	    connections = new LocalConnection[] {
 		new LocalConnection(0, -h/2, 0),
@@ -133,10 +137,10 @@ default LocalConnection[] getConnections()
 
                 //ties
                 gc.setStroke(Color.BLACK);
+		gc.setLineCap(StrokeLineCap.BUTT);
                 gc.setLineWidth(3.0);
-                //double tieX = getWidth()*0.45;
-		double tieX = getWidth() / 2 - 2;
-                
+		double tieX = scale.tieLength()/2.0;
+		
                 for (int i=0; i<10; ++i) {
                     double h = getHeight();
                     double y = -h/2 + h*0.1*i + h*0.05;

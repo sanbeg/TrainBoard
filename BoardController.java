@@ -9,6 +9,7 @@ import javafx.scene.control.ToolBar;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.FileChooser;
 import javafx.event.ActionEvent;
@@ -84,6 +85,13 @@ public class BoardController {
     public void initialize() {
         stage.setTitle(TITLE_PREFIX);
 
+	{
+	    Screen screen = Screen.getPrimary();
+	    System.out.println("DPI = " + screen.getDpi());
+	    stage.setHeight(screen.getVisualBounds().getHeight() * 0.9);
+	    stage.setWidth(screen.getVisualBounds().getWidth() * 0.9);
+	}
+	
 	Length width = new Length(4*12, Length.Unit.IN);
 	Length height = new Length(2*12, Length.Unit.IN);
 	

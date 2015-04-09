@@ -31,7 +31,7 @@ public class BoardModel
             shapesMap.put("straight", 
 			  new Shape.Straight(
 					     "straight", 
-					     new Length(9, Length.Unit.MM),
+					     TrackScale.N,
 					     new Length(2.5, Length.Unit.IN)));
             shapesMap.put("cross", new Shape.Cross("cross", 16, 64));
             shapesMap.put("road", new Shape.Road("road", 16, 64));
