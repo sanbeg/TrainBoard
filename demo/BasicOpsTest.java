@@ -9,7 +9,10 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.ArcType;
+import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.control.MenuItem;
+import javafx.geometry.Point2D;
+import javafx.scene.transform.Rotate;
 
 import javafx.stage.Stage;
  
@@ -129,26 +132,35 @@ public class BasicOpsTest extends Application {
             double x = 10;
             double y = 300;
             
-            double r = 50;
-            double ad = 45;
+            double r = 150; //circle radius
+            double ad = 45; //angle in degrees
             double ar = Math.toRadians(ad);
             
             double bow = r * Math.cos(ar/2);
             double offset = r+bow/2;
 
-            //bounding bos width & height
+            //bounding box width & height
             double width = r-bow;
             double height = 2 * r * Math.sin(ar/2);
             double lw = 8;
             
             gc.setLineWidth(lw);
+            gc.setLineCap(StrokeLineCap.BUTT);
             
             //gc.fillRect(x-width/2-lw/2, y-height/2, width+lw, height);
             gc.strokeArc(x, y-r/2, r, r, 180-ad/2, ad, ArcType.OPEN);
             gc.setFill(Color.RED);
             gc.fillOval(x, y, 1, 1);
-            gc.fillOval(x+r, y, 1, 1);
-            gc.fillOval(x+r-bow, y+height/2, 1, 1);
+            gc.setFill(Color.RED);
+            gc.fillOval(x+r/2, y, 1, 1);
+            //gc.fillOval(x+r-bow, y+height/2, 1, 1);
+            Point2D p1 = new Rotate(ad/2, x+r/2, y).transform(x,y);
+            gc.fillOval(p1.getX(), p1.getY(), 1, 1);
+            Point2D p2 = new Rotate(-ad/2, x+r/2, y).transform(x,y);
+            gc.fillOval(p2.getX(), p2.getY(), 1, 1);
+            System.out.printf("X = %f,%f\n", p1.getX(), p2.getX());
+            System.out.printf("Y = %f, %f\n", p1.getY(), p2.getY());
+            
         }
     
                 
