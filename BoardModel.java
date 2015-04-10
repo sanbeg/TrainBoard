@@ -36,6 +36,8 @@ public class BoardModel
             shapesMap.put("cross", new Shape.Cross("cross", 16, 64, 90));
             shapesMap.put("cr45", new Shape.Cross("cr45", 16, 64, 45));
             shapesMap.put("road", new Shape.Road("road", 16, 64));
+	    shapesMap.put("curve", new Shape.Curve("curve", TrackScale.N, new Length(9.5, Length.Unit.IN), 30.0));
+	    
         }
 
     public void addAllPlaces(List<BoardController.SavedPlace> savedPlaces) 

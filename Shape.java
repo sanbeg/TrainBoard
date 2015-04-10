@@ -1,5 +1,6 @@
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.ArcType;
 import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.transform.Affine;
 import javafx.geometry.Point2D;
@@ -321,5 +322,85 @@ default LocalConnection[] getConnections()
         }
         
     }
+
+    public static class Curve extends SolidSquare {
+	private final double gauge;
+	private final TrackScale scale;
+
+	private final double radius;
+	private final double angle;
+	
+	
+	private final LocalConnection[] connections 
+	    = new LocalConnection[2];
+	
+	@Override public boolean hasConnections() {
+	    return true;
+	}
+	@Override public LocalConnection [] getConnections() {
+	    return connections;
+	}
+
+	private static double mkWidth(TrackScale scale, double r, double ad) {
+            double ar = Math.toRadians(ad);
+            double bow = r * Math.cos(ar/2);
+	    double lw = scale.ballastWidth();
+            return r-bow + lw;
+	}	
+	private static double mkHeight(TrackScale scale, double r, double ad) {
+            double ar = Math.toRadians(ad);
+	    double lw = scale.ballastWidth();
+            return (r+lw) * Math.sin(ar/2);
+	}
+
+        public Curve(String id, TrackScale scale, Length radius, double angle) {
+	    super(id, 
+		  mkWidth(scale, radius.getPixels(), angle), 
+		  mkHeight(scale, radius.getPixels(), angle)
+		  );
+
+	    this.scale = scale;
+	    this.gauge = scale.railGauge();
+	    this.radius = radius.getPixels();
+	    this.angle = angle;
+	    double r = radius.getPixels();
+	    
+            Point2D p1 = new Rotate(angle/2, r/2, 0).transform(0,0);
+            Point2D p2 = new Rotate(-angle/2, r/2, 0).transform(0,0);
+	    connections[0] = new LocalConnection(p1.getX(), p1.getY(), angle/2);
+	    connections[1] = new LocalConnection(p2.getX(), p2.getY(), 180-angle/2);
+	}
+
+        public void draw(GraphicsContext gc, Color color) {
+            //ballast
+	    gc.setStroke(Color.IVORY);
+	    double lw = scale.ballastWidth();
+            gc.setLineWidth(lw);
+            gc.setLineCap(StrokeLineCap.BUTT);
+	    
+	    double x=0, y=0, r=radius, ad=angle;
+            gc.strokeArc(x, y-r/2, r, r, 180-ad/2, ad, ArcType.OPEN);
+
+	    double gauge = scale.railGauge()/2;
+	    gc.setLineWidth(2);
+	    gc.setStroke(Color.SILVER);
+	    r = r+gauge;
+	    gc.strokeArc(-gauge, -r/2, r, r, 180-ad/2, ad, ArcType.OPEN);
+	    r = r-gauge;
+	    gc.strokeArc(+gauge, -r/2, r, r, 180-ad/2, ad, ArcType.OPEN);
+
+	    if (color != Color.GREEN) {
+		gc.setFill(color.interpolate(Color.TRANSPARENT, 0.6));
+	    
+		for (LocalConnection c : connections) {
+		    gc.fillOval(c.x-gauge, c.y-gauge, 2*gauge, 2*gauge);
+		}
+	    }
+	    
+	    
+	}
+	
+    }
+    
 }
 

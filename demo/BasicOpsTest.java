@@ -139,10 +139,10 @@ public class BasicOpsTest extends Application {
             double bow = r * Math.cos(ar/2);
             double offset = r+bow/2;
 
-            //bounding box width & height
-            double width = r-bow;
-            double height = 2 * r * Math.sin(ar/2);
             double lw = 8;
+            //bounding box width & height
+            double width = r-bow + lw;
+            double height = (r+lw) * Math.sin(ar/2); //was 2 * ...
             
             gc.setLineWidth(lw);
             gc.setLineCap(StrokeLineCap.BUTT);
@@ -150,17 +150,21 @@ public class BasicOpsTest extends Application {
             //gc.fillRect(x-width/2-lw/2, y-height/2, width+lw, height);
             gc.strokeArc(x, y-r/2, r, r, 180-ad/2, ad, ArcType.OPEN);
             gc.setFill(Color.RED);
-            gc.fillOval(x, y, 1, 1);
+            gc.fillOval(x, y, 3, 3);
             gc.setFill(Color.RED);
-            gc.fillOval(x+r/2, y, 1, 1);
+            gc.fillOval(x+r/2, y, 3, 3);
             //gc.fillOval(x+r-bow, y+height/2, 1, 1);
             Point2D p1 = new Rotate(ad/2, x+r/2, y).transform(x,y);
-            gc.fillOval(p1.getX(), p1.getY(), 1, 1);
+            gc.fillOval(p1.getX(), p1.getY(), 3, 3);
             Point2D p2 = new Rotate(-ad/2, x+r/2, y).transform(x,y);
-            gc.fillOval(p2.getX(), p2.getY(), 1, 1);
+            gc.fillOval(p2.getX(), p2.getY(), 3, 3);
             System.out.printf("X = %f,%f\n", p1.getX(), p2.getX());
             System.out.printf("Y = %f, %f\n", p1.getY(), p2.getY());
             
+	    gc.setLineWidth(1);
+	    gc.setStroke(Color.BLACK);
+	    gc.strokeRect(x-width/2, y-height/2, width, height);
+	    
         }
     
                 
