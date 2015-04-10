@@ -1,5 +1,6 @@
 public enum TrackScale {
-    N(new Length(9, Length.Unit.MM));
+    //N(new Length(9, Length.Unit.MM));
+    N(new Length(3.0/8, Length.Unit.IN));
     
     private Length gauge;
     
@@ -8,11 +9,11 @@ public enum TrackScale {
     }
     
     double ballastWidth() {
-	return gauge.getPixels() * 1.4;
+	return gauge.getPixels() * 1.8;
     }
 
     double tieLength() {
-	return gauge.getPixels() * 1.2;
+	return gauge.getPixels() * 1.6;
     }
 
     double railGauge() {

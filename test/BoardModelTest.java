@@ -69,13 +69,15 @@ public class BoardModelTest extends TestCase
         TestShape ts = new TestShape();
         bm.addShape(gc, 100, 100, ts);
         bm.liftShape(gc, 100, 100);
+        assertEquals("called erase", 1, ts.nErase);
+
         bm.moveShape(gc, 100, 0);
 
         assertNull("old place is empty", bm.findPointAt(100,100));
         assertNull("left is empty", bm.findPointAt(180,100));
         assertNull("right is empty", bm.findPointAt(220,100));
         assertEquals("found at center", ts, bm.findPointAt(200, 100).shape);
-        assertEquals("called erase", 1, ts.nErase);
+        assertEquals("called erase", 2, ts.nErase);
     }
     
     public void testRotate() {
