@@ -1,6 +1,9 @@
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.StrokeLineCap;
+import javafx.scene.transform.Affine;
+import javafx.geometry.Point2D;
+import javafx.scene.transform.Rotate;
 
 public interface Shape {
     double getWidth();
@@ -236,7 +239,8 @@ default LocalConnection[] getConnections()
     {
         private final double trackWidth;
         private final double arc = 10;
-
+        private final double angle;
+        
 	private final LocalConnection[] connections 
 	    = new LocalConnection[4];
 	
@@ -247,17 +251,24 @@ default LocalConnection[] getConnections()
 	    return connections;
 	}
 
-        public Cross(String id, double w, double h) {
+        public Cross(String id, double w, double h, double angle) {
             super(id, h, h);
             trackWidth = w;
-
+            this.angle = angle;
+            
+            Point2D p1 = new Rotate(angle).transform(0, -h/2);
+            Point2D p2 = new Rotate(180+angle).transform(0, -h/2);
 	    connections[0] = new LocalConnection(0, -h/2, 0);
-	    connections[1] = new LocalConnection(+h/2, 0, 90);
+	    connections[1] = new LocalConnection(p1.getX(), p1.getY(), angle);
 	    connections[2] = new LocalConnection(0, +h/2, 180);
-	    connections[3] = new LocalConnection(-h/2, 0, 270);
+	    connections[3] = new LocalConnection(p2.getX(), p2.getY(), 180+angle);
         }
 
         public void draw(GraphicsContext gc, Color color) {
+            Affine vert = gc.getTransform();
+            Affine horiz = new Affine(vert);
+            horiz.appendRotation(angle);
+            
             //ballast
 	    gc.setFill(Color.IVORY);
 	    gc.fillRoundRect(
@@ -267,17 +278,22 @@ default LocalConnection[] getConnections()
                 getHeight(),
                 arc, arc);
 
+            gc.setTransform(horiz);
 	    gc.fillRoundRect(
-                -getHeight()/2,
                 -trackWidth/2,
-                getHeight(),
+                -getHeight()/2,
                 trackWidth,
+                getHeight(),
                 arc, arc);
+            
             // center
             double tieX = trackWidth*0.45;
             double arc2 = 4;
             gc.setFill(Color.BLACK);
-            gc.fillRoundRect(-tieX*2, -tieX, tieX*4, tieX*2, arc2, arc2);
+            gc.setTransform(vert);
+
+            gc.fillRoundRect(-tieX, -tieX*2, tieX*2, tieX*4, arc2, arc2);
+            gc.setTransform(horiz);
             gc.fillRoundRect(-tieX, -tieX*2, tieX*2, tieX*4, arc2, arc2);
             
             // ties - TODO
@@ -287,16 +303,21 @@ default LocalConnection[] getConnections()
             gc.setLineWidth(1.0);
                 
             double gauge = trackWidth*0.4;
+            gc.setTransform(vert);
             gc.strokeLine(-gauge, -getHeight()/2, -gauge, getHeight()/2);
             gc.strokeLine(+gauge, -getHeight()/2, +gauge, getHeight()/2);
 
-            gc.strokeLine(-getWidth()/2, -gauge, getWidth()/2, -gauge);
-            gc.strokeLine(-getWidth()/2, +gauge, getWidth()/2, +gauge);
-           
+            gc.setTransform(horiz);
+            gc.strokeLine(-gauge, -getHeight()/2, -gauge, getHeight()/2);
+            gc.strokeLine(+gauge, -getHeight()/2, +gauge, getHeight()/2);
+            
             gc.setFill(color.interpolate(Color.TRANSPARENT, 0.6));
+            gc.setTransform(vert);
             gc.fillOval(-gauge, -getHeight()/2, 2*gauge, 2*gauge);
             gc.fillOval(-gauge, +getHeight()/2-2*gauge, 2*gauge, 2*gauge);
-
+            gc.setTransform(horiz);
+            gc.fillOval(-gauge, -getHeight()/2, 2*gauge, 2*gauge);
+            gc.fillOval(-gauge, +getHeight()/2-2*gauge, 2*gauge, 2*gauge);
         }
         
     }

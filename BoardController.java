@@ -223,6 +223,7 @@ public class BoardController {
         addButton(trackBar, trackGroup, "tall");
         addButton(trackBar, trackGroup, "straight");
         addButton(trackBar, trackGroup, "cross");
+        addButton(trackBar, trackGroup, "cr45");
         addButton(trackBar, trackGroup, "road");
     }
 
