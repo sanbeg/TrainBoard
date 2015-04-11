@@ -391,14 +391,10 @@ default LocalConnection[] getConnections()
 	    d = 2*(r-gauge);
 	    gc.strokeArc(+gauge, -(r-gauge), d, d, 180-ad/2, ad, ArcType.OPEN); //right
 
-	    if (false && color != Color.GREEN) {
-		gc.setFill(color.interpolate(Color.TRANSPARENT, 0.6));
-	    
-		for (LocalConnection c : connections) {
-		    gc.fillOval(c.x-gauge, c.y-gauge, 2*gauge, 2*gauge);
-		}
-	    }
-	    
+            gc.setFill(color.interpolate(Color.TRANSPARENT, 0.6));
+            for (LocalConnection c : connections) {
+                gc.fillArc(c.x-gauge, c.y-gauge, 2*gauge, 2*gauge, 180-c.angle, 180, ArcType.CHORD);
+            }
 	    
 	}
 	
