@@ -341,22 +341,22 @@ default LocalConnection[] getConnections()
 	    return connections;
 	}
 
-	private static double mkWidth(TrackScale scale, double r, double ad) {
+	private static double mkWidth(TrackScale scale, double d, double ad) {
             double ar = Math.toRadians(ad);
-            double bow = r * Math.cos(ar/2);
+            double bow = d * Math.cos(ar/2);
 	    double lw = scale.ballastWidth();
-            return r-bow + lw;
+            return d - bow + lw;
 	}	
-	private static double mkHeight(TrackScale scale, double r, double ad) {
+	private static double mkHeight(TrackScale scale, double d, double ad) {
             double ar = Math.toRadians(ad);
 	    double lw = scale.ballastWidth();
-            return (r+lw) * Math.sin(ar/2);
+            return (d+lw) * Math.sin(ar/2);
 	}
 
         public Curve(String id, TrackScale scale, Length radius, double angle) {
 	    super(id, 
-		  mkWidth(scale, radius.getPixels(), angle), 
-		  mkHeight(scale, radius.getPixels(), angle)
+		  mkWidth(scale, radius.getPixels()*2, angle), 
+		  mkHeight(scale, radius.getPixels()*2, angle)
 		  );
 
 	    this.scale = scale;
@@ -365,8 +365,8 @@ default LocalConnection[] getConnections()
 	    this.angle = angle;
 	    double r = radius.getPixels();
 	    
-            Point2D p1 = new Rotate(angle/2, r/2, 0).transform(0,0);
-            Point2D p2 = new Rotate(-angle/2, r/2, 0).transform(0,0);
+            Point2D p1 = new Rotate(+angle/2, r, 0).transform(0,0);
+            Point2D p2 = new Rotate(-angle/2, r, 0).transform(0,0);
 	    connections[0] = new LocalConnection(p1.getX(), p1.getY(), angle/2);
 	    connections[1] = new LocalConnection(p2.getX(), p2.getY(), 180-angle/2);
 	}
@@ -379,17 +379,19 @@ default LocalConnection[] getConnections()
             gc.setLineCap(StrokeLineCap.BUTT);
 	    
 	    double x=0, y=0, r=radius, ad=angle;
-            gc.strokeArc(x, y-r/2, r, r, 180-ad/2, ad, ArcType.OPEN);
+            double d = 2 * r;
+            
+            gc.strokeArc(x, y-r, d, d, 180-ad/2, ad, ArcType.OPEN);
 
 	    double gauge = scale.railGauge()/2;
 	    gc.setLineWidth(2);
 	    gc.setStroke(Color.SILVER);
-	    r = r+gauge;
-	    gc.strokeArc(-gauge, -r/2, r, r, 180-ad/2, ad, ArcType.OPEN);
-	    r = r-gauge;
-	    gc.strokeArc(+gauge, -r/2, r, r, 180-ad/2, ad, ArcType.OPEN);
+	    d = 2*(r+gauge);
+	    gc.strokeArc(-gauge, -(r+gauge), d, d, 180-ad/2, ad, ArcType.OPEN); //left
+	    d = 2*(r-gauge);
+	    gc.strokeArc(+gauge, -(r-gauge), d, d, 180-ad/2, ad, ArcType.OPEN); //right
 
-	    if (color != Color.GREEN) {
+	    if (false && color != Color.GREEN) {
 		gc.setFill(color.interpolate(Color.TRANSPARENT, 0.6));
 	    
 		for (LocalConnection c : connections) {
