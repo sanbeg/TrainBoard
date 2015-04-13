@@ -4,14 +4,14 @@ import javafx.scene.transform.Rotate;
 public class GlobalConnection {
     public double x;
     public double y;
-    public Shape.LocalConnection connection;
+    public Track.LocalConnection connection;
 
-    public GlobalConnection(Shape.LocalConnection lc, double x, double y)
+    public GlobalConnection(Track.LocalConnection lc, double x, double y)
     {
 	set(lc, x, y);
 	
     }
-    private  void set(Shape.LocalConnection lc, double x, double y) 
+    private  void set(Track.LocalConnection lc, double x, double y) 
     {
 	    connection = lc;
 	    this.x = x + lc.x;

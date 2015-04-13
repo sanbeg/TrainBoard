@@ -20,7 +20,7 @@ public class Point
         this.shape = s;
 
         if (s.hasConnections()) {
-            Shape.LocalConnection [] lc = s.getConnections();
+            Track.LocalConnection [] lc = s.getConnections();
             connections = new GlobalConnection[lc.length];
             for (int i=0; i<lc.length; ++i) {
                 connections[i] = new GlobalConnection(lc[i], x, y);
