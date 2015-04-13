@@ -26,17 +26,14 @@ public class BoardModel
         {
             shapesMap.put("middot", new Shape.MidDot("middot", 30, 30, 4));
             shapesMap.put("solid", new Shape.SolidSquare("solid", 30, 30));
-            shapesMap.put("tall", 
-			  new Shape.MidDot("tall", 30, 60, 6));
-            shapesMap.put("straight", 
-			  new Shape.Straight(
-					     "straight", 
-					     TrackScale.N,
-					     new Length(2.5, Length.Unit.IN)));
-            shapesMap.put("cross", new Shape.Cross("cross", 16, 64, 90));
-            shapesMap.put("cr45", new Shape.Cross("cr45", 16, 64, 45));
-            shapesMap.put("road", new Shape.Road("road", 16, 64));
-	    shapesMap.put("curve", new Shape.Curve("curve", TrackScale.N, new Length(9.5, Length.Unit.IN), 30.0));
+            shapesMap.put("tall", new Shape.MidDot("tall", 30, 60, 6));
+            
+            TrackScale nscale = TrackScale.N;
+            shapesMap.put("straight", new Shape.Straight("straight", nscale, new Length(2.5)));
+            shapesMap.put("x90", new Shape.Cross("x90", nscale, new Length(2.0), 90));
+            shapesMap.put("x45", new Shape.Cross("x45", nscale, new Length(2.0), 45));
+            shapesMap.put("road", new Shape.Road("road", nscale, new Length(1.0), new Length(2.0)));
+	    shapesMap.put("curve", new Shape.Curve("curve", nscale, new Length(9.5), 30.0));
 	    
         }
 

@@ -57,6 +57,10 @@ public abstract class Shape {
 	
 	protected final LocalConnection[] connections;
 
+        protected static final Color BALLAST_COLOR = Color.IVORY;
+        protected static final Color RAIL_COLOR    = Color.SILVER.darker();
+        protected static final Color TIE_COLOR     = Color.BLACK;
+        
         public Track(String id, double w, double h, TrackScale ts, int connections) {
             super(id, w, h);
             this.scale = ts;
@@ -121,13 +125,13 @@ public abstract class Shape {
         
         public void draw(GraphicsContext gc, Color color) {
             //ballast
-	    gc.setFill(Color.IVORY);
+	    gc.setFill(BALLAST_COLOR);
 	    gc.fillRect(-getWidth()/2, -getHeight()/2, getWidth(), getHeight());
 
             //ties
-            gc.setStroke(Color.BLACK);
+            gc.setStroke(TIE_COLOR);
             gc.setLineCap(StrokeLineCap.BUTT);
-            gc.setLineWidth(3.0);
+            gc.setLineWidth(scale.tieWidth());
             double tieX = scale.tieLength()/2.0;
 		
             for (int i=0; i<10; ++i) {
@@ -137,8 +141,8 @@ public abstract class Shape {
             }
 
             //rails
-            gc.setStroke(Color.SILVER.darker());
-            gc.setLineWidth(1.0);
+            gc.setStroke(RAIL_COLOR);
+            gc.setLineWidth(scale.railWidth());
                 
             double g2 = gauge/2;
             gc.strokeLine(-g2, -getHeight()/2, -g2, getHeight()/2);
@@ -149,44 +153,41 @@ public abstract class Shape {
         
     }
 
-    public static class Road extends SolidSquare
+    public static class Road extends Track
     {
-        private final double length; //road length
-        private final double w;
+        private final double roadWidth;
         
-        private final static double arc = 10;
-        
-        public Road(String id, double w, double h) {
-            super(id, h, h);
-            length = w;
-            this.w = w;
+        public Road(String id, TrackScale scale, Length w, Length l) {
+            super(id, l.getPixels(), l.getPixels(), scale, 2);
+            roadWidth = w.getPixels();
+
+            double h = l.getPixels();
+            connections[0] = new LocalConnection(0, -h/2, 0);
+            connections[1] = new LocalConnection(0, +h/2, 180);
         }
         
         public void draw(GraphicsContext gc, Color color) 
             {
                 //ballast
-                gc.setFill(Color.IVORY);
-                gc.fillRoundRect(
-                    -w/2, -getHeight()/2,
-                    w, getHeight(),
-                    arc, arc);
+                gc.setFill(BALLAST_COLOR);
+                gc.fillRect(-scale.ballastWidth()/2, -getHeight()/2, scale.ballastWidth(), getHeight());
 
-                double tieX = w*0.45;
-
+                double tieX = scale.tieLength()/2;
+                double roadX = scale.ballastWidth()/2;
+                
+                gc.setLineCap(StrokeLineCap.BUTT);
+            
                 //road
                 gc.setFill(Color.BLACK);
-                gc.fillRect(
-                    -getHeight()/2, -length/2,
-                    getHeight(), length
-                    );
+                gc.fillRoundRect(-getHeight()/2, -roadWidth/2, getHeight(), roadWidth, 10, 10);
                 gc.setStroke(Color.YELLOW);
                 gc.setLineWidth(1.0);
-                gc.strokeLine(-getHeight()/2, 0, -tieX, 0);
-                gc.strokeLine(+tieX, 0, getHeight()/2, 0);
+                gc.strokeLine(-getHeight()/2, 0, -roadX, 0);
+                gc.strokeLine(+roadX, 0, getHeight()/2, 0);
                 
                 //ties
-                gc.setStroke(Color.BLACK);
-                gc.setLineWidth(3.0);
+                gc.setStroke(TIE_COLOR);
+                gc.setLineWidth(scale.tieWidth());
                 
                 for (int i=0; i<10; ++i) {
                     double h = getHeight();
@@ -195,43 +196,31 @@ public abstract class Shape {
                 }
 
                 //rails
-                gc.setStroke(Color.SILVER.darker());
-                gc.setLineWidth(1.0);
+                gc.setStroke(RAIL_COLOR);
+                gc.setLineWidth(scale.railWidth());
                 
-                double gauge = w*0.4;
+                //double gauge = w*0.4;
+                double gauge = scale.railGauge()/2;
+                
                 gc.strokeLine(-gauge, -getHeight()/2, -gauge, getHeight()/2);
                 gc.strokeLine(+gauge, -getHeight()/2, +gauge, getHeight()/2);
 
-                gc.setFill(color.interpolate(Color.TRANSPARENT, 0.6));
-                
-                gc.fillOval(-gauge, -getHeight()/2, 2*gauge, 2*gauge);
-                gc.fillOval(-gauge, +getHeight()/2-2*gauge, 2*gauge, 2*gauge);
+                drawIndicators(gc, color);
             }
         
     }
 
  
-    public static class Cross extends SolidSquare
-    {
+    public static class Cross extends Track {
         private final double trackWidth;
-        private final double arc = 10;
         private final double angle;
         
-	private final LocalConnection[] connections 
-	    = new LocalConnection[4];
-	
-	@Override public boolean hasConnections() {
-	    return true;
-	}
-	@Override public LocalConnection [] getConnections() {
-	    return connections;
-	}
-
-        public Cross(String id, double w, double h, double angle) {
-            super(id, h, h);
-            trackWidth = w;
+        public Cross(String id, TrackScale ts, Length length, double angle) {
+            super(id, length.getPixels(), length.getPixels(), ts, 4);
+            this.trackWidth = ts.ballastWidth();
             this.angle = angle;
-            
+
+            double h = length.getPixels();
             Point2D p1 = new Rotate(angle).transform(0, -h/2);
             Point2D p2 = new Rotate(180+angle).transform(0, -h/2);
 	    connections[0] = new LocalConnection(0, -h/2, 0);
@@ -246,21 +235,11 @@ public abstract class Shape {
             horiz.appendRotation(angle);
             
             //ballast
-	    gc.setFill(Color.IVORY);
-	    gc.fillRoundRect(
-                -trackWidth/2,
-                -getHeight()/2,
-                trackWidth,
-                getHeight(),
-                arc, arc);
+	    gc.setFill(BALLAST_COLOR);
+	    gc.fillRect(-trackWidth/2, -getHeight()/2, trackWidth, getHeight());
 
             gc.setTransform(horiz);
-	    gc.fillRoundRect(
-                -trackWidth/2,
-                -getHeight()/2,
-                trackWidth,
-                getHeight(),
-                arc, arc);
+	    gc.fillRect(-trackWidth/2, -getHeight()/2, trackWidth, getHeight());
             
             // center
             double tieX = trackWidth*0.45;
@@ -275,10 +254,12 @@ public abstract class Shape {
             // ties - TODO
 
             //rails
-            gc.setStroke(Color.SILVER.darker());
-            gc.setLineWidth(1.0);
+            gc.setStroke(RAIL_COLOR);
+            gc.setLineWidth(scale.railWidth());
                 
-            double gauge = trackWidth*0.4;
+            //double gauge = trackWidth*0.4;
+            double gauge = scale.railGauge()/2;
+            
             gc.setTransform(vert);
             gc.strokeLine(-gauge, -getHeight()/2, -gauge, getHeight()/2);
             gc.strokeLine(+gauge, -getHeight()/2, +gauge, getHeight()/2);
@@ -286,7 +267,10 @@ public abstract class Shape {
             gc.setTransform(horiz);
             gc.strokeLine(-gauge, -getHeight()/2, -gauge, getHeight()/2);
             gc.strokeLine(+gauge, -getHeight()/2, +gauge, getHeight()/2);
-            
+
+            gc.setTransform(vert);
+            drawIndicators(gc, color);
+            /*
             gc.setFill(color.interpolate(Color.TRANSPARENT, 0.6));
             gc.setTransform(vert);
             gc.fillOval(-gauge, -getHeight()/2, 2*gauge, 2*gauge);
@@ -294,6 +278,7 @@ public abstract class Shape {
             gc.setTransform(horiz);
             gc.fillOval(-gauge, -getHeight()/2, 2*gauge, 2*gauge);
             gc.fillOval(-gauge, +getHeight()/2-2*gauge, 2*gauge, 2*gauge);
+            */
         }
         
     }
@@ -334,7 +319,7 @@ public abstract class Shape {
 
         public void draw(GraphicsContext gc, Color color) {
             //ballast
-	    gc.setStroke(Color.IVORY);
+	    gc.setStroke(BALLAST_COLOR);
 	    double lw = scale.ballastWidth();
             gc.setLineWidth(lw);
             gc.setLineCap(StrokeLineCap.BUTT);
@@ -345,8 +330,8 @@ public abstract class Shape {
             gc.strokeArc(x, y-r, d, d, 180-ad/2, ad, ArcType.OPEN);
 
 	    double gauge = scale.railGauge()/2;
-	    gc.setLineWidth(2);
-	    gc.setStroke(Color.SILVER);
+	    gc.setLineWidth(scale.railWidth());
+	    gc.setStroke(RAIL_COLOR);
 	    d = 2*(r+gauge);
 	    gc.strokeArc(-gauge, -(r+gauge), d, d, 180-ad/2, ad, ArcType.OPEN); //left
 	    d = 2*(r-gauge);

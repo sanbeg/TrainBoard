@@ -15,9 +15,16 @@ public enum TrackScale {
     double tieLength() {
 	return gauge.getPixels() * 1.6;
     }
-
+    double tieWidth() {
+        return 3.0;
+    }
+    
     double railGauge() {
 	return gauge.getPixels();
+    }
+
+    double railWidth() {
+        return 2.0;
     }
     
 }

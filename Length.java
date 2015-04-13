@@ -1,6 +1,6 @@
 public class Length {
-    //private static final double ppi = 32;
-    private static final double ppi = 96;
+    private static double ppi = 32;
+    //private static final double ppi = 96;
     
     public static enum Unit {
 	IN(1.0), MM(25.4);
@@ -15,6 +15,10 @@ public class Length {
 
     private final double inches;
     
+    public Length(double length) {
+	inches = length;
+    }
+
     public Length(double length, Unit unit) {
 	inches = length / unit.perInch;
     }
