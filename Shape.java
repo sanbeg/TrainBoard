@@ -6,25 +6,36 @@ import javafx.scene.transform.Affine;
 import javafx.geometry.Point2D;
 import javafx.scene.transform.Rotate;
 
-public interface Shape {
-    double getWidth();
-    double getHeight();
+public abstract class Shape {
+    private final String id;
+    private final double width;
+    private final double height;
+
+    public String getId()     { return id;     }
+    public double getWidth()  { return width;  }
+    public double getHeight() { return height; }
         
-    void draw(GraphicsContext gc, Color color);
-    void erase(GraphicsContext gc);
-
-    String getId();
-
-default boolean hasConnections() 
-    {
-	return false;
+    public Shape(String id, double w, double h) {
+        this.id = id;
+        this.width = w;
+        this.height = h;
     }
-    
-default LocalConnection[] getConnections() 
-    {
-	return null;
+
+    abstract public void draw(GraphicsContext gc, Color color);
+
+    public void erase(GraphicsContext gc) {
+        //add 1 for rotated shape
+        gc.clearRect(
+            -getWidth()/2-1, 
+            -getHeight()/2-1,
+            getWidth()+2, 
+            getHeight()+2
+        );
     }
-    
+	
+
+    public boolean hasConnections()           { return false; }
+    public LocalConnection[] getConnections() { return null;  }
 
     public static class LocalConnection {
 	public final double x;
@@ -40,35 +51,38 @@ default LocalConnection[] getConnections()
 	
     }
 
-    public static class SolidSquare implements Shape 
+    abstract public static class Track extends Shape {
+	protected final TrackScale scale;
+	protected final double gauge;
+	
+	protected final LocalConnection[] connections;
+
+        public Track(String id, double w, double h, TrackScale ts, int connections) {
+            super(id, w, h);
+            this.scale = ts;
+            this.gauge = ts.railGauge();
+            this.connections = new LocalConnection[connections];
+        }
+        @Override public boolean hasConnections() { return true; }
+        @Override public LocalConnection[] getConnections() { return connections; }
+
+        protected void drawIndicators(GraphicsContext gc, Color color) {
+            gc.setFill(color.interpolate(Color.TRANSPARENT, 0.6));
+            for (LocalConnection c : connections) {
+                gc.fillArc(c.x-gauge/2, c.y-gauge/2, gauge, gauge, 180-c.angle, 180, ArcType.CHORD);
+            }
+        }
+    }
+    
+    public static class SolidSquare extends Shape 
     {
-	private final double width;
-        private final double height;
-        
 	private final double arc = 10;
-        private final String id;
         
         public SolidSquare(String id, double w, double h) {
-            this.id = id;
-            this.width = w;
-            this.height = h;
+            super(id, w, h);
         }
         
-
-	public double getWidth() 
-	{
-	    return width;
-	}
-	public double getHeight() {
-            return height;
-        }
-
-        public String getId() {
-            return id;
-        }
-        
-	public void draw(GraphicsContext gc, Color color) 
-	{
+	public void draw(GraphicsContext gc, Color color) {
 	    gc.setFill(color);
 	    gc.fillRoundRect(
 			     -getWidth()/2,
@@ -77,17 +91,6 @@ default LocalConnection[] getConnections()
 			     getHeight(),
 			     arc, arc);
 	}
-	public void erase(GraphicsContext gc) 
-	{
-	    //add 1 for rotated shape
-            gc.clearRect(
-			 -getWidth()/2-1, 
-			 -getHeight()/2-1,
-			 getWidth()+2, 
-			 getHeight()+2
-			 );
-	}
-	
     }
 
     public static class MidDot extends SolidSquare {
@@ -106,71 +109,43 @@ default LocalConnection[] getConnections()
 	}
     }
 
-    public static class Straight extends SolidSquare
+    public static class Straight extends Track
     {
-	private final double gauge;
-	private TrackScale scale;
-	
-	private final LocalConnection[] connections;
-	
-	@Override public boolean hasConnections() {
-	    return true;
-	}
-	@Override public LocalConnection [] getConnections() {
-	    return connections;
-	}
-
         public Straight(String id, TrackScale scale, Length length) {
-            super(id, scale.ballastWidth(), length.getPixels());
+            super(id, scale.ballastWidth(), length.getPixels(), scale, 2);
 	    double h = length.getPixels();
-	    this.scale = scale;
-	    this.gauge = scale.railGauge();
-	    
-	    connections = new LocalConnection[] {
-		new LocalConnection(0, -h/2, 0),
-		new LocalConnection(0, +h/2, 180)
-	    };
-	    
-	    
+            
+            connections[0] = new LocalConnection(0, -h/2, 0);
+            connections[1] = new LocalConnection(0, +h/2, 180);
         }
         
-        public void draw(GraphicsContext gc, Color color) 
-            {
-                //ballast
-                super.draw(gc, Color.IVORY);
+        public void draw(GraphicsContext gc, Color color) {
+            //ballast
+	    gc.setFill(Color.IVORY);
+	    gc.fillRect(-getWidth()/2, -getHeight()/2, getWidth(), getHeight());
 
-                //ties
-                gc.setStroke(Color.BLACK);
-		gc.setLineCap(StrokeLineCap.BUTT);
-                gc.setLineWidth(3.0);
-		double tieX = scale.tieLength()/2.0;
+            //ties
+            gc.setStroke(Color.BLACK);
+            gc.setLineCap(StrokeLineCap.BUTT);
+            gc.setLineWidth(3.0);
+            double tieX = scale.tieLength()/2.0;
 		
-                for (int i=0; i<10; ++i) {
-                    double h = getHeight();
-                    double y = -h/2 + h*0.1*i + h*0.05;
-                    gc.strokeLine(-tieX, y, tieX, y);
-                }
-
-                //rails
-                gc.setStroke(Color.SILVER.darker());
-                gc.setLineWidth(1.0);
-                
-                double g2 = gauge/2;
-                gc.strokeLine(-g2, -getHeight()/2, -g2, getHeight()/2);
-                gc.strokeLine(+g2, -getHeight()/2, +g2, getHeight()/2);
-
-                //indicator
-/*
-                gc.setFill(color);
-                double diameter = 4.0;
-                gc.fillOval(-diameter/2, -diameter/2, diameter, diameter);
-*/
-                //gc.setFill(new Color(color.getRed(), color.getGreen(), color.getBlue(), 0.4));
-                gc.setFill(color.interpolate(Color.TRANSPARENT, 0.6));
-                
-                gc.fillOval(-g2, -getHeight()/2, 2*g2, 2*g2);
-                gc.fillOval(-g2, +getHeight()/2-2*g2, 2*g2, 2*g2);
+            for (int i=0; i<10; ++i) {
+                double h = getHeight();
+                double y = -h/2 + h*0.1*i + h*0.05;
+                gc.strokeLine(-tieX, y, tieX, y);
             }
+
+            //rails
+            gc.setStroke(Color.SILVER.darker());
+            gc.setLineWidth(1.0);
+                
+            double g2 = gauge/2;
+            gc.strokeLine(-g2, -getHeight()/2, -g2, getHeight()/2);
+            gc.strokeLine(+g2, -getHeight()/2, +g2, getHeight()/2);
+
+            drawIndicators(gc, color);
+        }
         
     }
 
@@ -323,23 +298,9 @@ default LocalConnection[] getConnections()
         
     }
 
-    public static class Curve extends SolidSquare {
-	private final double gauge;
-	private final TrackScale scale;
-
+    public static class Curve extends Track {
 	private final double radius;
 	private final double angle;
-	
-	
-	private final LocalConnection[] connections 
-	    = new LocalConnection[2];
-	
-	@Override public boolean hasConnections() {
-	    return true;
-	}
-	@Override public LocalConnection [] getConnections() {
-	    return connections;
-	}
 
 	private static double mkWidth(TrackScale scale, double d, double ad) {
             double ar = Math.toRadians(ad);
@@ -355,12 +316,12 @@ default LocalConnection[] getConnections()
 
         public Curve(String id, TrackScale scale, Length radius, double angle) {
 	    super(id, 
-		  mkWidth(scale, radius.getPixels()*2, angle), 
-		  mkHeight(scale, radius.getPixels()*2, angle)
+                    mkWidth(scale, radius.getPixels()*2, angle), 
+                    mkHeight(scale, radius.getPixels()*2, angle),
+                    scale,
+                    2
 		  );
 
-	    this.scale = scale;
-	    this.gauge = scale.railGauge();
 	    this.radius = radius.getPixels();
 	    this.angle = angle;
 	    double r = radius.getPixels();
@@ -391,11 +352,7 @@ default LocalConnection[] getConnections()
 	    d = 2*(r-gauge);
 	    gc.strokeArc(+gauge, -(r-gauge), d, d, 180-ad/2, ad, ArcType.OPEN); //right
 
-            gc.setFill(color.interpolate(Color.TRANSPARENT, 0.6));
-            for (LocalConnection c : connections) {
-                gc.fillArc(c.x-gauge, c.y-gauge, 2*gauge, 2*gauge, 180-c.angle, 180, ArcType.CHORD);
-            }
-	    
+            drawIndicators(gc, color);
 	}
 	
     }
