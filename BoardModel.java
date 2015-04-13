@@ -10,7 +10,9 @@ import java.util.Set;
 
 public class BoardModel 
 {
+    public final List<Point> shapes = new java.util.ArrayList<>();
     private GraphicsContext floatingContext=null;
+
     public void setFloatingContext(GraphicsContext gc) {
 	assert floatingContext == null;
 	floatingContext = java.util.Objects.requireNonNull(gc);
@@ -19,8 +21,6 @@ public class BoardModel
     private GraphicsContext getfgc(GraphicsContext fallback) {
 	return (floatingContext==null) ? fallback : floatingContext;
     }
-    
-    public final List<Point> shapes = new java.util.ArrayList<>();
 
     public final Map<String,Shape> shapesMap = new HashMap<>();
         {
@@ -283,7 +283,79 @@ public class BoardModel
         point.draw(gc, Color.GREEN);
     }
     
+    public void goLeft(GraphicsContext gc) {
+        double left = Double.MAX_VALUE;
+        for (Point p : shapes) {
+            left = Math.min(left, p.x - p.getWidth()/2);
+        }
+        for (Point p : shapes) {
+            p.erase(gc);
+            p.x -= left;
+        }
+        redraw(gc);
+    }
 
+    public void goRight(GraphicsContext gc, double bound) {
+        double right = Double.MIN_VALUE;
+        for (Point p : shapes) {
+            right = Math.max(right, p.x + p.getWidth()/2);
+        }
+        for (Point p : shapes) {
+            p.erase(gc);
+            p.x += (bound - right);
+        }
+        redraw(gc);
+    }
+
+    public void goUp(GraphicsContext gc) {
+        double top = Double.MAX_VALUE;
+        for (Point p : shapes) {
+            top = Math.min(top, p.y - p.getHeight()/2);
+        }
+        for (Point p : shapes) {
+            p.erase(gc);
+            p.y -= top;
+        }
+        redraw(gc);
+    }
+
+    public void goDown(GraphicsContext gc, double bound) {
+        double bottom = Double.MIN_VALUE;
+        for (Point p : shapes) {
+            bottom = Math.max(bottom, p.y + p.getHeight()/2);
+        }
+        for (Point p : shapes) {
+            p.erase(gc);
+            p.y += (bound - bottom);
+        }
+        redraw(gc);
+    }
+
+    public void goCenter(GraphicsContext gc, double xbound, double ybound) {
+        double left = Double.MAX_VALUE;
+        double right = Double.MIN_VALUE;
+        double top = Double.MAX_VALUE;
+        double bottom = Double.MIN_VALUE;
+
+        for (Point p : shapes) {
+            left   = Math.min(left,   p.x - p.getWidth()/2);
+            right  = Math.max(right,  p.x + p.getWidth()/2);
+            top    = Math.min(top,    p.y - p.getHeight()/2);
+            bottom = Math.max(bottom, p.y + p.getHeight()/2);
+        }
+
+        double xdelta = (left + right - xbound)  / 2;
+        double ydelta = (top + bottom - ybound) / 2;
+        
+
+        for (Point p : shapes) {
+            p.erase(gc);
+            p.x -= xdelta;
+            p.y -= ydelta;
+        }
+        redraw(gc);
+    }
+        
 }
 
     

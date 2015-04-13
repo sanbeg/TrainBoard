@@ -34,6 +34,12 @@ public class BoardController {
     public MenuItem saveAsItem;
     public MenuItem closeItem;
 
+    public MenuItem moveLeftItem;
+    public MenuItem moveRightItem;
+    public MenuItem moveUpItem;
+    public MenuItem moveDownItem;
+    public MenuItem moveCenterItem;
+    
     private final BoardModel model = new BoardModel();
     
 
@@ -217,6 +223,12 @@ public class BoardController {
                 }
             });
   
+        moveLeftItem.setOnAction((ActionEvent ev) -> model.goLeft(gc));
+        moveRightItem.setOnAction((ActionEvent ev) -> model.goRight(gc, width.getPixels()));
+        moveUpItem.setOnAction((ActionEvent ev) -> model.goUp(gc));
+        moveDownItem.setOnAction((ActionEvent ev) -> model.goDown(gc, height.getPixels()));
+        moveCenterItem.setOnAction((ActionEvent ev) -> model.goCenter(gc, width.getPixels(), height.getPixels()));
+        
         trackBar.getItems().clear();
         //addButton(trackBar, trackGroup, "solid");
         addButton(trackBar, trackGroup, "middot");

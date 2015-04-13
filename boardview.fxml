@@ -47,6 +47,11 @@
           <Menu mnemonicParsing="false" text="Edit">
             <items>
               <MenuItem mnemonicParsing="false" text="Delete" />
+              <MenuItem fx:id="moveLeftItem" mnemonicParsing="false" text="Left" />
+              <MenuItem fx:id="moveRightItem" mnemonicParsing="false" text="Right" />
+              <MenuItem fx:id="moveUpItem" mnemonicParsing="false" text="Up" />
+              <MenuItem fx:id="moveDownItem" mnemonicParsing="false" text="Down" />
+              <MenuItem fx:id="moveCenterItem" mnemonicParsing="false" text="Center" />
             </items>
           </Menu>
           <Menu mnemonicParsing="false" text="Help">

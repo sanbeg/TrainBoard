@@ -1,5 +1,5 @@
 public class Length {
-    private static double ppi = 32;
+    private static double ppi = 24;
     //private static final double ppi = 96;
     
     public static enum Unit {
