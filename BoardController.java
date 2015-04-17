@@ -20,6 +20,8 @@ import java.io.IOException;
 
 import javax.xml.bind.JAXB;
 import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 
 public class BoardController {
     
@@ -289,13 +291,15 @@ public class BoardController {
     
     private static class SavedBoard 
     {
-        public final double dpi = Length.ppi;
+        @XmlAttribute public final double dpi = Length.ppi;
         
         public List<SavedPlace> tracks = new java.util.ArrayList<>();
+
+        @XmlElementWrapper @XmlElement(name="shape")
         public List<Shape> shapes = new java.util.ArrayList<>();
 
-        public double width;
-        public double height;
+        @XmlAttribute public double width;
+        @XmlAttribute public double height;
         
 	public void setAll(List<Point> points) 
 	{
