@@ -258,7 +258,10 @@ public class BoardController {
         addButton(trackBar, trackGroup, "x45");
         addButton(trackBar, trackGroup, "road");
         addButton(trackBar, trackGroup, "curve");
+        addButton(trackBar, trackGroup, "curve-19");
         addButton(trackBar, trackGroup, "turn");
+        addButton(trackBar, trackGroup, "left");
+        addButton(trackBar, trackGroup, "right");
     }
 
     private void addButton(ToolBar bar, ToggleGroup group, String label) {

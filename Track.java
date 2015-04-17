@@ -277,10 +277,26 @@ abstract public class Track extends Shape {
     }
 
     public static class Turnout extends Track {
+        public static enum Hand {
+            LEFT, RIGHT, ALL;
+
+            public boolean right() 
+            {
+                return this==RIGHT || this==ALL;
+            }
+            public boolean left() 
+            {
+                return this==LEFT || this==ALL;
+            }
+            
+        }
+
         private final double length;
 	private final double radius;
 	private final double angle;
         private final double yoff;
+        private final Hand hand;
+        
         
 	private static double mkWidth(TrackScale scale, double d, double ad) {
             double r = d/2;
@@ -295,30 +311,34 @@ abstract public class Track extends Shape {
             return (d+lw) * Math.sin(ar/2);
 	}
 
-        public Turnout(String id, TrackScale scale, Length length, Length radius, double angle) {
+        public Turnout(String id, TrackScale scale, Hand hand, Length length, Length radius, double angle) {
 	    super(id, 
                   mkWidth(scale, radius.getPixels()*2, angle), 
                   mkHeight(scale, radius.getPixels()*2, angle),
                   scale,
-                  4
+                  (hand == Hand.ALL) ? 4 : 3
 		  );
             this.length = length.getPixels();
 	    this.radius = radius.getPixels();
 	    this.angle = angle;
-
+            this.hand = hand;
+            
             double ar = Math.toRadians(angle);
             double h = getHeight();
             double coff = this.radius * Math.sin(ar)/2;
             yoff = Math.max(coff, h/2);
 
-            connections[0] = new LocalConnection(0, yoff, 180);
-            connections[1] = new LocalConnection(0, yoff-h, 0);
+            int nc=0;
+            
+            connections[nc++] = new LocalConnection(0, yoff, 180);
+            connections[nc++] = new LocalConnection(0, yoff-h, 0);
             double r = this.radius;
             
-            connections[2] = new LocalConnection(r-r*Math.cos(ar), yoff-r*Math.sin(ar), this.angle);
-            connections[3] = new LocalConnection(-(r-r*Math.cos(ar)), yoff-r*Math.sin(ar), -this.angle);
+            if (hand.right()) connections[nc++] = new LocalConnection(r-r*Math.cos(ar), yoff-r*Math.sin(ar), this.angle);
+            if (hand.left()) connections[nc++] = new LocalConnection(-(r-r*Math.cos(ar)), yoff-r*Math.sin(ar), -this.angle);
 	}
 
+ 
         public void draw(GraphicsContext gc, Color color) {
             //ballast
 	    gc.setStroke(BALLAST_COLOR);
@@ -329,9 +349,35 @@ abstract public class Track extends Shape {
             double h = getHeight();
 
             double d = radius * 2;
-            gc.strokeArc(0,         -radius + yoff, d, d, 180, -angle, ArcType.OPEN);  //RH
-            gc.strokeArc(-2*radius, -radius + yoff, d, d,   0, +angle, ArcType.OPEN); //LH
+            if (hand.right()) gc.strokeArc(0,         -radius + yoff, d, d, 180, -angle, ArcType.OPEN);
+            if (hand.left()) gc.strokeArc(-2*radius, -radius + yoff, d, d,   0, +angle, ArcType.OPEN);
             gc.strokeLine(0, yoff, 0, yoff - h);
+
+            //rails
+            gc.setStroke(RAIL_COLOR);
+            gc.setLineWidth(scale.railWidth());
+                
+            //straight rails
+            double g2 = gauge/2;
+            gc.strokeLine(-g2, -getHeight()/2, -g2, getHeight()/2);
+            gc.strokeLine(+g2, -getHeight()/2, +g2, getHeight()/2);
+
+            double r = radius;
+            if (hand.right()) {
+                //RH rails
+                d = 2*(r+g2);
+                gc.strokeArc(-g2,         -d/2 + yoff, d, d, 180, -angle, ArcType.OPEN);  //RH
+                d = 2*(r-g2);
+                gc.strokeArc(g2,         -d/2 + yoff, d, d, 180, -angle, ArcType.OPEN);  //RH
+            }
+            if (hand.left()) {
+                //LH rails
+                d = 2*(r+g2);
+                gc.strokeArc(g2-d,         -d/2 + yoff, d, d, 0, +angle, ArcType.OPEN);  //RH
+                d = 2*(r-g2);
+                gc.strokeArc(-g2-d,         -d/2 + yoff, d, d, 0, +angle, ArcType.OPEN);  //RH
+            }
+            
 
             drawIndicators(gc, color);
         }
