@@ -256,6 +256,7 @@ public class BoardController {
         addButton(trackBar, trackGroup, "middot");
         addButton(trackBar, trackGroup, "tall");
         addButton(trackBar, trackGroup, "straight");
+        addButton(trackBar, trackGroup, "straight5");
         addButton(trackBar, trackGroup, "x90");
         addButton(trackBar, trackGroup, "x45");
         addButton(trackBar, trackGroup, "road");

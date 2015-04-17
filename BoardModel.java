@@ -30,6 +30,7 @@ public class BoardModel
             
             TrackScale nscale = TrackScale.N;
             shapesMap.put("straight", new Track.Straight("straight", nscale, new Length(2.5)));
+            shapesMap.put("straight5", new Track.Straight("straight5", nscale, new Length(5)));
             shapesMap.put("x90",      new Track.Cross("x90", nscale, new Length(2.0), 90));
             shapesMap.put("x45",      new Track.Cross("x45", nscale, new Length(2.0), 45));
             shapesMap.put("road",     new Track.Road("road", nscale, new Length(1.0), new Length(2.0)));
