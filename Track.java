@@ -198,11 +198,25 @@ abstract public class Track extends Shape {
             gc.strokeLine(-gauge, -getHeight()/2, -gauge, getHeight()/2);
             gc.strokeLine(+gauge, -getHeight()/2, +gauge, getHeight()/2);
 
+            gc.setStroke(RAIL_COLOR);
             gc.setTransform(horiz);
             gc.strokeLine(-gauge, -getHeight()/2, -gauge, getHeight()/2);
             gc.strokeLine(+gauge, -getHeight()/2, +gauge, getHeight()/2);
 
+            gc.setStroke(TIE_COLOR);
+            gc.setLineCap(StrokeLineCap.BUTT);
+            double rw = scale.railWidth() / 1.5;
+            gc.setLineWidth(scale.railWidth() / 2);
+            
+            gc.strokeLine(-gauge+rw, -tieX*2, -gauge+rw, +tieX*2);
+            gc.strokeLine(+gauge-rw, -tieX*2, +gauge-rw, +tieX*2);
+
             gc.setTransform(vert);
+
+            gc.strokeLine(-gauge+rw, -tieX*2, -gauge+rw, +tieX*2);
+            gc.strokeLine(+gauge-rw, -tieX*2, +gauge-rw, +tieX*2);
+
+
             drawIndicators(gc, color);
             /*
             gc.setFill(color.interpolate(Color.TRANSPARENT, 0.6));
@@ -366,16 +380,37 @@ abstract public class Track extends Shape {
             if (hand.right()) {
                 //RH rails
                 d = 2*(r+g2);
-                gc.strokeArc(-g2,         -d/2 + yoff, d, d, 180, -angle, ArcType.OPEN);  //RH
+                gc.strokeArc(-g2, -d/2 + yoff, d, d, 180, -angle, ArcType.OPEN);  //RH
                 d = 2*(r-g2);
-                gc.strokeArc(g2,         -d/2 + yoff, d, d, 180, -angle, ArcType.OPEN);  //RH
+                gc.strokeArc(+g2, -d/2 + yoff, d, d, 180, -angle, ArcType.OPEN);  //RH
             }
             if (hand.left()) {
                 //LH rails
                 d = 2*(r+g2);
-                gc.strokeArc(g2-d,         -d/2 + yoff, d, d, 0, +angle, ArcType.OPEN);  //RH
+                gc.strokeArc(+g2-d, -d/2 + yoff, d, d, 0, +angle, ArcType.OPEN);  //RH
                 d = 2*(r-g2);
-                gc.strokeArc(-g2-d,         -d/2 + yoff, d, d, 0, +angle, ArcType.OPEN);  //RH
+                gc.strokeArc(-g2-d, -d/2 + yoff, d, d, 0, +angle, ArcType.OPEN);  //RH
+            }
+
+            // rail gap
+            double gap = scale.railWidth() / 1.5;
+            gc.setStroke(BALLAST_COLOR);
+            gc.setLineWidth(scale.railWidth() / 2);
+            gc.strokeLine(-g2+gap, -getHeight()/2, -g2+gap, getHeight()/2);
+            gc.strokeLine(+g2-gap, -getHeight()/2, +g2-gap, getHeight()/2);
+            
+            if (hand.right()) {
+                d = 2*(r+g2);
+                gc.strokeArc(-g2+gap, -d/2 + yoff, d, d, 180, -angle, ArcType.OPEN);  //RH
+                d = 2*(r-g2);
+                gc.strokeArc(+g2-gap, -d/2 + yoff, d, d, 180, -angle, ArcType.OPEN);  //RH
+            }
+            if (hand.left()) {
+                //LH rails
+                d = 2*(r+g2);
+                gc.strokeArc(+g2-d-gap, -d/2 + yoff, d, d, 0, +angle, ArcType.OPEN);  //RH
+                d = 2*(r-g2);
+                gc.strokeArc(-g2-d+gap, -d/2 + yoff, d, d, 0, +angle, ArcType.OPEN);  //RH
             }
             
 
