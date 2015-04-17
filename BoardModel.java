@@ -34,6 +34,7 @@ public class BoardModel
             shapesMap.put("x45",      new Track.Cross("x45", nscale, new Length(2.0), 45));
             shapesMap.put("road",     new Track.Road("road", nscale, new Length(1.0), new Length(2.0)));
 	    shapesMap.put("curve",    new Track.Curve("curve", nscale, new Length(9.5), 30.0));
+	    shapesMap.put("turn",     new Track.Turnout("turn", nscale, new Length(5.0), new Length(19), 15.0));
 	    
         }
 

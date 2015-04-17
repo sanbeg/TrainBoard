@@ -88,6 +88,9 @@ public class BoardController {
 	return contextMenu;
     }
     
+    private Length width;
+    private Length height;
+    
     public void initialize() {
         stage.setTitle(TITLE_PREFIX);
 
@@ -98,8 +101,8 @@ public class BoardController {
 	    stage.setWidth(screen.getVisualBounds().getWidth() * 0.9);
 	}
 	
-	Length width = new Length(4*12, Length.Unit.IN);
-	Length height = new Length(2*12, Length.Unit.IN);
+	width = new Length(4*12, Length.Unit.IN);
+	height = new Length(2*12, Length.Unit.IN);
 	
         final Canvas canvas = new Canvas(width.getPixels(), height.getPixels());
         final Canvas floatingCanvas = new Canvas(width.getPixels(), height.getPixels());
@@ -109,6 +112,8 @@ public class BoardController {
         canvasPane.getChildren().add(canvas);
         canvasPane.getChildren().add(floatingCanvas);
 
+        //System.out.println(canvasPane.getHeight() + " = " + canvas.getHeight());
+        
         final ContextMenu contextMenu = makeContextMenu(gc);
 	final ToggleGroup trackGroup = new ToggleGroup();
 
@@ -196,6 +201,14 @@ public class BoardController {
 		    updateFile(file, fileChooser);
 		    resetBoard(gc, canvas);
 		    SavedBoard sb = JAXB.unmarshal(file, SavedBoard.class);
+                    width = new Length(sb.width);
+                    height = new Length(sb.height);
+                    
+                    canvas.setWidth(width.getPixels());
+                    floatingCanvas.setWidth(width.getPixels());
+                    canvas.setHeight(height.getPixels());
+                    floatingCanvas.setHeight(height.getPixels());
+                    
 		    if (sb.tracks != null) {
 			model.addAllPlaces(sb.tracks);
 			model.redraw(gc);
@@ -206,7 +219,11 @@ public class BoardController {
 	saveItem.setOnAction((ActionEvent ev) -> {
 		if (file != null) {
 		    SavedBoard savedBoard = new SavedBoard();
+                    savedBoard.width = width.getInches();
+                    savedBoard.height = height.getInches();
+                        
 		    savedBoard.setAll(model.shapes);
+                    savedBoard.setShapes(model.shapesMap);
 		    JAXB.marshal(savedBoard, file);
 		}
 	    });
@@ -218,7 +235,10 @@ public class BoardController {
                 if (file != null) {
                     updateFile(file, fileChooser);
                     SavedBoard savedBoard = new SavedBoard();
+                    savedBoard.width = width.getInches();
+                    savedBoard.height = height.getInches();
                     savedBoard.setAll(model.shapes);
+                    savedBoard.setShapes(model.shapesMap);
                     JAXB.marshal(savedBoard, file);
                 }
             });
@@ -238,6 +258,7 @@ public class BoardController {
         addButton(trackBar, trackGroup, "x45");
         addButton(trackBar, trackGroup, "road");
         addButton(trackBar, trackGroup, "curve");
+        addButton(trackBar, trackGroup, "turn");
     }
 
     private void addButton(ToolBar bar, ToggleGroup group, String label) {
@@ -265,7 +286,14 @@ public class BoardController {
     
     private static class SavedBoard 
     {
+        public final double dpi = Length.ppi;
+        
         public List<SavedPlace> tracks = new java.util.ArrayList<>();
+        public List<Shape> shapes = new java.util.ArrayList<>();
+
+        public double width;
+        public double height;
+        
 	public void setAll(List<Point> points) 
 	{
 	    for (Point place: points) {
@@ -277,6 +305,13 @@ public class BoardController {
 		tracks.add(sp);
 	    }
         }
+        public void setShapes(java.util.Map<String, Shape> shapesMap) 
+        {
+            for (Shape s : shapesMap.values()) {
+                shapes.add(s);
+            }
+        }
+        
     }
 
     private void resetBoard(GraphicsContext gc, Canvas canvas) 

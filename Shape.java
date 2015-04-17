@@ -2,7 +2,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
 public abstract class Shape {
-    private final String id;
+    public final String id;
     private final double width;
     private final double height;
 

@@ -7,7 +7,7 @@ import javafx.geometry.Point2D;
 import javafx.scene.transform.Rotate;
 
 abstract public class Track extends Shape {
-    protected final TrackScale scale;
+    public final TrackScale scale;
     protected final double gauge;
 	
     protected final LocalConnection[] connections;
@@ -276,6 +276,66 @@ abstract public class Track extends Shape {
 	
     }
 
+    public static class Turnout extends Track {
+        private final double length;
+	private final double radius;
+	private final double angle;
+        private final double yoff;
+        
+	private static double mkWidth(TrackScale scale, double d, double ad) {
+            double r = d/2;
+	    double lw = scale.ballastWidth();
+            double ar = Math.toRadians(ad);
+            
+            return (r - (r-lw/2)*Math.cos(ar)) * 2;
+	}	
+	private static double mkHeight(TrackScale scale, double d, double ad) {
+            double ar = Math.toRadians(ad);
+	    double lw = scale.ballastWidth();
+            return (d+lw) * Math.sin(ar/2);
+	}
+
+        public Turnout(String id, TrackScale scale, Length length, Length radius, double angle) {
+	    super(id, 
+                  mkWidth(scale, radius.getPixels()*2, angle), 
+                  mkHeight(scale, radius.getPixels()*2, angle),
+                  scale,
+                  4
+		  );
+            this.length = length.getPixels();
+	    this.radius = radius.getPixels();
+	    this.angle = angle;
+
+            double ar = Math.toRadians(angle);
+            double h = getHeight();
+            double coff = this.radius * Math.sin(ar)/2;
+            yoff = Math.max(coff, h/2);
+
+            connections[0] = new LocalConnection(0, yoff, 180);
+            connections[1] = new LocalConnection(0, yoff-h, 0);
+            double r = this.radius;
+            
+            connections[2] = new LocalConnection(r-r*Math.cos(ar), yoff-r*Math.sin(ar), this.angle);
+            connections[3] = new LocalConnection(-(r-r*Math.cos(ar)), yoff-r*Math.sin(ar), -this.angle);
+	}
+
+        public void draw(GraphicsContext gc, Color color) {
+            //ballast
+	    gc.setStroke(BALLAST_COLOR);
+	    double lw = scale.ballastWidth();
+            gc.setLineWidth(lw);
+            gc.setLineCap(StrokeLineCap.BUTT);
+
+            double h = getHeight();
+
+            double d = radius * 2;
+            gc.strokeArc(0,         -radius + yoff, d, d, 180, -angle, ArcType.OPEN);  //RH
+            gc.strokeArc(-2*radius, -radius + yoff, d, d,   0, +angle, ArcType.OPEN); //LH
+            gc.strokeLine(0, yoff, 0, yoff - h);
+
+            drawIndicators(gc, color);
+        }
+    }
     
 }
     
