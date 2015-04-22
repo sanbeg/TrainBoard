@@ -7,17 +7,12 @@ import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertNotNull;
 import junit.framework.TestCase;
 
-class TestShape implements Shape 
+class TestShape extends Shape 
 {
-    public String getId() {
-        return "test";
+    public TestShape() {
+	super("test", 10, 100);
     }
-    public double getWidth() {
-        return 10;
-    }
-    public double getHeight() {
-        return 100;
-    }
+
     public Color color;
     public int nDraw = 0;
     public int nErase = 0;

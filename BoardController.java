@@ -15,6 +15,9 @@ import javafx.stage.FileChooser;
 import javafx.event.ActionEvent;
 
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -43,7 +46,7 @@ public class BoardController {
     public MenuItem moveCenterItem;
     
     private final BoardModel model = new BoardModel();
-    
+    private final ShapeBox shapeBox = new ShapeBox();
 
     public BoardController(Stage stage, File file) {
         this.stage = stage;
@@ -183,8 +186,9 @@ public class BoardController {
 	if (file != null) {
 	    updateFile(file, fileChooser);
 	    SavedBoard sb = JAXB.unmarshal(file, SavedBoard.class);
+	    //FIXME - update width & height from file!
 	    if (sb.tracks != null) {
-		model.addAllPlaces(sb.tracks);
+		addAllPlaces(sb.tracks);
 		model.redraw(gc);
 	    }
 	}
@@ -203,16 +207,21 @@ public class BoardController {
 		    updateFile(file, fileChooser);
 		    resetBoard(gc, canvas);
 		    SavedBoard sb = JAXB.unmarshal(file, SavedBoard.class);
-                    width = new Length(sb.width);
-                    height = new Length(sb.height);
+		    if (sb.width > 0 && sb.height > 0) {
+			width = new Length(sb.width);
+			height = new Length(sb.height);
                     
-                    canvas.setWidth(width.getPixels());
-                    floatingCanvas.setWidth(width.getPixels());
-                    canvas.setHeight(height.getPixels());
-                    floatingCanvas.setHeight(height.getPixels());
-                    
+			canvas.setWidth(width.getPixels());
+			floatingCanvas.setWidth(width.getPixels());
+			canvas.setHeight(height.getPixels());
+			floatingCanvas.setHeight(height.getPixels());
+                    } else {
+			System.err.println("missing size in save file");
+		    }
+		    
+		    
 		    if (sb.tracks != null) {
-			model.addAllPlaces(sb.tracks);
+			addAllPlaces(sb.tracks);
 			model.redraw(gc);
 		    }
 		}
@@ -225,7 +234,7 @@ public class BoardController {
                     savedBoard.height = height.getInches();
                         
 		    savedBoard.setAll(model.shapes);
-                    savedBoard.setShapes(model.shapesMap);
+                    //savedBoard.setShapes(model.shapesMap);
 		    JAXB.marshal(savedBoard, file);
 		}
 	    });
@@ -240,7 +249,7 @@ public class BoardController {
                     savedBoard.width = width.getInches();
                     savedBoard.height = height.getInches();
                     savedBoard.setAll(model.shapes);
-                    savedBoard.setShapes(model.shapesMap);
+                    //savedBoard.setShapes(model.shapesMap);
                     JAXB.marshal(savedBoard, file);
                 }
             });
@@ -252,23 +261,13 @@ public class BoardController {
         moveCenterItem.setOnAction((ActionEvent ev) -> model.goCenter(gc, width.getPixels(), height.getPixels()));
         
         trackBar.getItems().clear();
-        //addButton(trackBar, trackGroup, "solid");
-        addButton(trackBar, trackGroup, "middot");
-        addButton(trackBar, trackGroup, "tall");
-        addButton(trackBar, trackGroup, "straight");
-        addButton(trackBar, trackGroup, "straight5");
-        addButton(trackBar, trackGroup, "x90");
-        addButton(trackBar, trackGroup, "x45");
-        addButton(trackBar, trackGroup, "road");
-        addButton(trackBar, trackGroup, "curve");
-        addButton(trackBar, trackGroup, "curve-19");
-        addButton(trackBar, trackGroup, "turn");
-        addButton(trackBar, trackGroup, "left");
-        addButton(trackBar, trackGroup, "right");
+	for (Shape shape : shapeBox.getShapes()) {
+	    addButton(trackBar, trackGroup, shape);
+	}
+	
     }
 
-    private void addButton(ToolBar bar, ToggleGroup group, String label) {
-        Shape shape = model.shapesMap.get(label);
+    private void addButton(ToolBar bar, ToggleGroup group, Shape shape) {
         Canvas bc = new Canvas(shape.getWidth(), shape.getHeight());
         GraphicsContext gc = bc.getGraphicsContext2D();
         gc.translate(shape.getWidth()/2, shape.getHeight()/2);
@@ -281,6 +280,21 @@ public class BoardController {
         bar.getItems().add(button);
     }
     
+    public void addAllPlaces(List<SavedPlace> savedPlaces) 
+    {
+	Map<String,Shape> shapesMap = new HashMap<>();
+	for (Shape s : shapeBox.getShapes()) {
+	    shapesMap.put(s.getId(), s);
+	}
+	
+	for (SavedPlace sp : savedPlaces) {
+	    Shape s = shapesMap.get(sp.shape);
+            if (s == null) s = shapesMap.get("solid");
+	    Point p = new Point(sp.x, sp.y, s);
+	    p.angle = sp.angle;
+	    model.addPoint(p);
+	}
+    }
 
     public static class SavedPlace
     {

@@ -4,8 +4,6 @@ import javafx.geometry.Point2D;
 import javafx.scene.transform.Rotate;
 
 import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
 import java.util.Set;
 
 public class BoardModel 
@@ -22,35 +20,9 @@ public class BoardModel
 	return (floatingContext==null) ? fallback : floatingContext;
     }
 
-    public final Map<String,Shape> shapesMap = new HashMap<>();
-        {
-            shapesMap.put("middot", new Shape.MidDot("middot", 30, 30, 4));
-            shapesMap.put("solid", new Shape.SolidSquare("solid", 30, 30));
-            shapesMap.put("tall", new Shape.MidDot("tall", 30, 60, 6));
-            
-            TrackScale nscale = TrackScale.N;
-            shapesMap.put("straight", new Track.Straight("straight", nscale, new Length(2.5)));
-            shapesMap.put("straight5", new Track.Straight("straight5", nscale, new Length(5)));
-            shapesMap.put("x90",      new Track.Cross("x90", nscale, new Length(2.0), 90));
-            shapesMap.put("x45",      new Track.Cross("x45", nscale, new Length(2.0), 45));
-            shapesMap.put("road",     new Track.Road("road", nscale, new Length(1.0), new Length(2.0)));
-	    shapesMap.put("curve",    new Track.Curve("curve", nscale, new Length(9.5), 30.0));
-	    shapesMap.put("curve-19",    new Track.Curve("curve-19", nscale, new Length(19), 15.0));
-	    shapesMap.put("turn",     new Track.Turnout("turn", nscale, Track.Turnout.Hand.ALL, new Length(5.0), new Length(19), 15.0));
-	    shapesMap.put("right",     new Track.Turnout("right", nscale, Track.Turnout.Hand.RIGHT, new Length(5.0), new Length(19), 15.0));
-	    shapesMap.put("left",     new Track.Turnout("left", nscale, Track.Turnout.Hand.LEFT, new Length(5.0), new Length(19), 15.0));
-	    
-        }
-
-    public void addAllPlaces(List<BoardController.SavedPlace> savedPlaces) 
+    public void addPoint(Point p) 
     {
-	for (BoardController.SavedPlace sp: savedPlaces) {
-            Shape s = shapesMap.get(sp.shape);
-            if (s == null) s = shapesMap.get("solid");
-	    Point p = new Point(sp.x, sp.y, s);
-	    p.angle = sp.angle;
-	    shapes.add(p);
-	}
+	shapes.add(p);
     }
     
     public void redraw(GraphicsContext gc) 
