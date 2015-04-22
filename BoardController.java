@@ -95,7 +95,26 @@ public class BoardController {
     
     private Length width;
     private Length height;
-    
+
+    private void loadFile(File file, Canvas canvas, Canvas floatingCanvas) {
+	SavedBoard sb = JAXB.unmarshal(file, SavedBoard.class);
+	if (sb.width > 0 && sb.height > 0) {
+	    width = new Length(sb.width);
+	    height = new Length(sb.height);
+            
+	    canvas.setWidth(width.getPixels());
+	    floatingCanvas.setWidth(width.getPixels());
+	    canvas.setHeight(height.getPixels());
+	    floatingCanvas.setHeight(height.getPixels());
+	} else {
+	    System.err.println("missing size in save file");
+	}
+		    
+	if (sb.tracks != null) {
+	    addAllPlaces(sb.tracks);
+	}
+    }
+
     public void initialize() {
         stage.setTitle(TITLE_PREFIX);
 
@@ -185,12 +204,8 @@ public class BoardController {
        
 	if (file != null) {
 	    updateFile(file, fileChooser);
-	    SavedBoard sb = JAXB.unmarshal(file, SavedBoard.class);
-	    //FIXME - update width & height from file!
-	    if (sb.tracks != null) {
-		addAllPlaces(sb.tracks);
-		model.redraw(gc);
-	    }
+	    loadFile(file, canvas, floatingCanvas);
+	    model.redraw(gc);
 	}
        
 	newItem.setOnAction((ActionEvent e) -> {
@@ -206,24 +221,8 @@ public class BoardController {
 		if (file != null) {
 		    updateFile(file, fileChooser);
 		    resetBoard(gc, canvas);
-		    SavedBoard sb = JAXB.unmarshal(file, SavedBoard.class);
-		    if (sb.width > 0 && sb.height > 0) {
-			width = new Length(sb.width);
-			height = new Length(sb.height);
-                    
-			canvas.setWidth(width.getPixels());
-			floatingCanvas.setWidth(width.getPixels());
-			canvas.setHeight(height.getPixels());
-			floatingCanvas.setHeight(height.getPixels());
-                    } else {
-			System.err.println("missing size in save file");
-		    }
-		    
-		    
-		    if (sb.tracks != null) {
-			addAllPlaces(sb.tracks);
-			model.redraw(gc);
-		    }
+		    loadFile(file, canvas, floatingCanvas);
+		    model.redraw(gc);
 		}
 	    });
 	
