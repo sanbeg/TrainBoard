@@ -25,6 +25,7 @@ abstract public class Track extends Shape {
 
     @Override public boolean hasConnections()           { return true;        }
     @Override public LocalConnection[] getConnections() { return connections; }
+    @Override public double connectionSize()            { return gauge * 2;   }
 
     protected void drawIndicators(GraphicsContext gc, Color color) {
         gc.setFill(color.interpolate(Color.TRANSPARENT, 0.6));

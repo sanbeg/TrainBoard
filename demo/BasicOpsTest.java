@@ -84,6 +84,7 @@ public class BasicOpsTest extends Application {
         GraphicsContext gc = canvas.getGraphicsContext2D();
         //drawShapes(gc);
         drawArc3(gc);
+        gc.strokeText("9\u00BE\u2033", 10, 20);
         
         root.getChildren().add(canvas);
 

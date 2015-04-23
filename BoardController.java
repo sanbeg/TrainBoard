@@ -1,11 +1,19 @@
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ToolBar;
+
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.GridPane;
+
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -16,10 +24,13 @@ import javafx.event.ActionEvent;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.HashMap;
 
 import java.io.File;
 import java.io.IOException;
+
+import javafx.util.Pair;
 
 import javax.xml.bind.JAXB;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -209,6 +220,41 @@ public class BoardController {
 	}
        
 	newItem.setOnAction((ActionEvent e) -> {
+                {
+                    Dialog<ButtonType> dialog = new Dialog<>();
+                    dialog.setTitle("New Board");
+                    
+                    dialog.getDialogPane().getButtonTypes().addAll(
+                        ButtonType.OK,
+                        ButtonType.CANCEL
+                        );
+
+
+                    GridPane grid = new GridPane();
+                    grid.setHgap(10);
+                    grid.setVgap(10);
+                    //grid.setPadding(new Insets(20, 150, 10, 10));
+                    
+                    TextField widthfield = new TextField();
+                    widthfield.setPromptText("Width");
+                    TextField heightfield = new TextField();
+                    heightfield.setPromptText("Height");
+                    
+                    grid.add(new Label("Width:"), 0, 0);
+                    grid.add(widthfield, 1, 0);
+                    grid.add(new Label("Height:"), 0, 1);
+                    grid.add(heightfield, 1, 1);
+                    dialog.getDialogPane().setContent(grid);
+                    
+                    dialog.showAndWait()
+                        .filter(r -> r == ButtonType.OK)
+                        .filter(r -> widthfield.getText().length() > 0)
+                        .filter(r -> heightfield.getText().length() > 0)
+                        .ifPresent(bt -> System.out.printf("w=%s, h=%s\n", 
+                                                           widthfield.getText()));
+                    
+                }
+                
 		resetBoard(gc, canvas);
 		file = null;
 		saveItem.setDisable(true);
@@ -309,9 +355,10 @@ public class BoardController {
         
         public List<SavedPlace> tracks = new java.util.ArrayList<>();
 
+/*
         @XmlElementWrapper @XmlElement(name="shape")
         public List<Shape> shapes = new java.util.ArrayList<>();
-
+*/
         @XmlAttribute public double width;
         @XmlAttribute public double height;
         
@@ -326,13 +373,14 @@ public class BoardController {
 		tracks.add(sp);
 	    }
         }
+/*
         public void setShapes(java.util.Map<String, Shape> shapesMap) 
         {
             for (Shape s : shapesMap.values()) {
                 shapes.add(s);
             }
         }
-        
+*/      
     }
 
     private void resetBoard(GraphicsContext gc, Canvas canvas) 

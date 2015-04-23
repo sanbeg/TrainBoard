@@ -108,7 +108,9 @@ public class BoardModel
 			    double dist = Math.sqrt(dx*dx + dy*dy);
 			    //System.out.printf("dist = %.2f (%.2f, %.2f)\n", dist, dx, dy);
 			    
-			    if (dist < minCpDist) {
+			    if (dist < minCpDist 
+                                //check connection size only on move?
+                                && dist < p.shape.connectionSize()) {
 				//System.out.printf("dist = %.2f -> %.2f\n", minCpDist, dist);
 				minCpDist = dist;
 				heldCp = hc;

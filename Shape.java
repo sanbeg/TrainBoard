@@ -30,7 +30,8 @@ public abstract class Shape {
 
     public boolean hasConnections()                 { return false; }
     public Track.LocalConnection[] getConnections() { return null;  }
-
+    public double connectionSize()                  { return 0;     }
+        
     public static class SolidSquare extends Shape 
     {
 	private final double arc = 10;
