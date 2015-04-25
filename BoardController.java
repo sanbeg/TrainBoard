@@ -1,8 +1,6 @@
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Dialog;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
@@ -10,9 +8,6 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ToolBar;
 
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.GridPane;
 
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
@@ -107,16 +102,20 @@ public class BoardController {
     private Length width;
     private Length height;
 
+
+    private void resizeBoard(Canvas canvas, Canvas floatingCanvas) {
+	canvas.setWidth(width.getPixels());
+	floatingCanvas.setWidth(width.getPixels());
+	canvas.setHeight(height.getPixels());
+	floatingCanvas.setHeight(height.getPixels());
+    }
+    
     private void loadFile(File file, Canvas canvas, Canvas floatingCanvas) {
 	SavedBoard sb = JAXB.unmarshal(file, SavedBoard.class);
 	if (sb.width > 0 && sb.height > 0) {
 	    width = new Length(sb.width);
 	    height = new Length(sb.height);
-            
-	    canvas.setWidth(width.getPixels());
-	    floatingCanvas.setWidth(width.getPixels());
-	    canvas.setHeight(height.getPixels());
-	    floatingCanvas.setHeight(height.getPixels());
+	    resizeBoard(canvas, floatingCanvas);
 	} else {
 	    System.err.println("missing size in save file");
 	}
@@ -219,42 +218,15 @@ public class BoardController {
 	    model.redraw(gc);
 	}
        
+	final SizeDialog sizeDialog = new SizeDialog();
+	
 	newItem.setOnAction((ActionEvent e) -> {
-                {
-                    Dialog<ButtonType> dialog = new Dialog<>();
-                    dialog.setTitle("New Board");
-                    
-                    dialog.getDialogPane().getButtonTypes().addAll(
-                        ButtonType.OK,
-                        ButtonType.CANCEL
-                        );
-
-
-                    GridPane grid = new GridPane();
-                    grid.setHgap(10);
-                    grid.setVgap(10);
-                    //grid.setPadding(new Insets(20, 150, 10, 10));
-                    
-                    TextField widthfield = new TextField();
-                    widthfield.setPromptText("Width");
-                    TextField heightfield = new TextField();
-                    heightfield.setPromptText("Height");
-                    
-                    grid.add(new Label("Width:"), 0, 0);
-                    grid.add(widthfield, 1, 0);
-                    grid.add(new Label("Height:"), 0, 1);
-                    grid.add(heightfield, 1, 1);
-                    dialog.getDialogPane().setContent(grid);
-                    
-                    dialog.showAndWait()
-                        .filter(r -> r == ButtonType.OK)
-                        .filter(r -> widthfield.getText().length() > 0)
-                        .filter(r -> heightfield.getText().length() > 0)
-                        .ifPresent(bt -> System.out.printf("w=%s, h=%s\n", 
-                                                           widthfield.getText()));
-                    
-                }
-                
+		if (sizeDialog.prompt()) {
+		    width = sizeDialog.width;
+		    height = sizeDialog.height;
+		}
+		
+		resizeBoard(canvas, floatingCanvas);		
 		resetBoard(gc, canvas);
 		file = null;
 		saveItem.setDisable(true);
