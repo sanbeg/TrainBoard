@@ -18,7 +18,8 @@ import javafx.stage.FileChooser;
 import javafx.event.ActionEvent;
 
 //image export
-import javafx.scene.image.Image;
+import javafx.scene.image.WritableImage;
+import javafx.scene.SnapshotParameters;
 import javax.imageio.ImageIO;
 import javafx.embed.swing.SwingFXUtils;
 
@@ -289,7 +290,16 @@ public class BoardController {
         exportItem.setOnAction((ActionEvent ev) -> {
                 File file = imageFileChooser.showSaveDialog(stage);
                 if (file != null) {
-                    Image image = canvas.snapshot(null, null);
+                    WritableImage image;
+                    
+                    image = canvasPane.snapshot(null, null);
+                    /*
+                       // this will draw a transparent snapshot
+                    SnapshotParameters sp = new SnapshotParameters();
+                    sp.setFill(Color.TRANSPARENT);
+                    image = canvas.snapshot(sp, image);
+                    */
+
                     try {
                         ImageIO.write(SwingFXUtils.fromFXImage(image, null),
                                       "png",
