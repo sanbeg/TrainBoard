@@ -11,6 +11,7 @@ public class ShapeBox {
 	shapes.add(new Track.Cross("x45", nscale, new Length(2.0), 45));
 	shapes.add(new Track.Road("road", nscale, new Length(1.0), new Length(2.0)));
 	shapes.add(new Track.Curve("curve", nscale, new Length(9.5), 30.0));
+	shapes.add(new Track.Curve("half-curve", nscale, new Length(9.5), 15.0));
 	shapes.add(new Track.Curve("curve-19", nscale, new Length(19), 15.0));
 	shapes.add(new Track.Turnout("right",
 				     nscale,
