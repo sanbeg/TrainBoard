@@ -17,6 +17,11 @@ import javafx.stage.Stage;
 import javafx.stage.FileChooser;
 import javafx.event.ActionEvent;
 
+//image export
+import javafx.scene.image.Image;
+import javax.imageio.ImageIO;
+import javafx.embed.swing.SwingFXUtils;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -43,6 +48,7 @@ public class BoardController {
     public MenuItem openItem;
     public MenuItem saveItem;
     public MenuItem saveAsItem;
+    public MenuItem exportItem;
     public MenuItem closeItem;
 
     public MenuItem moveLeftItem;
@@ -232,7 +238,7 @@ public class BoardController {
 		saveItem.setDisable(true);
 		stage.setTitle(TITLE_PREFIX);
 	    });
-	
+
 	openItem.setOnAction((ActionEvent e) -> {
 		fileChooser.setTitle("Open Layout");
 		File file = fileChooser.showOpenDialog(stage);
@@ -243,7 +249,7 @@ public class BoardController {
 		    model.redraw(gc);
 		}
 	    });
-	
+
 	saveItem.setOnAction((ActionEvent ev) -> {
 		if (file != null) {
 		    SavedBoard savedBoard = new SavedBoard();
@@ -271,6 +277,29 @@ public class BoardController {
                 }
             });
   
+	
+        final FileChooser imageFileChooser = new FileChooser();
+        imageFileChooser.getExtensionFilters()
+	    .addAll(
+		    new FileChooser.ExtensionFilter("PNG Files", "*.png"),
+		    new FileChooser.ExtensionFilter("All Files", "*.*")
+		    );
+        imageFileChooser.setTitle("Export Image");
+
+        exportItem.setOnAction((ActionEvent ev) -> {
+                File file = imageFileChooser.showSaveDialog(stage);
+                if (file != null) {
+                    Image image = canvas.snapshot(null, null);
+                    try {
+                        ImageIO.write(SwingFXUtils.fromFXImage(image, null),
+                                      "png",
+                                      file);
+                    } catch (IOException ex) {
+                        System.out.println(ex.getMessage());
+                    }
+                }
+            });
+        
         moveLeftItem.setOnAction((ActionEvent ev) -> model.goLeft(gc));
         moveRightItem.setOnAction((ActionEvent ev) -> model.goRight(gc, width.getPixels()));
         moveUpItem.setOnAction((ActionEvent ev) -> model.goUp(gc));

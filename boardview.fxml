@@ -29,6 +29,9 @@
                         <KeyCodeCombination alt="UP" code="S" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
                      </accelerator>
                   </MenuItem>
+                  <MenuItem fx:id="exportItem" mnemonicParsing="false" text="Export">
+                  </MenuItem>
+
                   <SeparatorMenuItem mnemonicParsing="false" />
               <MenuItem fx:id="closeItem" mnemonicParsing="false" text="Close" />
             </items>
