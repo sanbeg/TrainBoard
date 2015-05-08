@@ -10,6 +10,8 @@ public class ShapeBox {
 
 	shapes.add(new Track.Curve("curve", nscale, new Length(9.5), 30.0));
 	shapes.add(new Track.Curve("half-curve", nscale, new Length(9.5), 15.0));
+	shapes.add(new Track.Curve("curve-975", nscale, new Length(9.75), 30.0));
+
 	shapes.add(new Track.Curve("curve-11", nscale, new Length(11), 30.0));
 	shapes.add(new Track.Curve("curve-19", nscale, new Length(19), 15.0));
 

@@ -45,9 +45,38 @@ abstract public class Track extends Shape {
 	    this.y = y;
 	    this.angle = angle;
 	}
-	
+    }
+    
+    public double getCurviness() {
+        //test curviness
+        LocalConnection c0 = connections[0];
+        double curviness = 0;
+        
+        for (int i=1; i<connections.length; ++i) {
+            LocalConnection c1 = connections[i];
+            
+            double dx = Math.abs(c0.x - c1.x);
+            double dy = Math.abs(c0.y - c1.y);
+            double c = Math.sqrt(dx*dx+dy*dy);
+            double c_angle = Math.asin(dx/c) + Math.toRadians(c0.angle);
+            
+            //double curviness = 2*dx/(dx*dx+dy*dy);
+            double l_curviness = 2 * Math.abs(Math.sin(c_angle)) / c;
+            curviness = Math.max(curviness, l_curviness);
+        }
+        
+        //return curviness * Length.ppi;
+        return curviness * gauge;
     }
 
+    public Color getCurveColor() {
+        //hsb, s=0.18, b=0.9, h=angle 0-360
+        //return BALLAST_COLOR.interpolate(Color.RED, getCurviness() * 20);
+        //should find min/max to get a scale factor
+        return Color.hsb(getCurviness()*20*360, 0.18, 0.9);
+        
+    }
+    
     public static class Straight extends Track
     {
         public Straight(String id, TrackScale scale, Length length) {
@@ -264,11 +293,14 @@ abstract public class Track extends Shape {
             Point2D p2 = new Rotate(-angle/2, r, 0).transform(0,0);
 	    connections[0] = new LocalConnection(p1.getX(), p1.getY(), angle/2);
 	    connections[1] = new LocalConnection(p2.getX(), p2.getY(), 180-angle/2);
-	}
 
+            System.out.printf("Curviness(%g) = %g\n", radius.getInches(), getCurviness());
+	}
         public void draw(GraphicsContext gc, Color color) {
             //ballast
-	    gc.setStroke(BALLAST_COLOR);
+	    //gc.setStroke(BALLAST_COLOR);
+            gc.setStroke(getCurveColor());
+            
 	    double lw = scale.ballastWidth();
             gc.setLineWidth(lw);
             gc.setLineCap(StrokeLineCap.BUTT);
@@ -351,6 +383,8 @@ abstract public class Track extends Shape {
             
             if (hand.right()) connections[nc++] = new LocalConnection(r-r*Math.cos(ar), yoff-r*Math.sin(ar), this.angle);
             if (hand.left()) connections[nc++] = new LocalConnection(-(r-r*Math.cos(ar)), yoff-r*Math.sin(ar), -this.angle);
+
+            System.out.printf("Curviness(%g) = %g\n", radius.getInches(), getCurviness());
 	}
 
  
