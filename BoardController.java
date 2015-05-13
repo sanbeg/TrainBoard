@@ -231,13 +231,13 @@ public class BoardController {
 		if (sizeDialog.prompt()) {
 		    width = sizeDialog.width;
 		    height = sizeDialog.height;
-		}
 		
-		resizeBoard(canvas, floatingCanvas);		
-		resetBoard(gc, canvas);
-		file = null;
-		saveItem.setDisable(true);
-		stage.setTitle(TITLE_PREFIX);
+                    resizeBoard(canvas, floatingCanvas);		
+                    resetBoard(gc, canvas);
+                    file = null;
+                    saveItem.setDisable(true);
+                    stage.setTitle(TITLE_PREFIX);
+		}
 	    });
 
 	openItem.setOnAction((ActionEvent e) -> {
