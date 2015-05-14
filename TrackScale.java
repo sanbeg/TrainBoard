@@ -1,6 +1,7 @@
 public enum TrackScale {
     //N(new Length(9, Length.Unit.MM));
-    N(new Length(3.0/8, Length.Unit.IN));
+    N(new Length(3.0/8)),
+        HO(new Length(0.65));
     
     private Length gauge;
     

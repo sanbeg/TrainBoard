@@ -7,10 +7,12 @@ import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ToolBar;
-
+import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeView;
 
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
@@ -44,6 +46,7 @@ public class BoardController {
     
     public Pane canvasPane;
     public ToolBar trackBar;
+    public VBox trackTreePane;
     
     public MenuItem newItem;
     public MenuItem openItem;
@@ -168,6 +171,9 @@ public class BoardController {
                         if (button != null) {
                             Shape shape = (Shape)button.getUserData();
                             model.addShape(gc, t.getX(), t.getY(), shape);
+                        }
+                        else {
+                            previewShape.ifPresent(s -> model.addShape(gc, t.getX(), t.getY(), s));
                         }
                         
 		    } else {
@@ -320,9 +326,33 @@ public class BoardController {
 	for (Shape shape : shapeBox.getShapes()) {
 	    addButton(trackBar, trackGroup, shape);
 	}
-	
+
+        addTrackTree();
     }
 
+    private Optional<Shape> previewShape = Optional.empty();
+    
+    private void addTrackTree() {
+        TreeView<ShapeBox.TreeTrack> shapeTree = shapeBox.getTree();
+        final Canvas treePreview = new Canvas(200, 200);
+        final GraphicsContext gc = treePreview.getGraphicsContext2D();
+        gc.translate(100, 100);
+
+	trackTreePane.getChildren().add(treePreview);
+	trackTreePane.getChildren().add(shapeTree);
+        
+        shapeTree.setOnMousePressed(ev -> {
+                TreeItem<ShapeBox.TreeTrack> ti = shapeTree.getSelectionModel().getSelectedItem();
+                if (ti != null) {
+                    ti.getValue().shape.ifPresent(shape -> {
+                            previewShape.ifPresent(old -> old.erase(gc));
+                            shape.draw(gc, Color.TRANSPARENT);
+                            previewShape = Optional.of(shape);
+                        });
+                }
+            });
+    }
+    
     private void addButton(ToolBar bar, ToggleGroup group, Shape shape) {
         Canvas bc = new Canvas(shape.getWidth(), shape.getHeight());
         GraphicsContext gc = bc.getGraphicsContext2D();

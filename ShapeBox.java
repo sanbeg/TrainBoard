@@ -1,4 +1,7 @@
 import java.util.List;
+import java.util.Optional;
+import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeView;
 
 public class ShapeBox {
     private final List <Shape> shapes = new java.util.ArrayList<>();
@@ -39,7 +42,10 @@ public class ShapeBox {
 				     new Length(5.0), 
 				     new Length(19), 
 				     15.0));
-	    
+
+        shapes.add(new Track.Straight("ho-straight-9", TrackScale.HO, new Length(9)));
+        shapes.add(new Track.Curve("ho-curve-18", TrackScale.HO, new Length(18), 30.0));
+        
 	shapes.add(new Shape.MidDot("middot", 30, 30, 4));
 	shapes.add(new Shape.SolidSquare("solid", 30, 30));
 	shapes.add(new Shape.MidDot("tall", 30, 60, 6));
@@ -49,6 +55,50 @@ public class ShapeBox {
 
     public Iterable<Shape> getShapes() {
 	return shapes;
+    }
+    
+    public class TreeTrack {
+        public final Optional<Shape> shape;
+        public final String string;
+        
+        public TreeTrack(Shape shape) {
+            this.shape = Optional.of(shape);
+            this.string = shape.getId();
+        }
+        public TreeTrack(String string) {
+            this.shape = Optional.empty();
+            this.string = string;
+        }
+        public String toString() {
+            return string;
+        }
+    }
+                
+
+    public TreeView<TreeTrack> getTree() {
+        TreeItem<TreeTrack> root   = new TreeItem<>(new TreeTrack("tracks"));
+        TreeItem<TreeTrack> rootN  = new TreeItem<>(new TreeTrack("N"));
+        TreeItem<TreeTrack> rootHO = new TreeItem<>(new TreeTrack("HO"));
+
+        root.getChildren().add(rootN);
+        root.getChildren().add(rootHO);
+        root.setExpanded(true);
+        
+        for (Shape shape : shapes) {
+            if (shape instanceof Track) {
+                switch(((Track)shape).scale) {
+                  case N:
+                    rootN.getChildren().add(new TreeItem<>(new TreeTrack(shape)));
+                    break;
+                  case HO:
+                    rootHO.getChildren().add(new TreeItem<>(new TreeTrack(shape)));
+                    break;
+                }
+            }
+        }
+        TreeView <TreeTrack> tv = new TreeView<>(root);
+        tv.setShowRoot(false);
+        return tv;
     }
     
 }
