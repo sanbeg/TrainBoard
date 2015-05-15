@@ -1,6 +1,8 @@
+import javafx.scene.control.Alert;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
@@ -63,7 +65,7 @@ public class BoardController {
     
     private final BoardModel model = new BoardModel();
     private final ShapeBox shapeBox = new ShapeBox();
-
+    
     public BoardController(Stage stage, File file) {
         this.stage = stage;
         this.file = file;
@@ -137,7 +139,18 @@ public class BoardController {
 
     public void initialize() {
         stage.setTitle(TITLE_PREFIX);
-
+        stage.setOnCloseRequest(ev -> {
+                if (model.isDirty()) {
+                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                    alert.setTitle("Confirm Close");
+                    alert.setHeaderText("Exit without saving?");
+                    alert.showAndWait()
+                        .filter(response -> response == ButtonType.CANCEL)
+                        .ifPresent(r -> ev.consume());
+                }
+                
+            });
+        
 	{
 	    Screen screen = Screen.getPrimary();
 	    System.out.println("DPI = " + screen.getDpi());
@@ -266,6 +279,7 @@ public class BoardController {
 		    savedBoard.setAll(model.shapes);
                     //savedBoard.setShapes(model.shapesMap);
 		    JAXB.marshal(savedBoard, file);
+                    model.makeClean();
 		}
 	    });
                
@@ -281,6 +295,7 @@ public class BoardController {
                     savedBoard.setAll(model.shapes);
                     //savedBoard.setShapes(model.shapesMap);
                     JAXB.marshal(savedBoard, file);
+                    model.makeClean();
                 }
             });
   
@@ -428,6 +443,7 @@ public class BoardController {
     {
         model.shapes.clear();
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+        model.makeClean();
     }
 
 }

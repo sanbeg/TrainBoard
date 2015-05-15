@@ -10,7 +10,8 @@ public class BoardModel
 {
     public final List<Point> shapes = new java.util.ArrayList<>();
     private GraphicsContext floatingContext=null;
-
+    private boolean dirty = false;
+    
     public void setFloatingContext(GraphicsContext gc) {
 	assert floatingContext == null;
 	floatingContext = java.util.Objects.requireNonNull(gc);
@@ -18,6 +19,14 @@ public class BoardModel
     
     private GraphicsContext getfgc(GraphicsContext fallback) {
 	return (floatingContext==null) ? fallback : floatingContext;
+    }
+
+    public boolean isDirty() {
+        return dirty;
+    }
+    
+    public void makeClean() {
+        dirty = false;
     }
 
     public void addPoint(Point p) 
@@ -38,13 +47,15 @@ public class BoardModel
 	snapShape(gc, p);
 	p.draw(gc, Color.GREEN);
 	shapes.add(p);
+        dirty = true;
     }
     
     public void eraseShape(GraphicsContext gc, Point old) 
     {
 	old.erase(gc);
 	shapes.remove(old);
-
+        dirty = true;
+        
 	for (Point p : shapes) {
 	    p.draw(gc, Color.GREEN);
 	}
@@ -83,7 +94,7 @@ public class BoardModel
         }
     }
     
-    public void snapShape(GraphicsContext gc, Point held) {
+    private void snapShape(GraphicsContext gc, Point held) {
         /*
          * If moved to overlap, push out of the way.
          * should handle multiple overlap, avoid putting 2 in same place.
@@ -252,6 +263,7 @@ public class BoardModel
             old.x += x;
             old.y += y;
 	    old.draw(getfgc(gc), Color.BLUE);
+            dirty = true;
         }
         
     }
@@ -260,6 +272,7 @@ public class BoardModel
         point.erase(gc);
         point.angle += angle;
         point.draw(gc, Color.GREEN);
+        dirty = true;
     }
     
     public void goLeft(GraphicsContext gc) {
@@ -272,6 +285,7 @@ public class BoardModel
             p.x -= left;
         }
         redraw(gc);
+        dirty = true;
     }
 
     public void goRight(GraphicsContext gc, double bound) {
@@ -284,6 +298,7 @@ public class BoardModel
             p.x += (bound - right);
         }
         redraw(gc);
+        dirty = true;
     }
 
     public void goUp(GraphicsContext gc) {
@@ -296,6 +311,7 @@ public class BoardModel
             p.y -= top;
         }
         redraw(gc);
+        dirty = true;
     }
 
     public void goDown(GraphicsContext gc, double bound) {
@@ -308,6 +324,7 @@ public class BoardModel
             p.y += (bound - bottom);
         }
         redraw(gc);
+        dirty = true;
     }
 
     public void goCenter(GraphicsContext gc, double xbound, double ybound) {
@@ -333,6 +350,7 @@ public class BoardModel
             p.y -= ydelta;
         }
         redraw(gc);
+        dirty = true;
     }
         
 }
