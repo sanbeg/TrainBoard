@@ -136,20 +136,22 @@ public class BoardController {
 	    addAllPlaces(sb.tracks);
 	}
     }
+    
+    private void confirmClose(javafx.event.Event event) {
+        if (model.isDirty()) {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Confirm Close");
+            alert.setHeaderText("Discard changes?");
+            alert.showAndWait()
+                .filter(response -> response == ButtonType.CANCEL)
+                .ifPresent(response -> event.consume());
+        }
+    }
+    
 
     public void initialize() {
         stage.setTitle(TITLE_PREFIX);
-        stage.setOnCloseRequest(ev -> {
-                if (model.isDirty()) {
-                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-                    alert.setTitle("Confirm Close");
-                    alert.setHeaderText("Exit without saving?");
-                    alert.showAndWait()
-                        .filter(response -> response == ButtonType.CANCEL)
-                        .ifPresent(r -> ev.consume());
-                }
-                
-            });
+        stage.setOnCloseRequest(this::confirmClose);
         
 	{
 	    Screen screen = Screen.getPrimary();
@@ -247,6 +249,9 @@ public class BoardController {
 	final SizeDialog sizeDialog = new SizeDialog();
 	
 	newItem.setOnAction((ActionEvent e) -> {
+                confirmClose(e);
+                if (e.isConsumed()) return;
+ 
 		if (sizeDialog.prompt()) {
 		    width = sizeDialog.width;
 		    height = sizeDialog.height;
@@ -260,6 +265,9 @@ public class BoardController {
 	    });
 
 	openItem.setOnAction((ActionEvent e) -> {
+                confirmClose(e);
+                if (e.isConsumed()) return;
+                
 		fileChooser.setTitle("Open Layout");
 		File file = fileChooser.showOpenDialog(stage);
 		if (file != null) {
@@ -355,15 +363,36 @@ public class BoardController {
 
 	trackTreePane.getChildren().add(treePreview);
 	trackTreePane.getChildren().add(shapeTree);
-        
+        /*       
         shapeTree.setOnMousePressed(ev -> {
                 TreeItem<ShapeBox.TreeTrack> ti = shapeTree.getSelectionModel().getSelectedItem();
-                if (ti != null) {
+                if (ti == null) { 
+                    //nothing selected and clicked outside of tree
+                }
+                else if (ti.isLeaf()) {
                     ti.getValue().shape.ifPresent(shape -> {
                             previewShape.ifPresent(old -> old.erase(gc));
                             shape.draw(gc, Color.TRANSPARENT);
                             previewShape = Optional.of(shape);
                         });
+                } else {
+                    ti.setExpanded(! ti.isExpanded());
+                }
+            });
+        */
+        shapeTree.getSelectionModel().selectedItemProperty().addListener(
+            (observable, oldValue, newValue) -> {
+                if (newValue == null) { 
+                    //nothing selected and clicked outside of tree
+                }
+                else if (newValue.isLeaf()) {
+                    newValue.getValue().shape.ifPresent(shape -> {
+                            previewShape.ifPresent(old -> old.erase(gc));
+                            shape.draw(gc, Color.TRANSPARENT);
+                            previewShape = Optional.of(shape);
+                        });
+                } else {
+                    newValue.setExpanded(! newValue.isExpanded());
                 }
             });
     }
