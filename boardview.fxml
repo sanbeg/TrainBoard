@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.canvas.*?>
 <?import javafx.scene.input.*?>
 <?import java.lang.*?>
 <?import javafx.scene.control.*?>
@@ -80,7 +81,11 @@
       </ToolBar>
    </right>
    <left>
-      <VBox fx:id="trackTreePane" maxHeight="1.7976931348623157E308" maxWidth="-Infinity" />
+      <VBox>
+         <children>
+            <Canvas fx:id="treePreview" height="200.0" width="200.0" />
+            <TreeView fx:id="shapeTree" prefHeight="200.0" prefWidth="200.0" showRoot="false" VBox.vgrow="ALWAYS" />
+         </children></VBox>
    </left>
 
 </BorderPane>

@@ -1,7 +1,6 @@
 import java.util.List;
 import java.util.Optional;
 import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeView;
 
 public class ShapeBox {
     private final List <Shape> shapes = new java.util.ArrayList<>();
@@ -75,7 +74,7 @@ public class ShapeBox {
     }
                 
 
-    public TreeView<TreeTrack> getTree() {
+    public TreeItem<TreeTrack> getTree() {
         TreeItem<TreeTrack> root   = new TreeItem<>(new TreeTrack("tracks"));
         TreeItem<TreeTrack> rootN  = new TreeItem<>(new TreeTrack("N"));
         TreeItem<TreeTrack> rootHO = new TreeItem<>(new TreeTrack("HO"));
@@ -96,9 +95,8 @@ public class ShapeBox {
                 }
             }
         }
-        TreeView <TreeTrack> tv = new TreeView<>(root);
-        tv.setShowRoot(false);
-        return tv;
+
+        return root;
     }
     
 }

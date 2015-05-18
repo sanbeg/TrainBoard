@@ -14,7 +14,6 @@ import javafx.scene.control.TreeView;
 
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
@@ -48,7 +47,6 @@ public class BoardController {
     
     public Pane canvasPane;
     public ToolBar trackBar;
-    public VBox trackTreePane;
     
     public MenuItem newItem;
     public MenuItem openItem;
@@ -355,15 +353,15 @@ public class BoardController {
 
     private Optional<Shape> previewShape = Optional.empty();
     
+    public Canvas treePreview;
+    public TreeView<ShapeBox.TreeTrack> shapeTree;
+    
     private void addTrackTree() {
-        TreeView<ShapeBox.TreeTrack> shapeTree = shapeBox.getTree();
-        final Canvas treePreview = new Canvas(200, 200);
-        final GraphicsContext gc = treePreview.getGraphicsContext2D();
-        gc.translate(100, 100);
 
-        VBox.setVgrow(shapeTree, javafx.scene.layout.Priority.ALWAYS);
-	trackTreePane.getChildren().add(treePreview);
-	trackTreePane.getChildren().add(shapeTree);
+        final GraphicsContext gc = treePreview.getGraphicsContext2D();
+        shapeTree.setRoot(shapeBox.getTree());
+        
+        gc.translate(treePreview.getWidth()/2, treePreview.getHeight()/2);
 
         shapeTree.getSelectionModel().selectedItemProperty().addListener(
             (observable, oldValue, newValue) -> {
