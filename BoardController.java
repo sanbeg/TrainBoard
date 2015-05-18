@@ -361,25 +361,10 @@ public class BoardController {
         final GraphicsContext gc = treePreview.getGraphicsContext2D();
         gc.translate(100, 100);
 
+        VBox.setVgrow(shapeTree, javafx.scene.layout.Priority.ALWAYS);
 	trackTreePane.getChildren().add(treePreview);
 	trackTreePane.getChildren().add(shapeTree);
-        /*       
-        shapeTree.setOnMousePressed(ev -> {
-                TreeItem<ShapeBox.TreeTrack> ti = shapeTree.getSelectionModel().getSelectedItem();
-                if (ti == null) { 
-                    //nothing selected and clicked outside of tree
-                }
-                else if (ti.isLeaf()) {
-                    ti.getValue().shape.ifPresent(shape -> {
-                            previewShape.ifPresent(old -> old.erase(gc));
-                            shape.draw(gc, Color.TRANSPARENT);
-                            previewShape = Optional.of(shape);
-                        });
-                } else {
-                    ti.setExpanded(! ti.isExpanded());
-                }
-            });
-        */
+
         shapeTree.getSelectionModel().selectedItemProperty().addListener(
             (observable, oldValue, newValue) -> {
                 if (newValue == null) { 
@@ -392,9 +377,10 @@ public class BoardController {
                             previewShape = Optional.of(shape);
                         });
                 } else {
-                    newValue.setExpanded(! newValue.isExpanded());
+                    //newValue.setExpanded(true);
                 }
             });
+
     }
     
     private void addButton(ToolBar bar, ToggleGroup group, Shape shape) {
