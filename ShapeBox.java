@@ -13,6 +13,7 @@ public class ShapeBox {
 	shapes.add(new Track.Curve("curve", nscale, new Length(9.5), 30.0));
 	shapes.add(new Track.Curve("half-curve", nscale, new Length(9.5), 15.0));
 	shapes.add(new Track.Curve("curve-975", nscale, new Length(9.75), 30.0));
+	shapes.add(new Track.Curve("curve-half-975", nscale, new Length(9.75), 15.0));
 
 	shapes.add(new Track.Curve("curve-11", nscale, new Length(11), 30.0));
 	shapes.add(new Track.Curve("curve-19", nscale, new Length(19), 15.0));
@@ -41,6 +42,15 @@ public class ShapeBox {
 				     new Length(5.0), 
 				     new Length(19), 
 				     15.0));
+        //R1 = 194.6, R2=228.2, R3=492.6, R4=526.2
+ 
+        shapes.add(new Track.Turnout("trix-r1-24-rh",
+                                     nscale,
+                                     Track.Turnout.Hand.RIGHT,
+                                     new Length(104.2, Length.Unit.MM),
+                                     new Length(194.6, Length.Unit.MM),
+                                     24.0));
+        shapes.add(new Track.Curve("trix-r1-6", nscale, new Length(194.6, Length.Unit.MM), 6.0));
 
         shapes.add(new Track.Straight("ho-straight-9", TrackScale.HO, new Length(9)));
         shapes.add(new Track.Curve("ho-curve-18", TrackScale.HO, new Length(18), 30.0));

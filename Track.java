@@ -361,7 +361,7 @@ abstract public class Track extends Shape {
         public Turnout(String id, TrackScale scale, Hand hand, Length length, Length radius, double angle) {
 	    super(id, 
                   mkWidth(scale, radius.getPixels()*2, angle), 
-                  mkHeight(scale, radius.getPixels()*2, angle),
+                  Math.max(mkHeight(scale, radius.getPixels()*2, angle), length.getPixels()),
                   scale,
                   (hand == Hand.ALL) ? 4 : 3
 		  );
@@ -371,7 +371,7 @@ abstract public class Track extends Shape {
             this.hand = hand;
             
             double ar = Math.toRadians(angle);
-            double h = getHeight();
+            double h = length.getPixels();
             double coff = this.radius * Math.sin(ar)/2;
             yoff = Math.max(coff, h/2);
 
@@ -395,10 +395,10 @@ abstract public class Track extends Shape {
             gc.setLineWidth(lw);
             gc.setLineCap(StrokeLineCap.BUTT);
 
-            double h = getHeight();
-
+            double h = length;
             double d = radius * 2;
-            if (hand.right()) gc.strokeArc(0,         -radius + yoff, d, d, 180, -angle, ArcType.OPEN);
+
+            if (hand.right()) gc.strokeArc(0,        -radius + yoff, d, d, 180, -angle, ArcType.OPEN);
             if (hand.left()) gc.strokeArc(-2*radius, -radius + yoff, d, d,   0, +angle, ArcType.OPEN);
             gc.strokeLine(0, yoff, 0, yoff - h);
 

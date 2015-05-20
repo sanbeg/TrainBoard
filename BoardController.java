@@ -125,6 +125,8 @@ public class BoardController {
 	if (sb.width > 0 && sb.height > 0) {
 	    width = new Length(sb.width);
 	    height = new Length(sb.height);
+            //Length.ppi = sb.dpi;
+            
 	    resizeBoard(canvas, floatingCanvas);
 	} else {
 	    System.err.println("missing size in save file");
