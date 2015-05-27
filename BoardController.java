@@ -220,7 +220,9 @@ public class BoardController {
             });
         
         canvasPane.addEventHandler(MouseEvent.MOUSE_RELEASED, (MouseEvent t)->{
-                model.releaseShape(gc);
+                if (! t.isControlDown()) {
+                    model.releaseShape(gc);
+                }
             });
         
         canvasPane.addEventHandler(MouseEvent.MOUSE_DRAGGED, (MouseEvent e)->{

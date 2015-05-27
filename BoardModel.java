@@ -12,6 +12,11 @@ public class BoardModel
     private GraphicsContext floatingContext=null;
     private boolean dirty = false;
     
+    private static final Color POINT_COLOR_NORMAL = Color.GREEN;
+    private static final Color POINT_COLOR_HELD = Color.BLUE;
+    private static final Color POINT_COLOR_CLIP = Color.RED;
+    private static final Color POINT_COLOR_OBSCURE = Color.YELLOW;
+
     public void setFloatingContext(GraphicsContext gc) {
 	assert floatingContext == null;
 	floatingContext = java.util.Objects.requireNonNull(gc);
@@ -61,7 +66,7 @@ public class BoardModel
 	}
     }
 
-    private Point heldPoint = null;
+    private final Set<Point> heldPoints = new java.util.HashSet<>();
     
     public Point findPointAt(double x, double y) {
         Point old = null;
@@ -87,10 +92,10 @@ public class BoardModel
     {
         Point old = findPointAt(x, y);
         if (old != null) {
-	    old.erase(gc);
-	    redrawAround(gc, old, Color.GREEN);
-	    old.draw(getfgc(gc), Color.BLUE);
-            heldPoint = old;
+            old.erase(gc);
+            redrawAround(gc, old, POINT_COLOR_NORMAL);
+            old.draw(getfgc(gc), POINT_COLOR_HELD);
+            heldPoints.add(old);
         }
     }
     
@@ -140,18 +145,18 @@ public class BoardModel
 			minDist = dist;
 			ov = p;
 		    }
-		    p.draw(gc, Color.GREEN);
+		    p.draw(gc, POINT_COLOR_NORMAL);
 		}
             }
         }
 
 	//need to figure out which layer it was on
-	GraphicsContext heldGc = (held==heldPoint) ?
+	GraphicsContext heldGc = heldPoints.contains(held) ?
 	    getfgc(gc) : gc;
 	
 	if (heldCp != null) {
 	    held.erase(heldGc);
-            ov.draw(gc, Color.GREEN);
+            ov.draw(gc, POINT_COLOR_NORMAL);
             ov.obscured = false;
 
 	    held.x += nearCp.x - heldCp.x;
@@ -164,13 +169,13 @@ public class BoardModel
             held.angle = angle % 360;
             held.x = p2d.getX();
             held.y = p2d.getY();
-            redrawAround(gc, held, Color.GREEN);
+            redrawAround(gc, held, POINT_COLOR_NORMAL);
 	}
         else
 
 	if (ov != null) {
             held.erase(heldGc);
-            ov.draw(gc, Color.GREEN);
+            ov.draw(gc, POINT_COLOR_NORMAL);
             ov.obscured = false;
 
             Point2D newPoint;
@@ -204,22 +209,24 @@ public class BoardModel
 
     public void releaseShape(GraphicsContext gc) 
     {
-        if (heldPoint != null) {
-            Point old = heldPoint;
+        for (Point old : heldPoints) {
             snapShape(gc, old);
 	    if (floatingContext != null) {
 		old.erase(floatingContext);
 	    }
 
-            old.draw(gc, Color.GREEN);
-            heldPoint = null;
+            old.draw(gc, POINT_COLOR_NORMAL);
         }
+        heldPoints.clear();
     }
     
     private void redrawAround(GraphicsContext gc, Point point, Color color) {
         for (Point p : shapes) {
             if (p == point) continue;
-            
+            //TODO - test correct redraws -w- multi-select,
+            //maybe redrawaround on floating context, too.
+            if (heldPoints.contains(p)) continue;
+
             if (point.obscures(p)) {
                 p.draw(gc, color);
             }
@@ -228,41 +235,40 @@ public class BoardModel
     
 
     public void moveShape(GraphicsContext gc, double x, double y) {
-        if (heldPoint != null) {
-            Point old = heldPoint;
+        for (Point old : heldPoints) {
 	    if (floatingContext == null) {
 		old.erase(gc);
-		redrawAround(gc, old, Color.GREEN);
+		redrawAround(gc, old, POINT_COLOR_NORMAL);
 	    } else {
 		old.erase(floatingContext);
 	    }
-	    
-	    
+
             for (Point p : shapes) {
-                if (p == old) continue;
+                if (heldPoints.contains(p)) continue;
 		
                 //TODO - only ovelap closest shape
                 if (p.overlaps(old)) {
-                    p.draw(gc, Color.RED);
+                    p.draw(gc, POINT_COLOR_CLIP);
                     p.obscured = true;
                 }
                 else if (p.obscures(old)) {
-                    p.draw(gc, Color.YELLOW);
+                    p.draw(gc, POINT_COLOR_OBSCURE);
                     p.obscured = true;
                 }
                 else if (p.obscured) {
 		    //redraw to reset indicator color
 		    //can leave traces in round corners or rotated edges
 		    p.erase(gc);
-                    redrawAround(gc, p, Color.GREEN);
-                    p.draw(gc, Color.GREEN);
+                    redrawAround(gc, p, POINT_COLOR_NORMAL);
+                    p.draw(gc, POINT_COLOR_NORMAL);
                     p.obscured = false;
                     //System.out.printf("Redraw %.1f,%.1f\n", p.x, p.y);
                 }
             }
+
             old.x += x;
             old.y += y;
-	    old.draw(getfgc(gc), Color.BLUE);
+	    old.draw(getfgc(gc), POINT_COLOR_HELD);
             dirty = true;
         }
         
@@ -271,7 +277,7 @@ public class BoardModel
     public void rotateShape(GraphicsContext gc, Point point, double angle) {
         point.erase(gc);
         point.angle += angle;
-        point.draw(gc, Color.GREEN);
+        point.draw(gc, POINT_COLOR_NORMAL);
         dirty = true;
     }
     
