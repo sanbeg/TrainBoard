@@ -26,6 +26,12 @@ public class BoardModel
 	return (floatingContext==null) ? fallback : floatingContext;
     }
 
+    private GraphicsContext getGc(Point point, GraphicsContext fallback) {
+        if (floatingContext==null) return fallback;
+        else if (heldPoints.contains(point)) return floatingContext;
+        else return fallback;
+    }
+
     public boolean isDirty() {
         return dirty;
     }
@@ -42,7 +48,7 @@ public class BoardModel
     public void redraw(GraphicsContext gc) 
     {
         for (Point p : shapes) {
-	    p.draw(gc, Color.GREEN);
+	    p.draw(getGc(p, gc), Color.GREEN);
         }
     }
     
@@ -210,7 +216,7 @@ public class BoardModel
     public void releaseShape(GraphicsContext gc) 
     {
         for (Point old : heldPoints) {
-            snapShape(gc, old);
+            snapShape(gc, old); //how to snap multiple shapes?
 	    if (floatingContext != null) {
 		old.erase(floatingContext);
 	    }
@@ -265,7 +271,8 @@ public class BoardModel
                     //System.out.printf("Redraw %.1f,%.1f\n", p.x, p.y);
                 }
             }
-
+        }
+        for (Point old : heldPoints) {
             old.x += x;
             old.y += y;
 	    old.draw(getfgc(gc), POINT_COLOR_HELD);
@@ -275,19 +282,23 @@ public class BoardModel
     }
 
     public void rotateShape(GraphicsContext gc, Point point, double angle) {
-        point.erase(gc);
+        //should support multi-rotate?
+        GraphicsContext pgc = getGc(point, gc);
+        
+        point.erase(pgc);
         point.angle += angle;
-        point.draw(gc, POINT_COLOR_NORMAL);
+        point.draw(pgc, POINT_COLOR_NORMAL);
         dirty = true;
     }
     
+    //fixme - erase/redraw each point on right gc.
     public void goLeft(GraphicsContext gc) {
         double left = Double.MAX_VALUE;
         for (Point p : shapes) {
             left = Math.min(left, p.x - p.getWidth()/2);
         }
         for (Point p : shapes) {
-            p.erase(gc);
+            p.erase(getGc(p, gc));
             p.x -= left;
         }
         redraw(gc);
@@ -300,7 +311,7 @@ public class BoardModel
             right = Math.max(right, p.x + p.getWidth()/2);
         }
         for (Point p : shapes) {
-            p.erase(gc);
+            p.erase(getGc(p, gc));
             p.x += (bound - right);
         }
         redraw(gc);
@@ -313,7 +324,7 @@ public class BoardModel
             top = Math.min(top, p.y - p.getHeight()/2);
         }
         for (Point p : shapes) {
-            p.erase(gc);
+            p.erase(getGc(p, gc));
             p.y -= top;
         }
         redraw(gc);
@@ -326,7 +337,7 @@ public class BoardModel
             bottom = Math.max(bottom, p.y + p.getHeight()/2);
         }
         for (Point p : shapes) {
-            p.erase(gc);
+            p.erase(getGc(p, gc));
             p.y += (bound - bottom);
         }
         redraw(gc);
@@ -351,7 +362,7 @@ public class BoardModel
         
 
         for (Point p : shapes) {
-            p.erase(gc);
+            p.erase(getGc(p, gc));
             p.x -= xdelta;
             p.y -= ydelta;
         }
