@@ -16,6 +16,8 @@ abstract public class Track extends Shape {
     protected static final Color RAIL_COLOR    = Color.SILVER.darker();
     protected static final Color TIE_COLOR     = Color.BLACK;
         
+    public static boolean colorCodeCurves = true;
+    
     public Track(String id, double w, double h, TrackScale ts, int connections) {
         super(id, w, h);
         this.scale = ts;
@@ -73,8 +75,10 @@ abstract public class Track extends Shape {
         //hsb, s=0.18, b=0.9, h=angle 0-360
         //return BALLAST_COLOR.interpolate(Color.RED, getCurviness() * 20);
         //should find min/max to get a scale factor
-        return Color.hsb(getCurviness()*20*360, 0.18, 0.9);
-        
+
+        return colorCodeCurves?
+	    Color.hsb(getCurviness()*20*360, 0.18, 0.9):
+	    BALLAST_COLOR;
     }
     
     public static class Straight extends Track

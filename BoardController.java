@@ -60,6 +60,8 @@ public class BoardController {
     public MenuItem moveUpItem;
     public MenuItem moveDownItem;
     public MenuItem moveCenterItem;
+
+    public MenuItem colorCodeCurvesItem;
     
     private final BoardModel model = new BoardModel();
     private final ShapeBox shapeBox = new ShapeBox();
@@ -342,10 +344,18 @@ public class BoardController {
             });
         
         moveLeftItem.setOnAction((ActionEvent ev) -> model.goLeft(gc));
-        moveRightItem.setOnAction((ActionEvent ev) -> model.goRight(gc, width.getPixels()));
-        moveUpItem.setOnAction((ActionEvent ev) -> model.goUp(gc));
-        moveDownItem.setOnAction((ActionEvent ev) -> model.goDown(gc, height.getPixels()));
-        moveCenterItem.setOnAction((ActionEvent ev) -> model.goCenter(gc, width.getPixels(), height.getPixels()));
+        moveRightItem.setOnAction((ActionEvent ev) 
+				  -> model.goRight(gc, width.getPixels()));
+        moveUpItem.setOnAction((ActionEvent ev)
+			       -> model.goUp(gc));
+        moveDownItem.setOnAction((ActionEvent ev)
+				 -> model.goDown(gc, height.getPixels()));
+        moveCenterItem.setOnAction((ActionEvent ev)
+				   -> model.goCenter(gc, width.getPixels(), height.getPixels()));
+
+	colorCodeCurvesItem.setOnAction((ActionEvent ev) 
+					-> model.colorCodeCurves(gc, ev.toString().contains("selected")));
+	
         
         trackBar.getItems().clear();
 	for (Shape shape : shapeBox.getShapes()) {

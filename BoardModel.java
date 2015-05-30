@@ -17,6 +17,15 @@ public class BoardModel
     private static final Color POINT_COLOR_CLIP = Color.RED;
     private static final Color POINT_COLOR_OBSCURE = Color.YELLOW;
 
+    public void colorCodeCurves(GraphicsContext gc, boolean val) {
+	boolean old = Track.colorCodeCurves;
+	Track.colorCodeCurves = val;
+	if (old != val) {
+	    redraw(gc);
+	}
+    }
+    
+
     public void setFloatingContext(GraphicsContext gc) {
 	assert floatingContext == null;
 	floatingContext = java.util.Objects.requireNonNull(gc);
@@ -48,7 +57,7 @@ public class BoardModel
     public void redraw(GraphicsContext gc) 
     {
         for (Point p : shapes) {
-	    p.draw(getGc(p, gc), Color.GREEN);
+	    p.draw(getGc(p, gc), POINT_COLOR_NORMAL);
         }
     }
     
@@ -56,7 +65,7 @@ public class BoardModel
     public void addShape(GraphicsContext gc, double x, double y, Shape shape) {
 	Point p = new Point(x,y, shape);
 	snapShape(gc, p);
-	p.draw(gc, Color.GREEN);
+	p.draw(gc, POINT_COLOR_NORMAL);
 	shapes.add(p);
         dirty = true;
     }
@@ -68,7 +77,7 @@ public class BoardModel
         dirty = true;
         
 	for (Point p : shapes) {
-	    p.draw(gc, Color.GREEN);
+	    p.draw(getGc(p, gc), POINT_COLOR_NORMAL);
 	}
     }
 

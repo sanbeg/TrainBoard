@@ -48,6 +48,11 @@
                   <RadioMenuItem mnemonicParsing="false" text="Delete" toggleGroup="$mode" />
               </items>
             </Menu>
+          <Menu mnemonicParsing="false" text="View">
+	    <CheckMenuItem fx:id="colorCodeCurvesItem"
+	    mnemonicParsing="false" text="Color Coded Curves"
+	    selected="true" />
+	  </Menu>
           <Menu mnemonicParsing="false" text="Edit">
             <items>
               <MenuItem mnemonicParsing="false" text="Delete" />
