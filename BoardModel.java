@@ -17,6 +17,19 @@ public class BoardModel
     private static final Color POINT_COLOR_CLIP = Color.RED;
     private static final Color POINT_COLOR_OBSCURE = Color.YELLOW;
 
+    private boolean showInactiveJoiners = true;
+    
+    private Color pointColorNormal() {
+	return showInactiveJoiners?
+	    POINT_COLOR_NORMAL:
+	    Color.TRANSPARENT;
+    }
+    
+    public void showInactiveJoiners(GraphicsContext gc, boolean val) {
+	showInactiveJoiners = val;
+	redraw(gc);
+    }
+    
     public void colorCodeCurves(GraphicsContext gc, boolean val) {
 	boolean old = Track.colorCodeCurves;
 	Track.colorCodeCurves = val;
@@ -57,7 +70,7 @@ public class BoardModel
     public void redraw(GraphicsContext gc) 
     {
         for (Point p : shapes) {
-	    p.draw(getGc(p, gc), POINT_COLOR_NORMAL);
+	    p.draw(getGc(p, gc), pointColorNormal());
         }
     }
     
@@ -65,7 +78,7 @@ public class BoardModel
     public void addShape(GraphicsContext gc, double x, double y, Shape shape) {
 	Point p = new Point(x,y, shape);
 	snapShape(gc, p);
-	p.draw(gc, POINT_COLOR_NORMAL);
+	p.draw(gc, pointColorNormal());
 	shapes.add(p);
         dirty = true;
     }
@@ -77,7 +90,7 @@ public class BoardModel
         dirty = true;
         
 	for (Point p : shapes) {
-	    p.draw(getGc(p, gc), POINT_COLOR_NORMAL);
+	    p.draw(getGc(p, gc), pointColorNormal());
 	}
     }
 
@@ -108,7 +121,7 @@ public class BoardModel
         Point old = findPointAt(x, y);
         if (old != null) {
             old.erase(gc);
-            redrawAround(gc, old, POINT_COLOR_NORMAL);
+            redrawAround(gc, old, pointColorNormal());
             old.draw(getfgc(gc), POINT_COLOR_HELD);
             heldPoints.add(old);
         }
@@ -160,7 +173,7 @@ public class BoardModel
 			minDist = dist;
 			ov = p;
 		    }
-		    p.draw(gc, POINT_COLOR_NORMAL);
+		    p.draw(gc, pointColorNormal());
 		}
             }
         }
@@ -171,7 +184,7 @@ public class BoardModel
 	
 	if (heldCp != null) {
 	    held.erase(heldGc);
-            ov.draw(gc, POINT_COLOR_NORMAL);
+            ov.draw(gc, pointColorNormal());
             ov.obscured = false;
 
 	    held.x += nearCp.x - heldCp.x;
@@ -184,13 +197,13 @@ public class BoardModel
             held.angle = angle % 360;
             held.x = p2d.getX();
             held.y = p2d.getY();
-            redrawAround(gc, held, POINT_COLOR_NORMAL);
+            redrawAround(gc, held, pointColorNormal());
 	}
         else
 
 	if (ov != null) {
             held.erase(heldGc);
-            ov.draw(gc, POINT_COLOR_NORMAL);
+            ov.draw(gc, pointColorNormal());
             ov.obscured = false;
 
             Point2D newPoint;
@@ -230,7 +243,7 @@ public class BoardModel
 		old.erase(floatingContext);
 	    }
 
-            old.draw(gc, POINT_COLOR_NORMAL);
+            old.draw(gc, pointColorNormal());
         }
         heldPoints.clear();
     }
@@ -253,7 +266,7 @@ public class BoardModel
         for (Point old : heldPoints) {
 	    if (floatingContext == null) {
 		old.erase(gc);
-		redrawAround(gc, old, POINT_COLOR_NORMAL);
+		redrawAround(gc, old, pointColorNormal());
 	    } else {
 		old.erase(floatingContext);
 	    }
@@ -274,8 +287,8 @@ public class BoardModel
 		    //redraw to reset indicator color
 		    //can leave traces in round corners or rotated edges
 		    p.erase(gc);
-                    redrawAround(gc, p, POINT_COLOR_NORMAL);
-                    p.draw(gc, POINT_COLOR_NORMAL);
+                    redrawAround(gc, p, pointColorNormal());
+                    p.draw(gc, pointColorNormal());
                     p.obscured = false;
                     //System.out.printf("Redraw %.1f,%.1f\n", p.x, p.y);
                 }
@@ -296,7 +309,7 @@ public class BoardModel
         
         point.erase(pgc);
         point.angle += angle;
-        point.draw(pgc, POINT_COLOR_NORMAL);
+        point.draw(pgc, pointColorNormal());
         dirty = true;
     }
     

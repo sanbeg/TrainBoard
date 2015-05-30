@@ -52,6 +52,9 @@
 	    <CheckMenuItem fx:id="colorCodeCurvesItem"
 	    mnemonicParsing="false" text="Color Coded Curves"
 	    selected="true" />
+	    <CheckMenuItem fx:id="inactiveJoinersItem"
+	    mnemonicParsing="false" text="Inactive Joiners"
+	    selected="true" />
 	  </Menu>
           <Menu mnemonicParsing="false" text="Edit">
             <items>

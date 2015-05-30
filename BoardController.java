@@ -62,6 +62,7 @@ public class BoardController {
     public MenuItem moveCenterItem;
 
     public MenuItem colorCodeCurvesItem;
+    public MenuItem inactiveJoinersItem;
     
     private final BoardModel model = new BoardModel();
     private final ShapeBox shapeBox = new ShapeBox();
@@ -355,6 +356,9 @@ public class BoardController {
 
 	colorCodeCurvesItem.setOnAction((ActionEvent ev) 
 					-> model.colorCodeCurves(gc, ev.toString().contains("selected")));
+
+	inactiveJoinersItem.setOnAction((ActionEvent ev) 
+					-> model.showInactiveJoiners(gc, ev.toString().contains("selected")));
 	
         
         trackBar.getItems().clear();
