@@ -11,7 +11,8 @@ public class Point
         
     public final Shape shape;
     public boolean obscured = false;
-        
+    public boolean floating = false;
+    
     public final GlobalConnection[] connections;
 
     public Point(double x, double y, Shape s) {
@@ -91,7 +92,7 @@ public class Point
 	    gc.translate(x, y);
             gc.rotate(angle);
             //todo - make bounding box
-	    shape.draw(gc, color);
+	    shape.draw(gc, floating ? Color.TRANSPARENT : color);
 	    //gc.setTransform(transform);
 	    gc.restore();
 	}

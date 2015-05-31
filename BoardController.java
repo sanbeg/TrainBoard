@@ -8,6 +8,7 @@ import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ToolBar;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
@@ -61,8 +62,8 @@ public class BoardController {
     public MenuItem moveDownItem;
     public MenuItem moveCenterItem;
 
-    public MenuItem colorCodeCurvesItem;
-    public MenuItem inactiveJoinersItem;
+    public CheckMenuItem colorCodeCurvesItem;
+    public CheckMenuItem inactiveJoinersItem;
     
     private final BoardModel model = new BoardModel();
     private final ShapeBox shapeBox = new ShapeBox();
@@ -94,12 +95,12 @@ public class BoardController {
 
     private ContextMenu makeContextMenu(final GraphicsContext gc) 
     {
-        final ContextMenu contextMenu = new ContextMenu();
         final MenuItem cmDeleteItem = new MenuItem("Delete");
         final MenuItem cmRotateItem = new MenuItem("Rotate");
-        
-        contextMenu.getItems().add(cmRotateItem);
-        contextMenu.getItems().add(cmDeleteItem);
+        final CheckMenuItem cmFloatItem = new CheckMenuItem("Float");
+        final ContextMenu contextMenu 
+	    = new ContextMenu(cmRotateItem, cmDeleteItem, cmFloatItem);
+
         contextMenu.setAutoHide(true);
 	
         cmDeleteItem.setOnAction((javafx.event.ActionEvent e) -> {
@@ -108,7 +109,14 @@ public class BoardController {
         cmRotateItem.setOnAction((javafx.event.ActionEvent e) -> {
                 if (cmPoint != null) model.rotateShape(gc, cmPoint, 45.0);
             });
-        
+	cmFloatItem.setOnAction((ActionEvent e) -> {
+		if (cmPoint != null) {
+		    cmPoint.floating = cmFloatItem.isSelected();
+		    cmPoint.draw(gc, model.pointColorNormal());
+		}
+		
+	    });
+		
 	return contextMenu;
     }
     
@@ -355,10 +363,11 @@ public class BoardController {
 				   -> model.goCenter(gc, width.getPixels(), height.getPixels()));
 
 	colorCodeCurvesItem.setOnAction((ActionEvent ev) 
-					-> model.colorCodeCurves(gc, ev.toString().contains("selected")));
+					-> model.colorCodeCurves(gc, colorCodeCurvesItem.isSelected()));
+	
 
 	inactiveJoinersItem.setOnAction((ActionEvent ev) 
-					-> model.showInactiveJoiners(gc, ev.toString().contains("selected")));
+					-> model.showInactiveJoiners(gc, inactiveJoinersItem.isSelected()));
 	
         
         trackBar.getItems().clear();

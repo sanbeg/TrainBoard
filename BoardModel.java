@@ -19,7 +19,7 @@ public class BoardModel
 
     private boolean showInactiveJoiners = true;
     
-    private Color pointColorNormal() {
+    public Color pointColorNormal() {
 	return showInactiveJoiners?
 	    POINT_COLOR_NORMAL:
 	    Color.TRANSPARENT;
@@ -139,7 +139,11 @@ public class BoardModel
         GlobalConnection heldCp = null;
         GlobalConnection nearCp = null;
 	
+	if (held.floating) return;
+
         for (Point p : shapes) {
+	    if (p.floating) continue;
+	    
             if (p != held && p.overlaps(held)) {
 		if (p.connections != null && held.connections != null) {
 		    for (GlobalConnection hc : held.connections) {
@@ -275,7 +279,10 @@ public class BoardModel
                 if (heldPoints.contains(p)) continue;
 		
                 //TODO - only ovelap closest shape
-                if (p.overlaps(old)) {
+		if (old.floating && p.obscures(old)) {
+		    p.obscured = true;
+		}
+                else if (p.overlaps(old)) {
                     p.draw(gc, POINT_COLOR_CLIP);
                     p.obscured = true;
                 }
