@@ -74,7 +74,7 @@ public class BoardController {
     }
 
     private File file = null;
-    private static final String TITLE_PREFIX = "Drawing Operations Test";
+    private static final String TITLE_PREFIX = "Train Board";
 
     private void updateFile(File file, FileChooser chooser) {
         this.file = file;
@@ -179,8 +179,7 @@ public class BoardController {
         GraphicsContext gc = canvas.getGraphicsContext2D();
         model.setFloatingContext(floatingCanvas.getGraphicsContext2D());
 
-        canvasPane.getChildren().add(canvas);
-        canvasPane.getChildren().add(floatingCanvas);
+        canvasPane.getChildren().addAll(canvas, floatingCanvas);
 
         //System.out.println(canvasPane.getHeight() + " = " + canvas.getHeight());
         
