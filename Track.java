@@ -17,6 +17,7 @@ abstract public class Track extends Shape {
     protected static final Color TIE_COLOR     = Color.BLACK;
         
     public static boolean colorCodeCurves = true;
+    public static boolean drawTies = false;
     
     public Track(String id, double w, double h, TrackScale ts, int connections) {
         super(id, w, h);
@@ -97,17 +98,19 @@ abstract public class Track extends Shape {
 	    gc.fillRect(-getWidth()/2, -getHeight()/2, getWidth(), getHeight());
 
             //ties
-            gc.setStroke(TIE_COLOR);
-            gc.setLineCap(StrokeLineCap.BUTT);
-            gc.setLineWidth(scale.tieWidth());
-            double tieX = scale.tieLength()/2.0;
+	    if (drawTies) {
+		gc.setStroke(TIE_COLOR);
+		gc.setLineCap(StrokeLineCap.BUTT);
+		gc.setLineWidth(scale.tieWidth());
+		double tieX = scale.tieLength()/2.0;
 		
-            for (int i=0; i<10; ++i) {
-                double h = getHeight();
-                double y = -h/2 + h*0.1*i + h*0.05;
-                gc.strokeLine(-tieX, y, tieX, y);
-            }
-
+		for (int i=0; i<10; ++i) {
+		    double h = getHeight();
+		    double y = -h/2 + h*0.1*i + h*0.05;
+		    gc.strokeLine(-tieX, y, tieX, y);
+		}
+	    }
+	    
             //rails
             gc.setStroke(RAIL_COLOR);
             gc.setLineWidth(scale.railWidth());

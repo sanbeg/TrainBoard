@@ -37,6 +37,14 @@ public class BoardModel
 	    redraw(gc);
 	}
     }
+
+    public void drawTies(GraphicsContext gc, boolean val) {
+	boolean old = Track.drawTies;
+	Track.drawTies = val;
+	if (old != val) {
+	    redraw(gc);
+	}
+    }
     
 
     public void setFloatingContext(GraphicsContext gc) {

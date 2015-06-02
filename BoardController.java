@@ -64,6 +64,7 @@ public class BoardController {
 
     public CheckMenuItem colorCodeCurvesItem;
     public CheckMenuItem inactiveJoinersItem;
+    public CheckMenuItem drawTiesItem;
     
     private final BoardModel model = new BoardModel();
     private final ShapeBox shapeBox = new ShapeBox();
@@ -97,9 +98,11 @@ public class BoardController {
     {
         final MenuItem cmDeleteItem = new MenuItem("Delete");
         final MenuItem cmRotateItem = new MenuItem("Rotate");
+	final MenuItem cmMore = new MenuItem("Make More");
+	
         final CheckMenuItem cmFloatItem = new CheckMenuItem("Float");
         final ContextMenu contextMenu 
-	    = new ContextMenu(cmRotateItem, cmDeleteItem, cmFloatItem);
+	    = new ContextMenu(cmRotateItem, cmDeleteItem, cmFloatItem, cmMore);
 
         contextMenu.setAutoHide(true);
 	
@@ -109,6 +112,13 @@ public class BoardController {
         cmRotateItem.setOnAction((javafx.event.ActionEvent e) -> {
                 if (cmPoint != null) model.rotateShape(gc, cmPoint, 45.0);
             });
+	cmMore.setOnAction((ActionEvent e) -> {
+		final GraphicsContext tpgc = treePreview.getGraphicsContext2D();
+		previewShape.ifPresent(s -> s.erase(tpgc));
+		cmPoint.shape.draw(tpgc, Color.TRANSPARENT);
+		previewShape = Optional.of(cmPoint.shape);
+	    });
+	
 	cmFloatItem.setOnAction((ActionEvent e) -> {
 		if (cmPoint != null) {
 		    cmPoint.floating = cmFloatItem.isSelected();
@@ -367,6 +377,9 @@ public class BoardController {
 
 	inactiveJoinersItem.setOnAction((ActionEvent ev) 
 					-> model.showInactiveJoiners(gc, inactiveJoinersItem.isSelected()));
+
+	drawTiesItem.setOnAction((ActionEvent ev) 
+					-> model.drawTies(gc, drawTiesItem.isSelected()));
 	
         
         trackBar.getItems().clear();
