@@ -84,13 +84,6 @@
          </content>
       </ScrollPane>
    </center>
-   <right>
-      <ToolBar fx:id="trackBar" orientation="VERTICAL" prefHeight="40.0" BorderPane.alignment="CENTER">
-        <items>
-          <Button mnemonicParsing="false" text="Button" />
-        </items>
-      </ToolBar>
-   </right>
    <left>
       <VBox>
          <children>

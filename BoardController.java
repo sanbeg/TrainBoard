@@ -4,8 +4,6 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Toggle;
-import javafx.scene.control.ToggleButton;
-import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.CheckMenuItem;
@@ -47,7 +45,6 @@ public class BoardController {
     private final Stage stage;
     
     public Pane canvasPane;
-    public ToolBar trackBar;
     
     public MenuItem newItem;
     public MenuItem openItem;
@@ -65,6 +62,9 @@ public class BoardController {
     public CheckMenuItem colorCodeCurvesItem;
     public CheckMenuItem inactiveJoinersItem;
     public CheckMenuItem drawTiesItem;
+    
+    public Canvas treePreview;
+    public TreeView<ShapeBox.TreeTrack> shapeTree;
     
     private BoardModel model;
     private final ShapeBox shapeBox = new ShapeBox();
@@ -195,7 +195,6 @@ public class BoardController {
         //System.out.println(canvasPane.getHeight() + " = " + canvas.getHeight());
         
         final ContextMenu contextMenu = makeContextMenu(gc);
-	final ToggleGroup trackGroup = new ToggleGroup();
 
         canvasPane.addEventHandler(MouseEvent.MOUSE_CLICKED, (MouseEvent t) -> {
                 if (t.getClickCount() > 1 && t.isStillSincePress()) {
@@ -203,14 +202,7 @@ public class BoardController {
 			model.findPointAt(t.getX(), t.getY());
 		    if (point == null) {
 			//clicked empty spot, add shape
-                        Toggle button = trackGroup.getSelectedToggle();
-                        if (button != null) {
-                            Shape shape = (Shape)button.getUserData();
-                            model.addShape(t.getX(), t.getY(), shape);
-                        }
-                        else {
-                            previewShape.ifPresent(s -> model.addShape(t.getX(), t.getY(), s));
-                        }
+			previewShape.ifPresent(s -> model.addShape(t.getX(), t.getY(), s));
                         
 		    } else {
 			//clicked occupied spot, remove a shape
@@ -382,17 +374,10 @@ public class BoardController {
 					-> model.drawTies(drawTiesItem.isSelected()));
 	
         
-        trackBar.getItems().clear();
-	for (Shape shape : shapeBox.getShapes()) {
-	    addButton(trackBar, trackGroup, shape);
-	}
         addTrackTree();
     }
 
     private Optional<Shape> previewShape = Optional.empty();
-    
-    public Canvas treePreview;
-    public TreeView<ShapeBox.TreeTrack> shapeTree;
     
     private void addTrackTree() {
 
@@ -417,19 +402,6 @@ public class BoardController {
                 }
             });
 
-    }
-    
-    private void addButton(ToolBar bar, ToggleGroup group, Shape shape) {
-        Canvas bc = new Canvas(shape.getWidth(), shape.getHeight());
-        GraphicsContext gc = bc.getGraphicsContext2D();
-        gc.translate(shape.getWidth()/2, shape.getHeight()/2);
-        shape.draw(gc, Color.TRANSPARENT);
-        
-        //ToggleButton button = new ToggleButton(label, bc);
-        ToggleButton button = new ToggleButton(null, bc);
-        button.setToggleGroup(group);
-        button.setUserData(shape);
-        bar.getItems().add(button);
     }
     
     public void addAllPlaces(List<SavedPlace> savedPlaces) 
