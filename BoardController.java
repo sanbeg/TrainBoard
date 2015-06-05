@@ -271,8 +271,8 @@ public class BoardController {
 		    width = sizeDialog.width;
 		    height = sizeDialog.height;
 		
+		    model.reset(canvas.getWidth(), canvas.getHeight());
                     resizeBoard(canvas, floatingCanvas);		
-                    resetBoard(gc, canvas);
                     file = null;
                     saveItem.setDisable(true);
                     stage.setTitle(TITLE_PREFIX);
@@ -287,7 +287,7 @@ public class BoardController {
 		File file = fileChooser.showOpenDialog(stage);
 		if (file != null) {
 		    updateFile(file, fileChooser);
-		    resetBoard(gc, canvas);
+		    model.reset(canvas.getWidth(), canvas.getHeight());
 		    loadFile(file, canvas, floatingCanvas);
 		    model.redraw();
 		}
@@ -460,13 +460,6 @@ public class BoardController {
             }
         }
 */      
-    }
-
-    private void resetBoard(GraphicsContext gc, Canvas canvas) 
-    {
-        model.shapes.clear();
-        gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-        model.makeClean();
     }
 
 }

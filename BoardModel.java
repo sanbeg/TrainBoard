@@ -64,6 +64,15 @@ public class BoardModel
         dirty = false;
     }
 
+    public void reset(double width, double height) {
+        shapes.clear();
+	heldPoints.clear();
+        fixedContext.clearRect(0, 0, width, height);
+        floatingContext.clearRect(0, 0, width, height);
+	dirty = false;
+    }
+    
+
     public void addPoint(Point p) 
     {
 	shapes.add(p);
