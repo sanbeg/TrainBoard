@@ -66,7 +66,7 @@ public class BoardController {
     public CheckMenuItem inactiveJoinersItem;
     public CheckMenuItem drawTiesItem;
     
-    private final BoardModel model = new BoardModel();
+    private BoardModel model;
     private final ShapeBox shapeBox = new ShapeBox();
     
     public BoardController(Stage stage, File file) {
@@ -107,10 +107,10 @@ public class BoardController {
         contextMenu.setAutoHide(true);
 	
         cmDeleteItem.setOnAction((javafx.event.ActionEvent e) -> {
-                if (cmPoint != null) model.eraseShape(gc, cmPoint);
+                if (cmPoint != null) model.eraseShape(cmPoint);
             });
         cmRotateItem.setOnAction((javafx.event.ActionEvent e) -> {
-                if (cmPoint != null) model.rotateShape(gc, cmPoint, 45.0);
+                if (cmPoint != null) model.rotateShape(cmPoint, 45.0);
             });
 	cmMore.setOnAction((ActionEvent e) -> {
 		final GraphicsContext tpgc = treePreview.getGraphicsContext2D();
@@ -187,7 +187,8 @@ public class BoardController {
         final Canvas canvas = new Canvas(width.getPixels(), height.getPixels());
         final Canvas floatingCanvas = new Canvas(width.getPixels(), height.getPixels());
         GraphicsContext gc = canvas.getGraphicsContext2D();
-        model.setFloatingContext(floatingCanvas.getGraphicsContext2D());
+
+	model = new BoardModel(gc, floatingCanvas.getGraphicsContext2D());
 
         canvasPane.getChildren().addAll(canvas, floatingCanvas);
 
@@ -205,15 +206,15 @@ public class BoardController {
                         Toggle button = trackGroup.getSelectedToggle();
                         if (button != null) {
                             Shape shape = (Shape)button.getUserData();
-                            model.addShape(gc, t.getX(), t.getY(), shape);
+                            model.addShape(t.getX(), t.getY(), shape);
                         }
                         else {
-                            previewShape.ifPresent(s -> model.addShape(gc, t.getX(), t.getY(), s));
+                            previewShape.ifPresent(s -> model.addShape(t.getX(), t.getY(), s));
                         }
                         
 		    } else {
 			//clicked occupied spot, remove a shape
-			model.eraseShape(gc, point);
+			model.eraseShape(point);
 		    }
                 }  
             });
@@ -226,7 +227,7 @@ public class BoardController {
                     contextMenu.hide();
                     cx = t.getX();
                     cy = t.getY();
-                    model.liftShape(gc, cx, cy);
+                    model.liftShape(cx, cy);
                     break;
                   case SECONDARY:
                     cmPoint = model.findPointAt(t.getX(), t.getY());
@@ -241,14 +242,14 @@ public class BoardController {
         
         canvasPane.addEventHandler(MouseEvent.MOUSE_RELEASED, (MouseEvent t)->{
                 if (! t.isControlDown()) {
-                    model.releaseShape(gc);
+                    model.releaseShape();
                 }
             });
         
         canvasPane.addEventHandler(MouseEvent.MOUSE_DRAGGED, (MouseEvent e)->{
                 double dx = e.getX();
                 double dy = e.getY();
-                model.moveShape(gc, dx-cx, dy-cy);
+                model.moveShape(dx-cx, dy-cy);
                 cx = dx;
                 cy = dy;
             });
@@ -265,7 +266,7 @@ public class BoardController {
 	if (file != null) {
 	    updateFile(file, fileChooser);
 	    loadFile(file, canvas, floatingCanvas);
-	    model.redraw(gc);
+	    model.redraw();
 	}
        
 	final SizeDialog sizeDialog = new SizeDialog();
@@ -296,7 +297,7 @@ public class BoardController {
 		    updateFile(file, fileChooser);
 		    resetBoard(gc, canvas);
 		    loadFile(file, canvas, floatingCanvas);
-		    model.redraw(gc);
+		    model.redraw();
 		}
 	    });
 
@@ -361,32 +362,30 @@ public class BoardController {
                 }
             });
         
-        moveLeftItem.setOnAction((ActionEvent ev) -> model.goLeft(gc));
+        moveLeftItem.setOnAction((ActionEvent ev) -> model.goLeft());
         moveRightItem.setOnAction((ActionEvent ev) 
-				  -> model.goRight(gc, width.getPixels()));
-        moveUpItem.setOnAction((ActionEvent ev)
-			       -> model.goUp(gc));
-        moveDownItem.setOnAction((ActionEvent ev)
-				 -> model.goDown(gc, height.getPixels()));
+				  -> model.goRight(width.getPixels()));
+        moveUpItem.setOnAction((ActionEvent ev) -> model.goUp());
+        moveDownItem.setOnAction((ActionEvent ev) 
+				 -> model.goDown(height.getPixels()));
         moveCenterItem.setOnAction((ActionEvent ev)
-				   -> model.goCenter(gc, width.getPixels(), height.getPixels()));
+				   -> model.goCenter(width.getPixels(), height.getPixels()));
 
 	colorCodeCurvesItem.setOnAction((ActionEvent ev) 
-					-> model.colorCodeCurves(gc, colorCodeCurvesItem.isSelected()));
+					-> model.colorCodeCurves(colorCodeCurvesItem.isSelected()));
 	
 
 	inactiveJoinersItem.setOnAction((ActionEvent ev) 
-					-> model.showInactiveJoiners(gc, inactiveJoinersItem.isSelected()));
+					-> model.showInactiveJoiners(inactiveJoinersItem.isSelected()));
 
 	drawTiesItem.setOnAction((ActionEvent ev) 
-					-> model.drawTies(gc, drawTiesItem.isSelected()));
+					-> model.drawTies(drawTiesItem.isSelected()));
 	
         
         trackBar.getItems().clear();
 	for (Shape shape : shapeBox.getShapes()) {
 	    addButton(trackBar, trackGroup, shape);
 	}
-
         addTrackTree();
     }
 

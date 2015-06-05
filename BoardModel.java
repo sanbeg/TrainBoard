@@ -4,12 +4,14 @@ import javafx.geometry.Point2D;
 import javafx.scene.transform.Rotate;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 public class BoardModel 
 {
     public final List<Point> shapes = new java.util.ArrayList<>();
-    private GraphicsContext floatingContext=null;
+    private final GraphicsContext fixedContext;
+    private final GraphicsContext floatingContext;
     private boolean dirty = false;
     
     private static final Color POINT_COLOR_NORMAL = Color.GREEN;
@@ -19,47 +21,39 @@ public class BoardModel
 
     private boolean showInactiveJoiners = true;
     
+    public BoardModel(GraphicsContext fixed, GraphicsContext floating) {
+	fixedContext    = Objects.requireNonNull(fixed);
+	floatingContext = Objects.requireNonNull(floating);
+    }
+    
     public Color pointColorNormal() {
-	return showInactiveJoiners?
-	    POINT_COLOR_NORMAL:
-	    Color.TRANSPARENT;
+	return showInactiveJoiners ? POINT_COLOR_NORMAL : Color.TRANSPARENT;
     }
     
-    public void showInactiveJoiners(GraphicsContext gc, boolean val) {
+    public void showInactiveJoiners(boolean val) {
 	showInactiveJoiners = val;
-	redraw(gc);
+	redraw();
     }
     
-    public void colorCodeCurves(GraphicsContext gc, boolean val) {
+    public void colorCodeCurves(boolean val) {
 	boolean old = Track.colorCodeCurves;
 	Track.colorCodeCurves = val;
 	if (old != val) {
-	    redraw(gc);
+	    redraw();
 	}
     }
 
-    public void drawTies(GraphicsContext gc, boolean val) {
+    public void drawTies(boolean val) {
 	boolean old = Track.drawTies;
 	Track.drawTies = val;
 	if (old != val) {
-	    redraw(gc);
+	    redraw();
 	}
     }
     
-
-    public void setFloatingContext(GraphicsContext gc) {
-	assert floatingContext == null;
-	floatingContext = java.util.Objects.requireNonNull(gc);
-    }
-    
-    private GraphicsContext getfgc(GraphicsContext fallback) {
-	return (floatingContext==null) ? fallback : floatingContext;
-    }
-
-    private GraphicsContext getGc(Point point, GraphicsContext fallback) {
-        if (floatingContext==null) return fallback;
-        else if (heldPoints.contains(point)) return floatingContext;
-        else return fallback;
+    private GraphicsContext getGc(Point point) {
+	return heldPoints.contains(point)
+	    ? floatingContext : fixedContext;
     }
 
     public boolean isDirty() {
@@ -75,30 +69,29 @@ public class BoardModel
 	shapes.add(p);
     }
     
-    public void redraw(GraphicsContext gc) 
-    {
+    public void redraw() {
         for (Point p : shapes) {
-	    p.draw(getGc(p, gc), pointColorNormal());
+	    p.draw(getGc(p), pointColorNormal());
         }
     }
     
                 
-    public void addShape(GraphicsContext gc, double x, double y, Shape shape) {
+    public void addShape(double x, double y, Shape shape) {
 	Point p = new Point(x,y, shape);
-	snapShape(gc, p);
-	p.draw(gc, pointColorNormal());
+	snapShape(fixedContext, p);
+	p.draw(fixedContext, pointColorNormal());
 	shapes.add(p);
         dirty = true;
     }
     
-    public void eraseShape(GraphicsContext gc, Point old) 
+    public void eraseShape(Point old) 
     {
-	old.erase(gc);
+	old.erase(getGc(old));
 	shapes.remove(old);
         dirty = true;
         
 	for (Point p : shapes) {
-	    p.draw(getGc(p, gc), pointColorNormal());
+	    p.draw(getGc(p), pointColorNormal());
 	}
     }
 
@@ -124,13 +117,13 @@ public class BoardModel
     }
    
 
-    public void liftShape(GraphicsContext gc, double x, double y) 
+    public void liftShape(double x, double y) 
     {
         Point old = findPointAt(x, y);
-        if (old != null) {
-            old.erase(gc);
-            redrawAround(gc, old, pointColorNormal());
-            old.draw(getfgc(gc), POINT_COLOR_HELD);
+        if (old != null && ! heldPoints.contains(old)) {
+            old.erase(fixedContext);
+            redrawAround(old, pointColorNormal());
+            old.draw(floatingContext, POINT_COLOR_HELD);
             heldPoints.add(old);
         }
     }
@@ -191,8 +184,7 @@ public class BoardModel
         }
 
 	//need to figure out which layer it was on
-	GraphicsContext heldGc = heldPoints.contains(held) ?
-	    getfgc(gc) : gc;
+	GraphicsContext heldGc = getGc(held);
 	
 	if (heldCp != null) {
 	    held.erase(heldGc);
@@ -209,7 +201,7 @@ public class BoardModel
             held.angle = angle % 360;
             held.x = p2d.getX();
             held.y = p2d.getY();
-            redrawAround(gc, held, pointColorNormal());
+            redrawAround(held, pointColorNormal());
 	}
         else
 
@@ -247,41 +239,33 @@ public class BoardModel
     }
     
 
-    public void releaseShape(GraphicsContext gc) 
+    public void releaseShape()
     {
         for (Point old : heldPoints) {
-            snapShape(gc, old); //how to snap multiple shapes?
-	    if (floatingContext != null) {
-		old.erase(floatingContext);
-	    }
-
-            old.draw(gc, pointColorNormal());
+            snapShape(fixedContext, old); //how to snap multiple shapes?
+	    old.erase(floatingContext);
+            old.draw(fixedContext, pointColorNormal());
         }
         heldPoints.clear();
     }
     
-    private void redrawAround(GraphicsContext gc, Point point, Color color) {
+    private void redrawAround(Point point, Color color) {
         for (Point p : shapes) {
             if (p == point) continue;
             //TODO - test correct redraws -w- multi-select,
             //maybe redrawaround on floating context, too.
-            if (heldPoints.contains(p)) continue;
+            //if (heldPoints.contains(p)) continue;
 
             if (point.obscures(p)) {
-                p.draw(gc, color);
+                p.draw(getGc(p), color);
             }
         }
     }
     
 
-    public void moveShape(GraphicsContext gc, double x, double y) {
+    public void moveShape(double x, double y) {
         for (Point old : heldPoints) {
-	    if (floatingContext == null) {
-		old.erase(gc);
-		redrawAround(gc, old, pointColorNormal());
-	    } else {
-		old.erase(floatingContext);
-	    }
+	    old.erase(floatingContext);
 
             for (Point p : shapes) {
                 if (heldPoints.contains(p)) continue;
@@ -291,19 +275,19 @@ public class BoardModel
 		    p.obscured = true;
 		}
                 else if (p.overlaps(old)) {
-                    p.draw(gc, POINT_COLOR_CLIP);
+                    p.draw(fixedContext, POINT_COLOR_CLIP);
                     p.obscured = true;
                 }
                 else if (p.obscures(old)) {
-                    p.draw(gc, POINT_COLOR_OBSCURE);
+                    p.draw(fixedContext, POINT_COLOR_OBSCURE);
                     p.obscured = true;
                 }
                 else if (p.obscured) {
 		    //redraw to reset indicator color
 		    //can leave traces in round corners or rotated edges
-		    p.erase(gc);
-                    redrawAround(gc, p, pointColorNormal());
-                    p.draw(gc, pointColorNormal());
+		    p.erase(fixedContext);
+                    redrawAround(p, pointColorNormal());
+                    p.draw(fixedContext, pointColorNormal());
                     p.obscured = false;
                     //System.out.printf("Redraw %.1f,%.1f\n", p.x, p.y);
                 }
@@ -312,15 +296,15 @@ public class BoardModel
         for (Point old : heldPoints) {
             old.x += x;
             old.y += y;
-	    old.draw(getfgc(gc), POINT_COLOR_HELD);
+	    old.draw(floatingContext, POINT_COLOR_HELD);
             dirty = true;
         }
         
     }
 
-    public void rotateShape(GraphicsContext gc, Point point, double angle) {
+    public void rotateShape(Point point, double angle) {
         //should support multi-rotate?
-        GraphicsContext pgc = getGc(point, gc);
+        GraphicsContext pgc = getGc(point);
         
         point.erase(pgc);
         point.angle += angle;
@@ -329,59 +313,59 @@ public class BoardModel
     }
     
     //fixme - erase/redraw each point on right gc.
-    public void goLeft(GraphicsContext gc) {
+    public void goLeft() {
         double left = Double.MAX_VALUE;
         for (Point p : shapes) {
             left = Math.min(left, p.x - p.getWidth()/2);
         }
         for (Point p : shapes) {
-            p.erase(getGc(p, gc));
+            p.erase(getGc(p));
             p.x -= left;
         }
-        redraw(gc);
+        redraw();
         dirty = true;
     }
 
-    public void goRight(GraphicsContext gc, double bound) {
+    public void goRight(double bound) {
         double right = Double.MIN_VALUE;
         for (Point p : shapes) {
             right = Math.max(right, p.x + p.getWidth()/2);
         }
         for (Point p : shapes) {
-            p.erase(getGc(p, gc));
+            p.erase(getGc(p));
             p.x += (bound - right);
         }
-        redraw(gc);
+        redraw();
         dirty = true;
     }
 
-    public void goUp(GraphicsContext gc) {
+    public void goUp() {
         double top = Double.MAX_VALUE;
         for (Point p : shapes) {
             top = Math.min(top, p.y - p.getHeight()/2);
         }
         for (Point p : shapes) {
-            p.erase(getGc(p, gc));
+            p.erase(getGc(p));
             p.y -= top;
         }
-        redraw(gc);
+        redraw();
         dirty = true;
     }
 
-    public void goDown(GraphicsContext gc, double bound) {
+    public void goDown(double bound) {
         double bottom = Double.MIN_VALUE;
         for (Point p : shapes) {
             bottom = Math.max(bottom, p.y + p.getHeight()/2);
         }
         for (Point p : shapes) {
-            p.erase(getGc(p, gc));
+            p.erase(getGc(p));
             p.y += (bound - bottom);
         }
-        redraw(gc);
+        redraw();
         dirty = true;
     }
 
-    public void goCenter(GraphicsContext gc, double xbound, double ybound) {
+    public void goCenter(double xbound, double ybound) {
         double left = Double.MAX_VALUE;
         double right = Double.MIN_VALUE;
         double top = Double.MAX_VALUE;
@@ -399,11 +383,11 @@ public class BoardModel
         
 
         for (Point p : shapes) {
-            p.erase(getGc(p, gc));
+            p.erase(getGc(p));
             p.x -= xdelta;
             p.y -= ydelta;
         }
-        redraw(gc);
+        redraw();
         dirty = true;
     }
         
