@@ -211,8 +211,14 @@ public class BoardModel
             held.x = p2d.getX();
             held.y = p2d.getY();
             redrawAround(held, pointColorNormal());
+            //if this landed exactly an another, snap it again; otherwise we're done
+            ov = null;
+            for (Point same : shapes) {
+                if (same != held && held.x == same.x && same.y == held.y) {
+                    ov = same;
+                }
+            }
 	}
-        else
 
 	if (ov != null) {
             held.erase(heldGc);
