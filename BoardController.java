@@ -311,6 +311,11 @@ public class BoardController {
                 fileChooser.setTitle("Save Layout");
                 File file = fileChooser.showSaveDialog(stage);
                 if (file != null) {
+
+                    if (! (file.exists() || file.getName().contains(".") )) {
+                        file = new File(file.getParentFile(), file.getName() + ".xml");
+                    }
+
                     updateFile(file, fileChooser);
                     SavedBoard savedBoard = new SavedBoard();
                     savedBoard.width = width.getInches();

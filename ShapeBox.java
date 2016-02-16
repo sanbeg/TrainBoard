@@ -7,6 +7,10 @@ public class ShapeBox {
     
     {
 	TrackScale nscale = TrackScale.N;
+        
+        //Atlas 5" tracks are about 1/8" short!
+        Length atlas5 = new Length(5.0 - 1.0/8.0);
+        
 	shapes.add(new Track.Straight("straight", nscale, new Length(2.5)));
 	shapes.add(new Track.Straight("straight5", nscale, new Length(5)));
 
@@ -14,6 +18,8 @@ public class ShapeBox {
 	shapes.add(new Track.Curve("half-curve", nscale, new Length(9.5), 15.0));
 	shapes.add(new Track.Curve("curve-975", nscale, new Length(9.75), 30.0));
 	shapes.add(new Track.Curve("curve-half-975", nscale, new Length(9.75), 15.0));
+
+        shapes.add(new Track.Curve("curve-9-45", nscale, new Length(9.0), 45.0));
 
 	shapes.add(new Track.Curve("curve-11", nscale, new Length(11), 30.0));
 	shapes.add(new Track.Curve("curve-19", nscale, new Length(19), 15.0));
@@ -82,7 +88,6 @@ public class ShapeBox {
             return string;
         }
     }
-                
 
     public TreeItem<TreeTrack> getTree() {
         TreeItem<TreeTrack> root   = new TreeItem<>(new TreeTrack("tracks"));
