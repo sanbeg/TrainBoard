@@ -335,19 +335,18 @@ abstract public class Track extends Shape {
 
 	    Affine base = gc.getTransform();
 	    Point2D center = new Point2D(r,0);
-	    for (int i=0; i<nties; ++i) {
-		Affine tieTransform = new Affine(base);
-		
-		tieTransform.appendRotation(i * angle/nties - angle/2, center);
-		gc.setTransform(tieTransform);
-		
-		//gc.strokeLine(-(r-gauge), 0, -(r+gauge), 0);
-		gc.strokeLine(-tieX,0,+tieX,0);
-
-		gc.setTransform(base);
-	    }
+	    Affine tieTransform = new Affine(base);
+	    //rotate down to start of track, then up by 1/2 space
+	    double delta = angle/nties;
 	    
-
+	    tieTransform.appendRotation(-angle/2-delta/2, center);
+	    
+	    for (int i=0; i<nties; ++i) {
+		tieTransform.appendRotation(delta, center);
+		gc.setTransform(tieTransform);
+		gc.strokeLine(-tieX,0,+tieX,0);
+	    }
+	    gc.setTransform(base);
 
 	    // rails
 	    double gauge = scale.railGauge()/2;
