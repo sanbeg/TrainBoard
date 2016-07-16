@@ -19,7 +19,7 @@ abstract public class Track extends Shape {
     protected static final Color TIE_COLOR     = Color.BLACK;
         
     public static boolean colorCodeCurves = true;
-    public static boolean drawTies = false;
+    public static boolean drawTies = true;
     
     protected Track(String id, double w, double h, TrackScale ts, int connections) {
         super(id, w, h);
@@ -171,7 +171,7 @@ abstract public class Track extends Shape {
                 
 		    for (int i=0; i<nties; ++i) {
 			double h = getHeight();
-			double y = -h/2 + h*(1.0/nties)*i + h*(0.5/nties);
+			double y = -h/2 + h/nties*i + h*0.5/nties;
 			gc.strokeLine(-tieX, y, tieX, y);
 		    }
 		}
@@ -238,6 +238,8 @@ abstract public class Track extends Shape {
             
 	    //ties - TODO clip section to prevent overlap
 	    if (drawTies) {
+		double tieX2 = scale.tieLength()/2.0;
+		
 		gc.setStroke(TIE_COLOR);
 		gc.setLineWidth(scale.tieWidth());
 
@@ -245,16 +247,16 @@ abstract public class Track extends Shape {
                 
 		for (int i=0; i<nties; ++i) {
 		    double h = getHeight();
-		    double y = -h/2 + h*(1.0/nties)*i + h*(0.5/nties);
-		    gc.strokeLine(-tieX, y, tieX, y);
+		    double y = -h/2 + h/nties*i + h/nties*0.5;
+		    gc.strokeLine(-tieX2, y, tieX2, y);
 		}
 
 		gc.setTransform(horiz);
 
 		for (int i=0; i<nties; ++i) {
 		    double h = getHeight();
-		    double y = -h/2 + h*(1.0/nties)*i + h*(0.5/nties);
-		    gc.strokeLine(-tieX, y, tieX, y);
+		    double y = -h/2 + h/nties*i + h/nties*0.5;
+		    gc.strokeLine(-tieX2, y, tieX2, y);
 		}
 
 	    }
