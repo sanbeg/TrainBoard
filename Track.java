@@ -164,15 +164,18 @@ abstract public class Track extends Shape {
                 gc.strokeLine(+roadX, 0, getHeight()/2, 0);
                 
                 //ties
-                gc.setStroke(TIE_COLOR);
-                gc.setLineWidth(scale.tieWidth());
-                
-                for (int i=0; i<nties; ++i) {
-                    double h = getHeight();
-                    double y = -h/2 + h*(1.0/nties)*i + h*(0.5/nties);
-                    gc.strokeLine(-tieX, y, tieX, y);
-                }
+		if (drawTies) {
+		    gc.setStroke(TIE_COLOR);
 
+		    gc.setLineWidth(scale.tieWidth());
+                
+		    for (int i=0; i<nties; ++i) {
+			double h = getHeight();
+			double y = -h/2 + h*(1.0/nties)*i + h*(0.5/nties);
+			gc.strokeLine(-tieX, y, tieX, y);
+		    }
+		}
+		
                 //rails
                 gc.setStroke(RAIL_COLOR);
                 gc.setLineWidth(scale.railWidth());
@@ -328,26 +331,27 @@ abstract public class Track extends Shape {
             gc.strokeArc(x, y-r, d, d, 180-ad/2, ad, ArcType.OPEN);
 
 	    //ties
-	    gc.setStroke(TIE_COLOR);
-	    gc.setLineWidth(scale.tieWidth());
-            //int nties = 10;
-	    double tieX = scale.tieLength()/2;
+	    if (drawTies) {
+		gc.setStroke(TIE_COLOR);
+		gc.setLineWidth(scale.tieWidth());
+		double tieX = scale.tieLength()/2;
 
-	    Affine base = gc.getTransform();
-	    Point2D center = new Point2D(r,0);
-	    Affine tieTransform = new Affine(base);
-	    //rotate down to start of track, then up by 1/2 space
-	    double delta = angle/nties;
+		Affine base = gc.getTransform();
+		Point2D center = new Point2D(r,0);
+		Affine tieTransform = new Affine(base);
+		//rotate 1/2 space before start of track
+		double delta = angle/nties;
 	    
-	    tieTransform.appendRotation(-angle/2-delta/2, center);
+		tieTransform.appendRotation(-angle/2-delta/2, center);
 	    
-	    for (int i=0; i<nties; ++i) {
-		tieTransform.appendRotation(delta, center);
-		gc.setTransform(tieTransform);
-		gc.strokeLine(-tieX,0,+tieX,0);
+		for (int i=0; i<nties; ++i) {
+		    tieTransform.appendRotation(delta, center);
+		    gc.setTransform(tieTransform);
+		    gc.strokeLine(-tieX,0,+tieX,0);
+		}
+		gc.setTransform(base);
 	    }
-	    gc.setTransform(base);
-
+	    
 	    // rails
 	    double gauge = scale.railGauge()/2;
 	    gc.setLineWidth(scale.railWidth());
