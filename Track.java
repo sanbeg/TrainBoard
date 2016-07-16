@@ -175,7 +175,7 @@ abstract public class Track extends Shape {
 			gc.strokeLine(-tieX, y, tieX, y);
 		    }
 		}
-		
+
                 //rails
                 gc.setStroke(RAIL_COLOR);
                 gc.setLineWidth(scale.railWidth());
@@ -195,13 +195,17 @@ abstract public class Track extends Shape {
     public static class Cross extends Track {
         private final double trackWidth;
         private final double angle;
-        
+	private final double h;
+	private final int nties;
+	
         public Cross(String id, TrackScale ts, Length length, double angle) {
             super(id, length.getPixels(), length.getPixels(), ts, 4);
             this.trackWidth = ts.ballastWidth();
             this.angle = angle;
 
-            double h = length.getPixels();
+            this.h = length.getPixels();
+	    this.nties = ((int)length.getInches() * TIES_PER_IN);
+	    
             Point2D p1 = new Rotate(angle).transform(0, -h/2);
             Point2D p2 = new Rotate(180+angle).transform(0, -h/2);
 	    connections[0] = new LocalConnection(0, -h/2, 0);
@@ -225,14 +229,36 @@ abstract public class Track extends Shape {
             // center
             double tieX = trackWidth*0.45;
             double arc2 = 4;
-            gc.setFill(Color.BLACK);
+            gc.setFill(TIE_COLOR);
             gc.setTransform(vert);
 
             gc.fillRoundRect(-tieX, -tieX*2, tieX*2, tieX*4, arc2, arc2);
             gc.setTransform(horiz);
             gc.fillRoundRect(-tieX, -tieX*2, tieX*2, tieX*4, arc2, arc2);
             
-            // ties - TODO
+	    //ties - TODO clip section to prevent overlap
+	    if (drawTies) {
+		gc.setStroke(TIE_COLOR);
+		gc.setLineWidth(scale.tieWidth());
+
+		gc.setTransform(vert);
+                
+		for (int i=0; i<nties; ++i) {
+		    double h = getHeight();
+		    double y = -h/2 + h*(1.0/nties)*i + h*(0.5/nties);
+		    gc.strokeLine(-tieX, y, tieX, y);
+		}
+
+		gc.setTransform(horiz);
+
+		for (int i=0; i<nties; ++i) {
+		    double h = getHeight();
+		    double y = -h/2 + h*(1.0/nties)*i + h*(0.5/nties);
+		    gc.strokeLine(-tieX, y, tieX, y);
+		}
+
+	    }
+
 
             //rails
             gc.setStroke(RAIL_COLOR);
