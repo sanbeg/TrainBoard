@@ -9,6 +9,8 @@ import javafx.scene.transform.Rotate;
 abstract public class Track extends Shape {
     public final TrackScale scale;
     protected final double gauge;
+
+    protected static final int TIES_PER_IN = 4;
 	
     protected final LocalConnection[] connections;
 
@@ -19,7 +21,7 @@ abstract public class Track extends Shape {
     public static boolean colorCodeCurves = true;
     public static boolean drawTies = false;
     
-    public Track(String id, double w, double h, TrackScale ts, int connections) {
+    protected Track(String id, double w, double h, TrackScale ts, int connections) {
         super(id, w, h);
         this.scale = ts;
         this.gauge = ts.railGauge();
@@ -82,10 +84,13 @@ abstract public class Track extends Shape {
 	    BALLAST_COLOR;
     }
     
-    public static class Straight extends Track
-    {
+    public static class Straight extends Track {
+	private final int nties;
+	
         public Straight(String id, TrackScale scale, Length length) {
             super(id, scale.ballastWidth(), length.getPixels(), scale, 2);
+	    nties = (int)length.getInches() * TIES_PER_IN;
+		
 	    double h = length.getPixels();
             
             connections[0] = new LocalConnection(0, -h/2, 0);
@@ -103,10 +108,10 @@ abstract public class Track extends Shape {
 		gc.setLineCap(StrokeLineCap.BUTT);
 		gc.setLineWidth(scale.tieWidth());
 		double tieX = scale.tieLength()/2.0;
-		
-		for (int i=0; i<10; ++i) {
+	
+		for (int i=0; i < nties; ++i) {
 		    double h = getHeight();
-		    double y = -h/2 + h*0.1*i + h*0.05;
+		    double y = -h/2 + h*(1.0/nties)*i + h*0.5/nties;
 		    gc.strokeLine(-tieX, y, tieX, y);
 		}
 	    }
@@ -127,11 +132,13 @@ abstract public class Track extends Shape {
     public static class Road extends Track
     {
         private final double roadWidth;
-        
+	private final int nties;
+	
         public Road(String id, TrackScale scale, Length w, Length l) {
             super(id, l.getPixels(), l.getPixels(), scale, 2);
             roadWidth = w.getPixels();
-
+	    nties = (int)(l.getInches() * TIES_PER_IN);
+	    
             double h = l.getPixels();
             connections[0] = new LocalConnection(0, -h/2, 0);
             connections[1] = new LocalConnection(0, +h/2, 180);
@@ -160,9 +167,9 @@ abstract public class Track extends Shape {
                 gc.setStroke(TIE_COLOR);
                 gc.setLineWidth(scale.tieWidth());
                 
-                for (int i=0; i<10; ++i) {
+                for (int i=0; i<nties; ++i) {
                     double h = getHeight();
-                    double y = -h/2 + h*0.1*i + h*0.05;
+                    double y = -h/2 + h*(1.0/nties)*i + h*(0.5/nties);
                     gc.strokeLine(-tieX, y, tieX, y);
                 }
 
@@ -271,7 +278,8 @@ abstract public class Track extends Shape {
     public static class Curve extends Track {
 	private final double radius;
 	private final double angle;
-
+	private final int nties;
+	
 	private static double mkWidth(TrackScale scale, double d, double ad) {
             double ar = Math.toRadians(ad);
             double bow = d * Math.cos(ar/2);
@@ -294,6 +302,8 @@ abstract public class Track extends Shape {
 
 	    this.radius = radius.getPixels();
 	    this.angle = angle;
+	    this.nties = (int)(2.0 * Math.PI * radius.getInches() * angle/360.0 * TIES_PER_IN);
+
 	    double r = radius.getPixels();
 	    
             Point2D p1 = new Rotate(+angle/2, r, 0).transform(0,0);
@@ -317,6 +327,29 @@ abstract public class Track extends Shape {
             
             gc.strokeArc(x, y-r, d, d, 180-ad/2, ad, ArcType.OPEN);
 
+	    //ties
+	    gc.setStroke(TIE_COLOR);
+	    gc.setLineWidth(scale.tieWidth());
+            //int nties = 10;
+	    double tieX = scale.tieLength()/2;
+
+	    Affine base = gc.getTransform();
+	    Point2D center = new Point2D(r,0);
+	    for (int i=0; i<nties; ++i) {
+		Affine tieTransform = new Affine(base);
+		
+		tieTransform.appendRotation(i * angle/nties - angle/2, center);
+		gc.setTransform(tieTransform);
+		
+		//gc.strokeLine(-(r-gauge), 0, -(r+gauge), 0);
+		gc.strokeLine(-tieX,0,+tieX,0);
+
+		gc.setTransform(base);
+	    }
+	    
+
+
+	    // rails
 	    double gauge = scale.railGauge()/2;
 	    gc.setLineWidth(scale.railWidth());
 	    gc.setStroke(RAIL_COLOR);
