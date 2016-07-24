@@ -57,7 +57,7 @@
 	    selected="true" />
 	    <CheckMenuItem fx:id="drawTiesItem"
 	    mnemonicParsing="false" text="Ties"
-	    selected="false" />
+	    selected="true" />
 	  </Menu>
           <Menu mnemonicParsing="false" text="Edit">
             <items>
