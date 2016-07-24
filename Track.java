@@ -237,6 +237,7 @@ abstract public class Track extends Shape {
             gc.fillRoundRect(-tieX, -tieX*2, tieX*2, tieX*4, arc2, arc2);
             
 	    //ties - TODO clip section to prevent overlap
+	    // FIXME - ties are too wide!
 	    if (drawTies) {
 		double tieX2 = scale.tieLength()/2.0;
 		
