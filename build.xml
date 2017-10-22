@@ -1,4 +1,4 @@
-<project>
+<project xmlns:ivy="antlib:org.apache.ivy.ant">
 
   <target name="clean">
     <delete verbose="true">
@@ -10,11 +10,22 @@
     <javac srcdir="." includes="*.java" listfiles="yes" includeantruntime="false"/>
   </target>
 
-  <target name="test-compile" depends="compile">
-    <javac srcdir="test" includeantruntime="true">
+
+  <target name="resolve" description="retrieve dependencies with ivy">
+    <echo message="Getting dependencies..." />
+    <ivy:retrieve />
+    <ivy:cachepath pathid="compile.path" conf="compile" />
+    <ivy:cachepath pathid="runtime.path" conf="runtime" />
+    <ivy:cachepath pathid="test.path" conf="test" />
+  </target>
+
+  <target name="test-compile" depends="compile, resolve">
+    <javac srcdir="test" includeantruntime="false">
       <classpath>
 	<path location="." />
       </classpath>
+      <classpath refid="test.path" />
+
     </javac>
   </target>
 
