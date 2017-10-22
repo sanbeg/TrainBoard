@@ -5,13 +5,20 @@
   <property name="ivy.jar.file" value="${ivy.jar.lib}/ivy.jar"/>
 
   <target name="clean">
+    <delete verbose="true" dir="build" />
     <delete verbose="true">
-      <fileset dir="." includes="**/*.class"/>
+      <fileset dir="test" includes="**/*.class"/>
     </delete>
   </target>
 
   <target name="compile">
-    <javac srcdir="main" includes="*.java" listfiles="yes" includeantruntime="false"/>
+    <mkdir dir="build" />
+    <javac srcdir="main" destdir="build" listfiles="yes"
+	   includeantruntime="false"/>
+    <copy verbose="true" todir="build">
+      <fileset dir="main" includes="*.css *.fxml" />
+    </copy>
+    <chmod dir="build" includes="*.css *.fxml" perm="400" />
   </target>
 
   <target name="download-ivy" unless="offline">
@@ -58,4 +65,14 @@
       <formatter type="plain" usefile="false" />
     </junit>
   </target>
+
+  <target name="package" depends="compile">
+    <exec executable="${java.home}/../bin/javapackager">
+      <arg value="-createjar" />
+      <arg value="-srcdir" />   <arg value="build" />
+      <arg value="-appclass" /> <arg value="Mover" />
+      <arg value="-outfile" />  <arg value="TrainBoard" />
+    </exec>
+  </target>
+
 </project>
