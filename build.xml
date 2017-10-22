@@ -11,7 +11,7 @@
   </target>
 
   <target name="compile">
-    <javac srcdir="." includes="*.java" listfiles="yes" includeantruntime="false"/>
+    <javac srcdir="main" includes="*.java" listfiles="yes" includeantruntime="false"/>
   </target>
 
   <target name="download-ivy" unless="offline">
@@ -38,7 +38,7 @@
   <target name="test-compile" depends="compile, resolve">
     <javac srcdir="test" includeantruntime="false">
       <classpath>
-	<path location="." />
+	<path location="main" />
       </classpath>
       <classpath refid="test.path" />
 
@@ -48,7 +48,7 @@
   <target name="test" depends="test-compile">
     <junit printsummary="yes" filtertrace="true" haltonfailure="true">
       <classpath>
-	<path location="." />
+	<path location="main" />
 	<path location="test" />
       </classpath>
       <classpath refid="test.path" />
@@ -58,5 +58,4 @@
       <formatter type="plain" usefile="false" />
     </junit>
   </target>
-
 </project>
