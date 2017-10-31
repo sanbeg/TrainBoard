@@ -3,7 +3,6 @@
   <property name="ivy.install.version" value="2.4.0" />
   <property name="ivy.jar.file" value="lib/ivy.jar"/>
 
-
   <target name="clean">
     <delete verbose="true">
       <fileset dir="." includes="**/*.class"/>
