@@ -51,6 +51,7 @@
 	<path location="." />
 	<path location="test" />
       </classpath>
+      <classpath refid="test.path" />
       <batchtest fork="yes">
 	<fileset dir="test" includes="*Test.java"/>
       </batchtest>
